@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Covers Only — Sports Betting Leagues</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --surface: #f0f4f8;
+    --surface2: #e2e8f0;
+    --border: #cbd5e1;
+    --accent: #00534C;
+    --accent2: #3d9eff;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --text: #0a0c10;
+    --muted: #64748b;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
+
+  /* AUTH */
+  #auth-screen { min-height: 100vh; display: flex; align-items: stretch; }
+  .auth-left { flex: 1; background: linear-gradient(135deg, #f8fafc 0%, #e8f5f4 50%, #f8fafc 100%); display: flex; flex-direction: column; justify-content: center; padding: 60px; position: relative; overflow: hidden; }
+  .auth-left::before { content: ''; position: absolute; top: -100px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0,83,76,0.12) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+  .auth-left::after { content: ''; position: absolute; bottom: -80px; right: -80px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(61,158,255,0.10) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+  .auth-logo { font-family: var(--font-display); font-size: 64px; font-weight: 900; letter-spacing: -1px; color: var(--accent); line-height: 1; margin-bottom: 8px; position: relative; z-index: 1; }
+  .auth-tagline { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 60px; position: relative; z-index: 1; }
+  .auth-features { display: flex; flex-direction: column; gap: 24px; position: relative; z-index: 1; }
+  .auth-feature { display: flex; align-items: flex-start; gap: 16px; }
+  .auth-feature-icon { width: 40px; height: 40px; background: rgba(0,83,76,0.1); border: 1px solid rgba(0,83,76,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .auth-feature-text h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .auth-feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .auth-right { width: 480px; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; padding: 60px 48px; }
+  .auth-tabs { display: flex; margin-bottom: 36px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .auth-tab { flex: 1; padding: 10px 16px; background: transparent; border: none; color: var(--muted); font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .auth-tab.active { background: var(--accent); color: #fff; }
+  .auth-form-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .auth-form-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input { width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus { border-color: var(--accent); }
+  .form-group input::placeholder { color: var(--muted); }
+  .btn-primary { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+  .btn-primary:hover { background: #006b62; transform: translateY(-1px); }
+  .btn-secondary { padding: 10px 20px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-accent2 { padding: 10px 20px; background: var(--accent2); color: #fff; border: none; border-radius: 8px; font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .btn-accent2:hover { background: #5aadff; transform: translateY(-1px); }
+
+  /* APP */
+  #app { display: none; min-height: 100vh; flex-direction: column; }
+  nav { height: 60px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 32px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; cursor: pointer; }
+  .nav-links { display: flex; gap: 4px; flex: 1; }
+  .nav-link { padding: 6px 14px; border-radius: 6px; font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; background: transparent; border: none; }
+  .nav-link:hover, .nav-link.active { color: var(--text); background: var(--surface2); }
+  .nav-link.active { color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .nav-avatar { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 14px; font-weight: 800; color: #fff; }
+  .nav-username { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; }
+
+  /* PAGES */
+  .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .page.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .page-title { font-family: var(--font-display); font-size: 42px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+  .page-sub { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+  .section-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+
+  /* LEAGUE CARDS */
+  .leagues-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 40px; }
+  .league-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .league-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+  .league-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .league-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .league-card-name { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .league-card-meta { font-size: 13px; color: var(--muted); }
+  .league-badge { padding: 4px 10px; border-radius: 4px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .badge-commissioner { background: rgba(0,83,76,0.15); color: var(--accent); border: 1px solid rgba(0,83,76,0.3); }
+  .badge-member { background: rgba(61,158,255,0.12); color: var(--accent2); border: 1px solid rgba(61,158,255,0.25); }
+  .league-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .league-stat { text-align: center; padding: 10px 8px; background: var(--surface2); border-radius: 8px; }
+  .league-stat-val { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
+  .league-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .stat-green { color: var(--green); }
+  .stat-red { color: var(--red); }
+  .stat-yellow { color: var(--accent); }
+
+  /* LEAGUE PAGE */
+  .league-header-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 28px; display: flex; align-items: center; gap: 32px; position: relative; overflow: hidden; }
+  .league-header-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .league-header-info { flex: 1; }
+  .league-header-name { font-family: var(--font-display); font-size: 48px; font-weight: 900; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+  .league-header-details { display: flex; gap: 20px; color: var(--muted); font-size: 14px; flex-wrap: wrap; }
+  .league-header-actions { display: flex; gap: 10px; }
+  .tab-bar { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .tab-btn { padding: 10px 20px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* STANDINGS */
+  .standings-table { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .standings-header { display: grid; grid-template-columns: 40px 1fr 60px 60px 60px 80px 110px; padding: 12px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .standings-header span { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .standings-row { display: grid; grid-template-columns: 40px 1fr 60px 60px 60px 80px 110px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.15s; }
+  .standings-row:last-child { border-bottom: none; }
+  .standings-row:hover { background: var(--surface2); }
+  .standings-row.me { background: rgba(0,83,76,0.05); }
+  .standings-row.me:hover { background: rgba(0,83,76,0.09); }
+  .standing-rank { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--muted); }
+  .standing-rank.top { color: var(--accent); }
+  .standing-user { display: flex; align-items: center; gap: 10px; }
+  .standing-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 13px; font-weight: 800; flex-shrink: 0; }
+  .standing-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  .standing-num { font-family: var(--font-mono); font-size: 14px; }
+  .standing-pct { font-family: var(--font-mono); font-size: 14px; }
+  .trend-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-family: var(--font-display); font-size: 12px; font-weight: 700; }
+  .trend-up { background: rgba(46,204,113,0.12); color: var(--green); }
+  .trend-down { background: rgba(231,76,60,0.12); color: var(--red); }
+  .trend-neutral { background: rgba(107,114,128,0.15); color: var(--muted); }
+
+  /* PICKS PAGE */
+  .picks-week-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .week-nav-btn { width: 34px; height: 34px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); font-size: 16px; transition: all 0.2s; }
+  .week-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .week-label { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+  .week-record { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .week-record-num { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s; }
+  .game-card.picked { border-color: rgba(0,83,76,0.4); }
+  .game-card-header { padding: 10px 16px; background: var(--surface2); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .game-sport { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .game-time { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .game-teams { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .team-row { display: flex; align-items: center; gap: 12px; }
+  .team-name { flex: 1; font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: 0.3px; }
+  .team-record { font-size: 12px; color: var(--muted); font-family: var(--font-mono); font-weight: 400; }
+  .pick-btn { padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: center; min-width: 90px; transition: all 0.2s; }
+  .pick-btn:hover { border-color: var(--accent); }
+  .pick-btn.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pick-btn.selected .pick-line, .pick-btn.selected .pick-odds { color: #fff; }
+  .pick-line { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text); }
+  .pick-odds { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .vs-divider { text-align: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--border); }
+  .game-card-footer { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .ou-btn { flex: 1; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ou-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .ou-btn.selected { background: rgba(61,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* MEMBER PAGE */
+  .member-header { display: flex; align-items: center; gap: 24px; margin-bottom: 32px; padding: 28px 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .member-big-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 28px; font-weight: 900; flex-shrink: 0; }
+  .member-info h2 { font-family: var(--font-display); font-size: 36px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .member-stats-row { display: flex; gap: 24px; margin-top: 12px; }
+  .member-stat { text-align: center; }
+  .member-stat-val { font-family: var(--font-display); font-size: 26px; font-weight: 900; line-height: 1; }
+  .member-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+  .picks-history { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .picks-history-header { padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 130px 100px 80px; }
+  .picks-history-header span { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .pick-history-row { padding: 14px 20px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 130px 100px 80px; align-items: center; }
+  .pick-history-row:last-child { border-bottom: none; }
+  .pick-result-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 4px; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+  .result-win { background: rgba(46,204,113,0.15); color: var(--green); }
+  .result-loss { background: rgba(231,76,60,0.12); color: var(--red); }
+  .result-push { background: rgba(107,114,128,0.15); color: var(--muted); }
+  .result-pending { background: rgba(0,83,76,0.12); color: var(--accent); }
+
+  /* SETTINGS */
+  .settings-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+  .settings-nav { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; height: fit-content; }
+  .settings-nav-item { padding: 12px 20px; font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; display: block; border-bottom: 1px solid var(--border); }
+  .settings-nav-item:last-child { border-bottom: none; }
+  .settings-nav-item:hover { color: var(--text); background: var(--surface2); }
+  .settings-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,83,76,0.04); }
+  .settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; }
+  .settings-section-title { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .settings-section-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .settings-field { margin-bottom: 24px; }
+  .settings-field label { display: block; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .settings-field input, .settings-field select { width: 100%; max-width: 400px; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .settings-field input:focus, .settings-field select:focus { border-color: var(--accent); }
+  .settings-field select option { background: var(--surface2); }
+  .settings-field-hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .sports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-width: 600px; }
+  .sport-toggle { padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; user-select: none; }
+  .sport-toggle.active { background: rgba(0,83,76,0.08); border-color: rgba(0,83,76,0.35); }
+  .sport-toggle-icon { font-size: 20px; }
+  .sport-toggle-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+  .sport-toggle-check { margin-left: auto; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); transition: all 0.2s; flex-shrink: 0; }
+  .sport-toggle.active .sport-toggle-check { background: var(--accent); border-color: var(--accent); }
+  .bet-types-grid { display: flex; flex-direction: column; gap: 10px; max-width: 500px; }
+  .bet-type-toggle { padding: 14px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+  .bet-type-toggle.active { background: rgba(0,83,76,0.08); border-color: rgba(0,83,76,0.35); }
+  .bet-type-info { flex: 1; }
+  .bet-type-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .bet-type-desc { font-size: 13px; color: var(--muted); }
+  .toggle-switch { width: 40px; height: 22px; background: var(--border); border-radius: 11px; position: relative; flex-shrink: 0; transition: background 0.2s; }
+  .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--muted); border-radius: 50%; transition: all 0.2s; }
+  .bet-type-toggle.active .toggle-switch { background: var(--accent); }
+  .bet-type-toggle.active .toggle-switch::after { left: 21px; background: #000; }
+  .members-list { display: flex; flex-direction: column; gap: 10px; max-width: 500px; }
+  .member-item { padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 12px; }
+  .member-item-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 15px; font-weight: 800; flex-shrink: 0; }
+  .member-item-name { flex: 1; font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+  .member-item-role { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+  .role-commissioner { background: rgba(0,83,76,0.12); color: var(--accent); }
+  .role-co-commissioner { background: rgba(61,158,255,0.1); color: var(--accent2); }
+  .role-member { background: rgba(107,114,128,0.12); color: var(--muted); }
+  .invite-banner { padding: 20px 24px; background: rgba(61,158,255,0.06); border: 1px solid rgba(61,158,255,0.2); border-radius: 10px; display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .invite-code { font-family: var(--font-mono); font-size: 20px; font-weight: 500; color: var(--accent2); letter-spacing: 3px; background: var(--surface2); padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); }
+
+  .sportsbook-row:last-child { border-bottom: none !important; }
+  .sportsbook-row:hover { background: var(--surface2); }
+
+  /* STEP INDICATOR */
+  .step-indicator { display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--muted); transition: all 0.2s; flex-shrink:0; }
+  .step-num.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step-num.done { background: rgba(46,204,113,0.2); border-color: var(--green); color: var(--green); }
+  .step-label { font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); }
+  .step-label.active { color: var(--text); }
+  .step-divider { flex: 1; height: 1px; background: var(--border); max-width: 60px; }
+
+  /* MISC */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 0.3px; z-index: 300; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.toast-error { background: #2a0a0a; border-color: #e74c3c; color: #e74c3c; box-shadow: 0 8px 32px rgba(231,76,60,0.35); }
+  .back-btn { background: none; border: none; color: var(--muted); font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; padding: 0; }
+  .back-btn:hover { color: var(--text); }
+  .quick-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; max-width: 560px; }
+  .quick-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-left">
+    <div class="auth-logo">COVERS ONLY</div>
+    <div class="auth-tagline">You Don't Have to Beat the House</div>
+    <div class="auth-features">
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🏆</div>
+        <div class="auth-feature-text">
+          <h3>Betting Leagues</h3>
+          <p>Compete with friends or go public — fully customizable rules and sports.</p>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📈</div>
+        <div class="auth-feature-text">
+          <h3>Live Lines & Odds</h3>
+          <p>Real sportsbook lines, consistent across every member of every league.</p>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📊</div>
+        <div class="auth-feature-text">
+          <h3>Track Every Pick</h3>
+          <p>Full standings, pick history, and trends for every member.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="showAuthTab('login',this)">Sign In</button>
+      <button class="auth-tab" onclick="showAuthTab('register',this)">Create Account</button>
+    </div>
+    <div id="login-form">
+      <div class="auth-form-title">Welcome back.</div>
+      <div class="auth-form-sub">Sign in to your Covers Only account</div>
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" value="demo@spread.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" value="password"></div>
+      <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="auth-form-title">Join Covers Only.</div>
+      <div class="auth-form-sub">Create your free account</div>
+      <div class="form-group"><label>Username</label><input type="text" id="reg-username" placeholder="SharpBettor99"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-pass" placeholder="Min. 8 characters"></div>
+      <button class="btn-primary" onclick="doRegister()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+  <nav>
+    <div class="nav-logo" onclick="showPage('dashboard')">COVERS ONLY</div>
+    <div class="nav-links">
+      <button class="nav-link" id="nav-sportsbook" onclick="showPage('sportsbook')">Sportsbook</button>
+      <button class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">My Leagues</button>
+      <button class="nav-link" id="nav-picks" onclick="showPage('picks')">My Picks</button>
+      <button class="nav-link" id="nav-member" style="display:none" onclick="showPage('member')">Member</button>
+    </div>
+    <div class="nav-right">
+      <button class="btn-secondary" onclick="openCreateLeague()">+ Create League</button>
+      <div class="nav-user">
+        <div class="nav-avatar" id="nav-avatar">?</div>
+        <span class="nav-username" id="nav-username">user</span>
+      </div>
+    </div>
+  </nav>
+
+  <div style="flex:1;display:flex;justify-content:center;">
+    <div style="width:100%;max-width:1200px;">
+
+      <!-- SPORTSBOOK -->
+      <div class="page" id="page-sportsbook">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title" style="margin-bottom:0;">Sportsbook</div>
+          <button onclick="manualOddsRefresh(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Refresh Odds</button>
+        </div>
+        <div class="page-sub">All games today — every line, sorted by sport.</div>
+        <div id="sportsbook-loading" style="padding:48px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">Loading today's games…</div>
+        <div id="sportsbook-content"></div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title" id="dash-greeting">Hey 👋</div>
+        <div class="page-sub">Here are your active leagues. Click a league to view standings.</div>
+        <div class="section-title">Your Leagues</div>
+        <div class="leagues-grid" id="leagues-grid"></div>
+        <div class="section-title" style="margin-top:8px;">This Week</div>
+        <div class="quick-stats">
+          <div class="quick-stat-card"><div class="league-stat-val stat-green">7</div><div class="league-stat-label">Wins</div></div>
+          <div class="quick-stat-card"><div class="league-stat-val stat-red">5</div><div class="league-stat-label">Losses</div></div>
+          <div class="quick-stat-card"><div class="league-stat-val stat-yellow">58%</div><div class="league-stat-label">Hit Rate</div></div>
+          <div class="quick-stat-card"><div class="league-stat-val">#2</div><div class="league-stat-label">Best Rank</div></div>
+        </div>
+      </div>
+
+      <!-- LEAGUE HOME -->
+      <div class="page" id="page-league">
+        <div class="league-header-banner">
+          <div class="league-header-info">
+            <div class="league-header-name" id="league-page-name">—</div>
+            <div class="league-header-details">
+              <span>👥 <span id="league-page-members">—</span> members</span>
+              <span>📅 Season 2025</span>
+              <span id="league-page-sports">🏈 NFL · NBA</span>
+            </div>
+          </div>
+          <div class="league-header-actions">
+            <button class="btn-secondary" onclick="showPage('picks')">My Picks</button>
+            <button class="btn-secondary" id="settings-btn" onclick="showPage('settings')" style="display:none">⚙ Settings</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="lt-tab-standings" onclick="showLeagueTab('standings',this)">Standings</button>
+          <button class="tab-btn" id="lt-tab-picks" onclick="showLeagueTab('picks',this)">My Picks</button>
+          <button class="tab-btn" id="lt-tab-results" onclick="showLeagueTab('results',this)">This Week</button>
+          <button class="tab-btn" id="lt-tab-history" onclick="showLeagueTab('history',this)">History</button>
+        </div>
+        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>G</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
+        <div id="lt-picks" style="display:none">
+          <!-- My current picks for this league -->
+          <div style="margin-bottom:32px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;">My League Picks</div>
+              <button id="grade-btn-league" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
+            </div>
+            <div id="league-my-picks-content">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);">
+                <div style="font-size:36px;margin-bottom:12px;">📋</div>
+                <div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">No picks yet</div>
+                <div style="font-size:13px;">Make your picks from the available bets below.</div>
+              </div>
+            </div>
+          </div>
+          <!-- Available bets filtered by league rules -->
+          <div>
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px;">Available Picks</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Games and bets allowed under this league's rules, sorted by sport.</div>
+            <div id="league-available-picks"></div>
+          </div>
+        </div>
+        <div id="lt-results" style="display:none"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Week Results</h3><p>Games in progress — check back later for final results.</p></div></div>
+        <div id="lt-history" style="display:none"></div>
+      </div>
+
+      <!-- MY PICKS -->
+      <div class="page" id="page-picks">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title" style="margin-bottom:0;">My Picks</div>
+          <button id="grade-btn-main" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
+          <button onclick="showGradeDebug(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--muted);margin-left:8px;">🔍 Debug</button>
+        </div>
+        <div class="page-sub">Your active picks across all leagues — sorted by league.</div>
+        <div id="picks-page-content">
+          <div style="padding:48px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">Loading your picks…</div>
+        </div>
+      </div>
+
+      <!-- MEMBER PAGE -->
+      <div class="page" id="page-member">
+        <button class="back-btn" onclick="showPage('league')">‹ Back to League</button>
+        <div class="member-header">
+          <div class="member-big-avatar" id="member-avatar">?</div>
+          <div class="member-info">
+            <h2 id="member-name">—</h2>
+            <div style="color:var(--muted);font-size:14px;">Member since Jan 2025</div>
+            <div class="member-stats-row">
+              <div class="member-stat"><div class="member-stat-val stat-green" id="member-wins">—</div><div class="member-stat-label">Wins</div></div>
+              <div class="member-stat"><div class="member-stat-val stat-red" id="member-losses">—</div><div class="member-stat-label">Losses</div></div>
+              <div class="member-stat"><div class="member-stat-val stat-yellow" id="member-pct">—</div><div class="member-stat-label">Win %</div></div>
+              <div class="member-stat"><div class="member-stat-val" id="member-rank">—</div><div class="member-stat-label">Rank</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-title">Recent Picks</div>
+        <div class="picks-history">
+          <div class="picks-history-header"><span>Game</span><span>Pick</span><span>Line</span><span>Result</span></div>
+          <div id="member-picks-body"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <button class="back-btn" onclick="showPage('league')">‹ Back to League</button>
+        <div class="page-title" style="margin-bottom:24px;">League Settings</div>
+        <div class="settings-grid">
+          <div class="settings-nav">
+            <div class="settings-nav-item active" onclick="showSettingsSection('general',this)">General</div>
+            <div class="settings-nav-item" onclick="showSettingsSection('sports',this)">Sports & Bets</div>
+            <div class="settings-nav-item" onclick="showSettingsSection('scoring',this)">Scoring</div>
+            <div class="settings-nav-item" onclick="showSettingsSection('members',this)">Members</div>
+            <div class="settings-nav-item" onclick="showSettingsSection('invite',this)">Invite</div>
+          </div>
+          <div class="settings-panel">
+            <div id="ss-general">
+              <div class="settings-section-title">General Settings</div>
+              <div class="settings-section-sub">Basic configuration for your league</div>
+              <div class="settings-field"><label>League Name</label><input type="text" id="s-name" placeholder="League name"></div>
+              <div class="settings-field"><label>Season Format</label><select><option>Weekly Picks (Season Long)</option><option>Playoff Style Bracket</option><option>Single Week Challenge</option></select></div>
+              <div class="settings-field"><label>Max Members (league capacity)</label><input type="number" id="s-max-members" value="12" min="2" max="100"><div class="settings-field-hint">Maximum number of people allowed to join this league</div></div>
+              <div class="settings-field"><label>Picks Per Week</label><input type="number" id="s-picks-per-week" value="5" min="1" max="20"><div class="settings-field-hint">Required picks each member must submit weekly</div></div>
+              <div class="settings-field"><label>Visibility</label><select id="s-visibility"><option value="private">Private — Invite Only</option><option value="public">Public — Open to Anyone</option></select></div>
+              <button class="btn-primary" style="width:auto;padding:12px 28px;margin-top:4px;" onclick="saveLeagueSportsSettings()">Save Changes</button>
+            </div>
+            <div id="ss-sports" style="display:none">
+              <div class="settings-section-title">Sports & Bet Types</div>
+              <div class="settings-section-sub">Choose which sports and wager types are allowed</div>
+              <div class="section-title">Sports</div>
+              <div class="sports-grid" id="sports-toggles" style="margin-bottom:28px;"></div>
+              <div class="section-title">Bet Types</div>
+              <div class="bet-types-grid" id="bet-type-toggles"></div>
+              <div style="margin-top:24px;">
+                <div class="section-title" style="margin-bottom:12px;">Odds Limit</div>
+                <div style="max-width:220px;margin-bottom:12px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label>Maximum Odds (most favorable allowed)</label>
+                    <input type="number" id="s-odds-max" step="10"
+                      style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;outline:none;">
+                    <div style="font-size:11px;color:var(--muted);margin-top:5px;">e.g. -120 blocks picks more favorable than -120 (heavy favorites)</div>
+                  </div>
+                </div>
+                <div id="s-odds-preview" style="padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px;color:var(--accent);max-width:400px;margin-bottom:20px;"></div>
+              </div>
+              <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="saveLeagueSportsSettings()">Save Changes</button>
+            </div>
+            <div id="ss-scoring" style="display:none">
+              <div class="settings-section-title">Scoring Rules</div>
+              <div class="settings-section-sub">Configure how points are awarded</div>
+              <div class="settings-field"><label>Correct Spread Pick</label><input type="number" value="1"><div class="settings-field-hint">Points awarded per correct spread pick</div></div>
+              <div class="settings-field"><label>Correct Moneyline</label><input type="number" value="1"></div>
+              <div class="settings-field"><label>Correct Over/Under</label><input type="number" value="1"></div>
+              <div class="settings-field"><label>Parlay Bonus</label><select><option>No parlays</option><option>2x per leg</option><option>True odds multiplier</option></select></div>
+              <div class="settings-field"><label>Tiebreaker</label><select><option>Win percentage</option><option>Total wins</option><option>Most recent result</option></select></div>
+              <button class="btn-primary" style="width:auto;padding:12px 28px;margin-top:4px;" onclick="showToast('✅ Scoring rules saved!')">Save Changes</button>
+            </div>
+            <div id="ss-members" style="display:none">
+              <div class="settings-section-title">Manage Members</div>
+              <div class="settings-section-sub">View and manage membership and permissions</div>
+              <div class="members-list" id="members-list"></div>
+            </div>
+            <div id="ss-invite" style="display:none">
+              <div class="settings-section-title">Invite Members</div>
+              <div class="settings-section-sub">Share your code or send email invites</div>
+              <div class="invite-banner">
+                <div>
+                  <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">League Code</div>
+                  <div class="invite-code">SHRP-4492</div>
+                </div>
+                <button class="btn-accent2" onclick="showToast('📋 Code copied!')">Copy</button>
+              </div>
+              <div class="settings-field"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
+              <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="showToast('📧 Invite sent!')">Send Invite</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE LEAGUE PAGE -->
+      <div class="page" id="page-create">
+        <button class="back-btn" onclick="showPage('dashboard')">‹ Back to My Leagues</button>
+        <div class="page-title">Create a League</div>
+        <div class="page-sub">Set up your league in four steps.</div>
+
+        <!-- Step indicator -->
+        <div class="step-indicator" style="margin-bottom:36px;max-width:600px;">
+          <div class="step-num active" id="sn1">1</div>
+          <span class="step-label active" id="sl1">Basics</span>
+          <div class="step-divider" style="max-width:60px;"></div>
+          <div class="step-num" id="sn2">2</div>
+          <span class="step-label" id="sl2">Sports</span>
+          <div class="step-divider" style="max-width:60px;"></div>
+          <div class="step-num" id="sn3">3</div>
+          <span class="step-label" id="sl3">Bet Types</span>
+          <div class="step-divider" style="max-width:60px;"></div>
+          <div class="step-num" id="sn4">4</div>
+          <span class="step-label" id="sl4">Done</span>
+        </div>
+
+        <!-- Step 1: Basics -->
+        <div id="ms1" style="max-width:560px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:24px;">
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:20px;">League Basics</div>
+            <div class="form-group"><label>League Name</label><input type="text" id="new-league-name" placeholder="e.g. Sunday Sharps"></div>
+            <div class="form-group"><label>Picks Per Week</label><input type="number" id="new-picks-per-week" value="5" min="1" max="20"><div style="font-size:12px;color:var(--muted);margin-top:5px;">How many picks each member must submit each week</div></div>
+            <div class="form-group"><label>Max Members</label><input type="number" id="new-max-members" value="12" min="2" max="100"></div>
+            <div class="form-group" style="margin-bottom:0"><label>Visibility</label>
+              <select id="new-visibility" style="width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;outline:none;">
+                <option value="private">Private — Invite Only</option>
+                <option value="public">Public — Open to Anyone</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-primary" onclick="nextStep(2)" style="flex:1;padding:14px;">Next: Select Sports →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Sports -->
+        <div id="ms2" style="display:none;max-width:600px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:24px;">
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;">Select Sports</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Choose which sports members can bet on in this league.</div>
+            <div class="sports-grid" id="modal-sports"></div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="nextStep(1)">← Back</button>
+            <button class="btn-primary" onclick="nextStep(3)" style="flex:1;padding:14px;">Next: Bet Types →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Bet Types & Odds -->
+        <div id="ms3" style="display:none;max-width:600px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:16px;">
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;">Allowed Bet Types</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Toggle which types of bets members can make. Disabled types won't appear on picks pages.</div>
+            <div class="bet-types-grid" id="modal-bet-types"></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:24px;">
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;">Odds Limit</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Set the most favorable odds allowed. Picks better than this limit won't be shown to members.</div>
+            <div style="max-width:260px;margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Maximum Odds (most favorable allowed)</label>
+                <input type="number" id="modal-odds-max" value="-120" step="10"
+                  style="width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;outline:none;">
+                <div style="font-size:11px;color:var(--muted);margin-top:5px;">e.g. -120 blocks picks more favorable than -120 (heavy favorites)</div>
+              </div>
+            </div>
+            <div id="odds-range-preview" style="padding:12px 16px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:14px;color:var(--accent);text-align:center;">
+              Max odds: -120 (picks more favorable than -120 are hidden)
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="nextStep(2)">← Back</button>
+            <button class="btn-primary" onclick="nextStep(4)" style="flex:1;padding:14px;">Create League →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Done -->
+        <div id="ms4" style="display:none;max-width:560px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:48px 32px;text-align:center;margin-bottom:24px;">
+            <div style="font-size:64px;margin-bottom:20px;">🎉</div>
+            <div style="font-family:var(--font-display);font-size:32px;font-weight:900;margin-bottom:8px;">League Created!</div>
+            <div style="color:var(--muted);font-size:15px;margin-bottom:28px;">Share this code with people you want to invite</div>
+            <div class="invite-code" style="display:inline-block;margin-bottom:32px;font-size:24px;padding:12px 24px;" id="new-league-code">—</div>
+            <div class="form-group" style="text-align:left;">
+              <label>Invite by Email (optional)</label>
+              <input type="email" placeholder="friend@example.com">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="showPage('dashboard')">Skip</button>
+            <button class="btn-primary" onclick="finishCreate()" style="flex:1;padding:14px;">Go to My League →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toast-msg">Done!</span></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// ⚙️  CONFIG — update API_BASE to your backend URL when deployed
+// ─────────────────────────────────────────────────────────────────────────────
+const API_BASE = 'http://localhost:3001/api';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API CLIENT
+// ─────────────────────────────────────────────────────────────────────────────
+const api = {
+  _token: null,
+
+  getToken() { return this._token || localStorage.getItem('lineup_token'); },
+  setToken(t) { this._token = t; localStorage.setItem('lineup_token', t); },
+  clearToken() { this._token = null; localStorage.removeItem('lineup_token'); },
+
+  async request(method, path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = this.getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    } catch (err) {
+      // Network error (backend not running) — surface clearly
+      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+        throw new Error('Cannot reach the backend. Is `npm run dev` running on port 3001?');
+      }
+      throw err;
+    }
+  },
+
+  get(path)         { return this.request('GET',    path); },
+  post(path, body)  { return this.request('POST',   path, body); },
+  patch(path, body) { return this.request('PATCH',  path, body); },
+  del(path)         { return this.request('DELETE', path); },
+};
+
+// ── Shared pick status badge — used on all pages ─────────────────────────────
+function pickStatusBadge(pick, styleType) {
+  const r = (pick.result || '').toLowerCase();
+  const gt = pick.commence_time ? new Date(pick.commence_time) : null;
+  const now = new Date();
+  const gameOver = gt ? now >= new Date(gt.getTime() + 5 * 60 * 60 * 1000) : false;
+  let s, c, bg;
+  if      (r === 'win')              { s='WIN';     c='#2ecc71';       bg='rgba(46,204,113,0.12)'; }
+  else if (r === 'loss')             { s='LOSS';    c='#e74c3c';       bg='rgba(231,76,60,0.12)';  }
+  else if (r === 'push')             { s='PUSH';    c='var(--muted)';  bg='var(--surface2)';       }
+  else if (gameOver)                 { s='PENDING'; c='var(--muted)';  bg='var(--surface2)';       }
+  else if (gt && now >= gt)          { s='LIVE';    c='#f39c12';       bg='rgba(243,156,18,0.12)'; }
+  else                               { s='LOCKED';  c='var(--accent)'; bg='rgba(0,83,76,0.1)';    }
+  if (styleType === 'class') {
+    const cls = r === 'win' ? 'result-win' : r === 'loss' ? 'result-loss' : r === 'push' ? 'result-push' : 'result-pending';
+    return `<span class="pick-result-badge ${cls}">${s}</span>`;
+  }
+  return `<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:4px;background:${bg};color:${c};">${s}</span>`;
+}
+
+// ── MY PICKS (live, grouped by league) ───────────────────────────────────────
+async function loadMyPicks() {
+  const content = document.getElementById('picks-page-content');
+  if (!content) return;
+  content.innerHTML = '<div style="padding:48px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">Loading your picks…</div>';
+
+  // Ensure leagues are loaded before fetching picks
+  if (!myLeagues.length) {
+    try {
+      const d = await api.get('/leagues');
+      myLeagues = d.leagues || [];
+    } catch { /* stay with empty */ }
+  }
+  const leagues = myLeagues.length ? myLeagues : [];
+  if (!leagues.length) {
+    content.innerHTML = '<div style="padding:64px;text-align:center;color:var(--muted);"><div style="font-size:48px;margin-bottom:16px;">📭</div><div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;">No Active Picks</div><div style="font-size:14px;">You have no picks this week. Head to a league to make your selections.</div></div>';
+    return;
+  }
+
+  // Fetch all picks for each league (not just pending)
+  let allLeaguePicks = [];
+  try {
+    const results = await Promise.all(
+      leagues.map(async l => {
+        try {
+          const data = await api.get(`/picks/my?league_id=${l.id}`);
+          return { league: l, picks: data.picks || [] };
+        } catch {
+          return { league: l, picks: [] };
+        }
+      })
+    );
+    allLeaguePicks = results.filter(r => r.picks.length > 0);
+  } catch {
+    allLeaguePicks = [];
+  }
+
+  if (allLeaguePicks.length === 0) {
+    content.innerHTML = `
+      <div style="padding:64px;text-align:center;color:var(--muted);">
+        <div style="font-size:48px;margin-bottom:16px;">📭</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;">No Active Picks</div>
+        <div style="font-size:14px;">You have no picks this week. Head to a league to make your selections.</div>
+      </div>`;
+    return;
+  }
+
+  content.innerHTML = allLeaguePicks.map(({ league, picks }) => {
+    const wins    = picks.filter(p => p.result === 'win').length;
+    const losses  = picks.filter(p => p.result === 'loss').length;
+    const pending = picks.filter(p => !p.result || p.result === 'pending').length;
+
+    // Sort: locked first, live, then settled
+    const sorted = picks.slice().sort((a, b) => {
+      const order = r => { const v = (r||'').toLowerCase(); if(v==='win'||v==='loss'||v==='push') return 2; const t = a.commence_time&&new Date()>=new Date(a.commence_time); return t?1:0; };
+      return order(a.result) - order(b.result);
+    });
+
+    const rows = sorted.map(p => {
+      const game    = p.home_team ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
+      const pick    = p.selection || '—';
+      const odds    = p.line || '—';
+      const time    = p.commence_time
+        ? new Date(p.commence_time).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+        : 'TBD';
+      const betType = (p.bet_type || 'pick').toUpperCase();
+      return '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;" class="sportsbook-row">'
+        + '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + game + '</div>'
+        + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + time + '</div></div>'
+        + '<div><div style="font-family:var(--font-display);font-size:13px;font-weight:700;">' + pick + '</div>'
+        + '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:1px;">' + betType + ' · ' + odds + '</div></div>'
+        + '<div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">' + odds + '</div>'
+        + '<div>' + pickStatusBadge(p) + '</div>'
+        + '</div>';
+    }).join('');
+
+    const leagueName = league.name || 'League';
+    const sports = Array.isArray(league.sports) ? league.sports.join(' · ').toUpperCase() : (league.sports || '');
+    const summary = wins + 'W · ' + losses + 'L' + (pending > 0 ? ' · ' + pending + ' pending' : '');
+
+    return '<div style="margin-bottom:36px;">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+      + '<div><div style="font-family:var(--font-display);font-size:24px;font-weight:900;letter-spacing:-0.3px;">' + leagueName + '</div>'
+      + '<div style="font-size:13px;color:var(--muted);">' + sports + ' · ' + summary + '</div></div>'
+      + '<button class="btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="openLeague(' + league.id + ')">View League →</button>'
+      + '</div>'
+      + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">'
+      + '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">'
+      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Game</span>'
+      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>'
+      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>'
+      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>'
+      + '</div>' + rows + '</div></div>';
+  }).join('');
+}
+
+const SAMPLE_LIVE_PICKS = [];
+// ─────────────────────────────────────────────────────────────────────────────
+const AVATAR_COLORS = ['#00534C','#3d9eff','#2ecc71','#e74c3c','#9b59b6','#1abc9c','#e67e22'];
+
+const SPORTS_DATA = [
+  {id:'nfl',name:'NFL',icon:'🏈'},{id:'nba',name:'NBA',icon:'🏀'},{id:'mlb',name:'MLB',icon:'⚾'},
+  {id:'ncaafb',name:'NCAAF',icon:'🏟'},{id:'ncaamb',name:'NCAAB',icon:'🎓'},
+];
+
+const BET_TYPES = [
+  {id:'spread',name:'Point Spread',desc:'Pick a team to cover the spread'},
+  {id:'ml',name:'Moneyline',desc:'Pick the outright winner'},
+  {id:'ou',name:'Over / Under',desc:'Bet on total points scored'},
+  {id:'parlay',name:'Parlays',desc:'Combine picks for bigger payouts'},
+  {id:'props',name:'Player Props',desc:'Bet on individual player stats'},
+];
+
+const SAMPLE_MEMBERS = [
+  {name:'SharpBettor99',w:47,l:29,streak:3,rank:1,color:0},
+  {name:'GrindstoneGary',w:44,l:32,streak:2,rank:2,color:1},
+  {name:'YOU',w:41,l:35,streak:1,rank:3,color:2,isMe:true},
+  {name:'BetKing_Mike',w:38,l:38,streak:0,rank:4,color:3},
+  {name:'TheLineMover',w:36,l:40,streak:-2,rank:5,color:4},
+  {name:'FadeThePub',w:35,l:41,streak:-1,rank:6,color:5},
+];
+
+const SAMPLE_GAMES = [
+  {sport:'NFL',away:'Chiefs',awayRec:'11-2',home:'Bills',homeRec:'10-3',awaySpread:'+3.5',homeSpread:'-3.5',awayML:'+145',homeML:'-165',ou:'47.5',time:'Sun 1:00 PM',id:'g1'},
+  {sport:'NFL',away:'Eagles',awayRec:'10-3',home:'Cowboys',homeRec:'9-4',awaySpread:'-1.5',homeSpread:'+1.5',awayML:'-125',homeML:'+105',ou:'44.5',time:'Sun 4:25 PM',id:'g2'},
+  {sport:'NBA',away:'Lakers',awayRec:'18-14',home:'Celtics',homeRec:'24-8',awaySpread:'+7.5',homeSpread:'-7.5',awayML:'+260',homeML:'-310',ou:'222.5',time:'Sun 7:30 PM',id:'g3'},
+  {sport:'NBA',away:'Warriors',awayRec:'17-15',home:'Nuggets',homeRec:'20-12',awaySpread:'+4',homeSpread:'-4',awayML:'+155',homeML:'-185',ou:'218',time:'Mon 9:00 PM',id:'g4'},
+  {sport:'NFL',away:'Ravens',awayRec:'11-2',home:'Steelers',homeRec:'8-5',awaySpread:'-5',homeSpread:'+5',awayML:'-210',homeML:'+175',ou:'40',time:'Mon 8:15 PM',id:'g5'},
+  {sport:'MLB',away:'Yankees',awayRec:'—',home:'Red Sox',homeRec:'—',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+110',homeML:'-130',ou:'8.5',time:'Sat 7:00 PM',id:'g6'},
+];
+
+const PICK_HISTORY = [
+  {game:'Chiefs @ Bills',pick:'Bills -3.5',line:'-110',result:'win'},
+  {game:'Lakers @ Celtics',pick:'Celtics ML',line:'-310',result:'win'},
+  {game:'Eagles @ Cowboys',pick:'Eagles -1.5',line:'-115',result:'loss'},
+  {game:'Warriors @ Nuggets',pick:'Over 218',line:'-110',result:'pending'},
+  {game:'Ravens @ Steelers',pick:'Ravens -5',line:'-110',result:'win'},
+  {game:'Yankees @ Red Sox',pick:'Under 8.5',line:'-105',result:'loss'},
+];
+
+let LEAGUES = [];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let currentUser   = null;
+let currentLeague = null;
+let activePicks   = {};   // { eventId: 'home'|'away' }
+let activePicksOU = {};   // { eventId: 'over'|'under' }
+// Compute ISO week number (Monday-based, matches backend)
+function getISOWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7; // Mon=1 ... Sun=7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+let currentWeek = getISOWeek(new Date());
+let activeSports  = new Set(['nfl','nba','mlb']);
+let activeBetTypes = new Set(['spread','ml','ou']);
+let liveGames     = [];   // normalised events from backend
+let myLeagues     = [];   // leagues from backend
+
+async function bootApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  app.style.flexDirection = 'column';
+  document.getElementById('nav-avatar').textContent = currentUser.initials;
+  document.getElementById('nav-username').textContent = currentUser.name;
+  document.getElementById('dash-greeting').textContent = `Hey, ${currentUser.name} 👋`;
+
+  // Load data in parallel
+  showLoading('games-grid', 'Loading live lines…');
+  showLoading('leagues-grid', 'Loading leagues…');
+
+  const [, ] = await Promise.all([
+    loadGames(),
+    loadLeagues(),
+  ]);
+
+  renderSportToggles('sports-toggles', true);
+  renderSportToggles('modal-sports', false);
+  renderBetTypeToggles();
+}
+
+function showAuthTab(tab, el) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display = tab==='register'?'block':'none';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) return showToast('⚠️ Enter your email and password');
+
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+
+  try {
+    const data = await api.post('/auth/login', { email, password });
+    api.setToken(data.token);
+    currentUser = userToLocal(data.user);
+    bootApp();
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  } finally {
+    btn.textContent = 'Sign In'; btn.disabled = false;
+  }
+}
+
+async function doRegister() {
+  const username   = document.getElementById('reg-username').value.trim();
+  const email      = document.getElementById('reg-email').value.trim();
+  const password   = document.getElementById('reg-password').value;
+  const first_name = document.getElementById('reg-first').value.trim();
+  const last_name  = document.getElementById('reg-last').value.trim();
+
+  if (!username || !email || !password) return showToast('⚠️ Fill in all required fields');
+  if (password.length < 8) return showToast('⚠️ Password must be 8+ characters');
+
+  const btn = document.getElementById('register-btn');
+  btn.textContent = 'Creating account…'; btn.disabled = true;
+
+  try {
+    const data = await api.post('/auth/register', { username, email, password, first_name, last_name });
+    api.setToken(data.token);
+    currentUser = userToLocal(data.user);
+    bootApp();
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  } finally {
+    btn.textContent = 'Create Account'; btn.disabled = false;
+  }
+}
+
+function userToLocal(u) {
+  const displayName = u.first_name ? `${u.first_name} ${u.last_name}`.trim() : u.username;
+  const initials    = u.first_name
+    ? (u.first_name[0] + (u.last_name?.[0] || '')).toUpperCase()
+    : u.username.slice(0, 2).toUpperCase();
+  return { ...u, name: displayName, initials };
+}
+
+async function tryAutoLogin() {
+  const token = api.getToken();
+  if (!token) return false;
+  try {
+    const data = await api.get('/auth/me');
+    currentUser = userToLocal(data.user);
+    return true;
+  } catch {
+    api.clearToken();
+    return false;
+  }
+}
+
+function doLogout() {
+  api.clearToken();
+  currentUser  = null;
+  currentLeague = null;
+  liveGames    = [];
+  myLeagues    = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  showToast('👋 Logged out');
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA LOADERS — fetch from backend, fall back to sample data
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadGames() {
+  try {
+    const data = await api.get('/odds?sports=nfl,nba,mlb,ncaafb,ncaamb');
+    const fetched = (data.events || []).map(normaliseEvent);
+    liveGames = fetched.length ? fetched : SAMPLE_GAMES_FALLBACK;
+  } catch (err) {
+    console.warn('[loadGames] Falling back to sample data:', err.message);
+    if (!liveGames.length) liveGames = SAMPLE_GAMES_FALLBACK;
+  }
+  renderGamesGrid();
+}
+
+async function loadLeagues() {
+  try {
+    const data = await api.get('/leagues');
+    myLeagues = data.leagues || [];
+  } catch (err) {
+    console.warn('[loadLeagues] Falling back to sample data:', err.message);
+    myLeagues = LEAGUES_FALLBACK;
+  }
+  renderLeaguesGrid();
+}
+
+async function loadLeagueDetail(leagueId) {
+  try {
+    const data = await api.get(`/leagues/${leagueId}`);
+    console.log('[DEBUG loadLeagueDetail] raw data.league:', JSON.stringify(data.league));
+    console.log('[DEBUG loadLeagueDetail] odds_max from backend:', data.league?.odds_max, '| type:', typeof data.league?.odds_max);
+    currentLeague = data.league;
+    renderStandings(data.standings);
+    document.getElementById('league-page-name').textContent     = data.league.name;
+    document.getElementById('league-page-members').textContent  = data.standings.length;
+    document.getElementById('league-page-sports').textContent   = '🏈 ' + (data.league.sports || []).join(' · ').toUpperCase();
+    document.getElementById('settings-btn').style.display =
+      (data.league.my_role === 'commissioner' || data.league.my_role === 'co_commissioner') ? 'inline-block' : 'none';
+    // Reset tab content so stale picks from previous league don't show
+    const resultsEl = document.getElementById('lt-results');
+    if (resultsEl) resultsEl.innerHTML = '';
+    const myPicksEl = document.getElementById('league-my-picks-content');
+    if (myPicksEl) myPicksEl.innerHTML = '';
+    const availEl = document.getElementById('league-available-picks');
+    if (availEl) availEl.innerHTML = '';
+    showPage('league');
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  }
+}
+
+async function loadMemberPicks(userId, leagueId, memberName, wins, losses, rank, colorIdx) {
+  // Populate header immediately with what we know
+  const color    = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
+  const initials = memberName.slice(0, 2).toUpperCase();
+  const pct      = wins + losses > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0';
+
+  document.getElementById('member-avatar').textContent = initials;
+  document.getElementById('member-avatar').style.cssText = `background:${color}22;color:${color}`;
+  document.getElementById('member-name').textContent    = memberName;
+  document.getElementById('member-wins').textContent    = wins;
+  document.getElementById('member-losses').textContent  = losses;
+  document.getElementById('member-pct').textContent     = pct + '%';
+  document.getElementById('member-rank').textContent    = '#' + rank;
+  document.getElementById('member-picks-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Loading picks…</div>';
+  document.getElementById('nav-member').style.display = 'inline-block';
+  showPage('member');
+
+  try {
+    const data = await api.get(`/picks/member/${userId}/league/${leagueId}`);
+    renderMemberPicks(data.picks || []);
+  } catch (err) {
+    // Fall back to sample history
+    renderMemberPicks(null);
+  }
+}
+
+async function submitPicksToAPI() {
+  if (!currentLeague) return showToast('⚠️ Open a league first');
+
+  const spreadPicks = Object.entries(activePicks).map(([eventId, side]) => {
+    const game = liveGames.find(g => g.id === eventId);
+    if (!game) return null;
+    const team = side === 'home' ? game.home_team : game.away_team;
+    const line = game.lines.spread?.[side];
+    return {
+      event_id:  eventId,
+      sport:     game.sport_key || game.sport,
+      bet_type:  'spread',
+      selection: line ? line.label : team,
+    };
+  }).filter(Boolean);
+
+  const ouPicks = Object.entries(activePicksOU).map(([eventId, dir]) => {
+    const game = liveGames.find(g => g.id === eventId);
+    if (!game) return null;
+    const ou = game.lines.totals?.[dir];
+    return {
+      event_id:  eventId,
+      sport:     game.sport_key || game.sport,
+      bet_type:  'ou',
+      selection: ou ? ou.label : dir,
+    };
+  }).filter(Boolean);
+
+  const allPicks = [...spreadPicks, ...ouPicks];
+  if (allPicks.length === 0) return showToast('⚠️ No picks selected');
+
+  try {
+    const data = await api.post('/picks', {
+      league_id: currentLeague.id,
+      week:      currentWeek,
+      picks:     allPicks,
+    });
+    activePicks   = {};
+    activePicksOU = {};
+    renderGamesGrid();
+    showToast(`✅ ${data.count} pick${data.count !== 1 ? 's' : ''} locked in!`);
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NORMALISE — convert backend event shape to what the UI expects
+// ─────────────────────────────────────────────────────────────────────────────
+function normaliseEvent(ev) {
+  // sport_key is always the full API key e.g. 'basketball_nba'
+  // sport_slug may be the short form e.g. 'nba' (added by multi-sport endpoint)
+  const SPORT_KEY_MAP = {
+    'americanfootball_nfl':       'NFL',
+    'americanfootball_ncaaf':     'NCAAF',
+    'basketball_nba':             'NBA',
+    'basketball_ncaab':           'NCAAB',
+    'baseball_mlb':               'MLB',
+  };
+  const SLUG_TO_KEY = {
+    nfl:'americanfootball_nfl', nba:'basketball_nba', mlb:'baseball_mlb',
+    ncaafb:'americanfootball_ncaaf', ncaamb:'basketball_ncaab',
+  };
+  // Resolve to full API key — ev.sport_key should already be full, but normalise just in case
+  const sportKey = SLUG_TO_KEY[ev.sport_key] || ev.sport_key || SLUG_TO_KEY[ev.sport_slug] || ev.sport_slug || '';
+  const sport = SPORT_KEY_MAP[sportKey] || sportKey.toUpperCase() || 'SPORT';
+  const time = ev.commence_time
+    ? new Date(ev.commence_time).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+    : '—';
+
+  const isNcaa = sportKey === 'basketball_ncaab' || sportKey === 'americanfootball_ncaaf';
+
+  return {
+    id:             ev.id,
+    sport:          sport,
+    sport_key:      sportKey,
+    away:           isNcaa ? ev.away_team : abbreviate(ev.away_team),
+    home:           isNcaa ? ev.home_team : abbreviate(ev.home_team),
+    away_abbr:      abbreviate(ev.away_team),
+    home_abbr:      abbreviate(ev.home_team),
+    away_team:      ev.away_team,
+    home_team:      ev.home_team,
+    awayRec:        '',
+    homeRec:        '',
+    awaySpread:     ev.lines?.spread?.away?.point != null ? formatPoint(ev.lines.spread.away.point) : '—',
+    homeSpread:     ev.lines?.spread?.home?.point != null ? formatPoint(ev.lines.spread.home.point) : '—',
+    awaySpreadOdds: ev.lines?.spread?.away?.odds || '-110',
+    homeSpreadOdds: ev.lines?.spread?.home?.odds || '-110',
+    awayML:         ev.lines?.moneyline?.away?.odds || '—',
+    homeML:         ev.lines?.moneyline?.home?.odds || '—',
+    drawML:         ev.lines?.moneyline?.draw?.odds || null, // 3-way soccer
+    ou:             ev.lines?.totals?.point ?? '—',
+    overOdds:       ev.lines?.totals?.over?.odds || '-110',
+    underOdds:      ev.lines?.totals?.under?.odds || '-110',
+    time,
+    commence_time:  ev.commence_time || null,
+    lines:          ev.lines || {},
+  };
+}
+
+function formatPoint(p) { return p > 0 ? `+${p}` : `${p}`; }
+
+function abbreviate(name) {
+  const parts = name.split(' ');
+  return parts.length > 1 ? parts[parts.length - 1] : name;
+}
+
+function renderMemberPicks(picks) {
+  const body = document.getElementById('member-picks-body');
+  const rows  = picks && picks.length ? picks : PICK_HISTORY;
+  body.innerHTML = rows.map(p => {
+    const game   = p.home_team ? `${p.away_team || ''} @ ${p.home_team}` : (p.game || '—');
+    const pick   = p.selection || p.pick || '—';
+    const line   = p.line_data?.spread?.home?.odds || p.line || '—';
+    const result = p.result || 'pending';
+    const cls    = result === 'win' ? 'result-win' : result === 'loss' ? 'result-loss' : result === 'push' ? 'result-push' : 'result-pending';
+    return `<div class="pick-history-row">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${game}</div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${pick}</div>
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--muted)">${line}</div>
+      <div>${pickStatusBadge(p, 'class')}</div>
+    </div>`;
+  }).join('');
+}
+
+// Loading skeleton
+function showLoading(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">${msg}</div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FALLBACK SAMPLE DATA (used when backend isn't running)
+// ─────────────────────────────────────────────────────────────────────────────
+const SAMPLE_GAMES_FALLBACK = [
+  // ── NFL ──────────────────────────────────────────────────────────────────
+  {id:'nfl1',sport:'NFL',away:'Chiefs',awayRec:'11-2',home:'Bills',homeRec:'10-3',away_team:'Kansas City Chiefs',home_team:'Buffalo Bills',awaySpread:'+3.5',homeSpread:'-3.5',awayML:'+145',homeML:'-165',ou:'47.5',time:'Sun 1:00 PM',lines:{spread:{away:{label:'Chiefs +3.5',point:3.5},home:{label:'Bills -3.5',point:-3.5}},totals:{point:47.5,over:{label:'Over 47.5'},under:{label:'Under 47.5'}}}},
+  {id:'nfl2',sport:'NFL',away:'Eagles',awayRec:'10-3',home:'Cowboys',homeRec:'9-4',away_team:'Philadelphia Eagles',home_team:'Dallas Cowboys',awaySpread:'-1.5',homeSpread:'+1.5',awayML:'-125',homeML:'+105',ou:'44.5',time:'Sun 4:25 PM',lines:{spread:{away:{label:'Eagles -1.5',point:-1.5},home:{label:'Cowboys +1.5',point:1.5}},totals:{point:44.5,over:{label:'Over 44.5'},under:{label:'Under 44.5'}}}},
+  {id:'nfl3',sport:'NFL',away:'Ravens',awayRec:'11-2',home:'Steelers',homeRec:'8-5',away_team:'Baltimore Ravens',home_team:'Pittsburgh Steelers',awaySpread:'-5',homeSpread:'+5',awayML:'-210',homeML:'+175',ou:'40.0',time:'Mon 8:15 PM',lines:{spread:{away:{label:'Ravens -5',point:-5},home:{label:'Steelers +5',point:5}},totals:{point:40,over:{label:'Over 40'},under:{label:'Under 40'}}}},
+  {id:'nfl4',sport:'NFL',away:'49ers',awayRec:'9-4',home:'Seahawks',homeRec:'7-6',away_team:'San Francisco 49ers',home_team:'Seattle Seahawks',awaySpread:'-6.5',homeSpread:'+6.5',awayML:'-260',homeML:'+215',ou:'46.0',time:'Sun 4:05 PM',lines:{spread:{away:{label:'49ers -6.5',point:-6.5},home:{label:'Seahawks +6.5',point:6.5}},totals:{point:46,over:{label:'Over 46'},under:{label:'Under 46'}}}},
+  {id:'nfl5',sport:'NFL',away:'Lions',awayRec:'10-3',home:'Packers',homeRec:'8-5',away_team:'Detroit Lions',home_team:'Green Bay Packers',awaySpread:'-2.5',homeSpread:'+2.5',awayML:'-135',homeML:'+115',ou:'49.5',time:'Sun 1:00 PM',lines:{spread:{away:{label:'Lions -2.5',point:-2.5},home:{label:'Packers +2.5',point:2.5}},totals:{point:49.5,over:{label:'Over 49.5'},under:{label:'Under 49.5'}}}},
+  {id:'nfl6',sport:'NFL',away:'Dolphins',awayRec:'8-5',home:'Jets',homeRec:'4-9',away_team:'Miami Dolphins',home_team:'New York Jets',awaySpread:'-7',homeSpread:'+7',awayML:'-290',homeML:'+240',ou:'43.0',time:'Sun 1:00 PM',lines:{spread:{away:{label:'Dolphins -7',point:-7},home:{label:'Jets +7',point:7}},totals:{point:43,over:{label:'Over 43'},under:{label:'Under 43'}}}},
+
+  // ── NBA ──────────────────────────────────────────────────────────────────
+  {id:'nba1',sport:'NBA',away:'Lakers',awayRec:'18-14',home:'Celtics',homeRec:'24-8',away_team:'Los Angeles Lakers',home_team:'Boston Celtics',awaySpread:'+7.5',homeSpread:'-7.5',awayML:'+260',homeML:'-310',ou:'222.5',time:'Sun 7:30 PM',lines:{spread:{away:{label:'Lakers +7.5',point:7.5},home:{label:'Celtics -7.5',point:-7.5}},totals:{point:222.5,over:{label:'Over 222.5'},under:{label:'Under 222.5'}}}},
+  {id:'nba2',sport:'NBA',away:'Warriors',awayRec:'17-15',home:'Nuggets',homeRec:'20-12',away_team:'Golden State Warriors',home_team:'Denver Nuggets',awaySpread:'+4',homeSpread:'-4',awayML:'+155',homeML:'-185',ou:'218.0',time:'Mon 9:00 PM',lines:{spread:{away:{label:'Warriors +4',point:4},home:{label:'Nuggets -4',point:-4}},totals:{point:218,over:{label:'Over 218'},under:{label:'Under 218'}}}},
+  {id:'nba3',sport:'NBA',away:'Bucks',awayRec:'21-11',home:'76ers',homeRec:'16-16',away_team:'Milwaukee Bucks',home_team:'Philadelphia 76ers',awaySpread:'-5.5',homeSpread:'+5.5',awayML:'-220',homeML:'+185',ou:'226.0',time:'Tue 7:30 PM',lines:{spread:{away:{label:'Bucks -5.5',point:-5.5},home:{label:'76ers +5.5',point:5.5}},totals:{point:226,over:{label:'Over 226'},under:{label:'Under 226'}}}},
+  {id:'nba4',sport:'NBA',away:'Suns',awayRec:'14-18',home:'Clippers',homeRec:'15-17',away_team:'Phoenix Suns',home_team:'Los Angeles Clippers',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+110',homeML:'-130',ou:'214.5',time:'Wed 10:00 PM',lines:{spread:{away:{label:'Suns +1.5',point:1.5},home:{label:'Clippers -1.5',point:-1.5}},totals:{point:214.5,over:{label:'Over 214.5'},under:{label:'Under 214.5'}}}},
+  {id:'nba5',sport:'NBA',away:'Heat',awayRec:'19-13',home:'Knicks',homeRec:'22-10',away_team:'Miami Heat',home_team:'New York Knicks',awaySpread:'+3',homeSpread:'-3',awayML:'+130',homeML:'-150',ou:'210.0',time:'Thu 7:30 PM',lines:{spread:{away:{label:'Heat +3',point:3},home:{label:'Knicks -3',point:-3}},totals:{point:210,over:{label:'Over 210'},under:{label:'Under 210'}}}},
+  {id:'nba6',sport:'NBA',away:'Thunder',awayRec:'26-6',home:'Timberwolves',homeRec:'20-12',away_team:'Oklahoma City Thunder',home_team:'Minnesota Timberwolves',awaySpread:'-4',homeSpread:'+4',awayML:'-175',homeML:'+148',ou:'220.0',time:'Fri 8:00 PM',lines:{spread:{away:{label:'Thunder -4',point:-4},home:{label:'Timberwolves +4',point:4}},totals:{point:220,over:{label:'Over 220'},under:{label:'Under 220'}}}},
+
+  // ── MLB ──────────────────────────────────────────────────────────────────
+  {id:'mlb1',sport:'MLB',away:'Yankees',awayRec:'—',home:'Red Sox',homeRec:'—',away_team:'New York Yankees',home_team:'Boston Red Sox',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+110',homeML:'-130',ou:'8.5',time:'Sat 7:10 PM',lines:{spread:{away:{label:'Yankees +1.5',point:1.5},home:{label:'Red Sox -1.5',point:-1.5}},totals:{point:8.5,over:{label:'Over 8.5'},under:{label:'Under 8.5'}}}},
+  {id:'mlb2',sport:'MLB',away:'Dodgers',awayRec:'—',home:'Giants',homeRec:'—',away_team:'Los Angeles Dodgers',home_team:'San Francisco Giants',awaySpread:'-1.5',homeSpread:'+1.5',awayML:'-155',homeML:'+130',ou:'7.5',time:'Sat 9:45 PM',lines:{spread:{away:{label:'Dodgers -1.5',point:-1.5},home:{label:'Giants +1.5',point:1.5}},totals:{point:7.5,over:{label:'Over 7.5'},under:{label:'Under 7.5'}}}},
+  {id:'mlb3',sport:'MLB',away:'Cubs',awayRec:'—',home:'Cardinals',homeRec:'—',away_team:'Chicago Cubs',home_team:'St. Louis Cardinals',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+120',homeML:'-140',ou:'8.0',time:'Sun 2:15 PM',lines:{spread:{away:{label:'Cubs +1.5',point:1.5},home:{label:'Cardinals -1.5',point:-1.5}},totals:{point:8,over:{label:'Over 8'},under:{label:'Under 8'}}}},
+  {id:'mlb4',sport:'MLB',away:'Astros',awayRec:'—',home:'Rangers',homeRec:'—',away_team:'Houston Astros',home_team:'Texas Rangers',awaySpread:'-1.5',homeSpread:'+1.5',awayML:'-165',homeML:'+140',ou:'9.0',time:'Sun 7:05 PM',lines:{spread:{away:{label:'Astros -1.5',point:-1.5},home:{label:'Rangers +1.5',point:1.5}},totals:{point:9,over:{label:'Over 9'},under:{label:'Under 9'}}}},
+
+
+  // ── NCAAF ─────────────────────────────────────────────────────────────────
+  {id:'ncaaf1',sport:'NCAAF',away:'Ohio State',awayRec:'11-1',home:'Michigan',homeRec:'10-2',away_team:'Ohio State Buckeyes',home_team:'Michigan Wolverines',awaySpread:'-3',homeSpread:'+3',awayML:'-150',homeML:'+128',ou:'45.5',time:'Sat 12:00 PM',lines:{spread:{away:{label:'Ohio St -3',point:-3},home:{label:'Michigan +3',point:3}},totals:{point:45.5,over:{label:'Over 45.5'},under:{label:'Under 45.5'}}}},
+  {id:'ncaaf2',sport:'NCAAF',away:'Georgia',awayRec:'11-1',home:'Alabama',homeRec:'10-2',away_team:'Georgia Bulldogs',home_team:'Alabama Crimson Tide',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+110',homeML:'-130',ou:'48.5',time:'Sat 3:30 PM',lines:{spread:{away:{label:'Georgia +1.5',point:1.5},home:{label:'Alabama -1.5',point:-1.5}},totals:{point:48.5,over:{label:'Over 48.5'},under:{label:'Under 48.5'}}}},
+  {id:'ncaaf3',sport:'NCAAF',away:'Texas',awayRec:'10-2',home:'Oklahoma',homeRec:'9-3',away_team:'Texas Longhorns',home_team:'Oklahoma Sooners',awaySpread:'-4.5',homeSpread:'+4.5',awayML:'-195',homeML:'+163',ou:'52.0',time:'Sat 7:30 PM',lines:{spread:{away:{label:'Texas -4.5',point:-4.5},home:{label:'Oklahoma +4.5',point:4.5}},totals:{point:52,over:{label:'Over 52'},under:{label:'Under 52'}}}},
+
+  // ── NCAAB ─────────────────────────────────────────────────────────────────
+  {id:'ncaab1',sport:'NCAAB',away:'Duke',awayRec:'14-2',home:'UNC',homeRec:'13-3',away_team:'Duke Blue Devils',home_team:'UNC Tar Heels',awaySpread:'-2.5',homeSpread:'+2.5',awayML:'-130',homeML:'+110',ou:'152.5',time:'Sat 6:00 PM',lines:{spread:{away:{label:'Duke -2.5',point:-2.5},home:{label:'UNC +2.5',point:2.5}},totals:{point:152.5,over:{label:'Over 152.5'},under:{label:'Under 152.5'}}}},
+  {id:'ncaab2',sport:'NCAAB',away:'Kansas',awayRec:'15-1',home:'Kentucky',homeRec:'12-4',away_team:'Kansas Jayhawks',home_team:'Kentucky Wildcats',awaySpread:'-3',homeSpread:'+3',awayML:'-145',homeML:'+122',ou:'148.0',time:'Sat 8:30 PM',lines:{spread:{away:{label:'Kansas -3',point:-3},home:{label:'Kentucky +3',point:3}},totals:{point:148,over:{label:'Over 148'},under:{label:'Under 148'}}}},
+  {id:'ncaab3',sport:'NCAAB',away:'Gonzaga',awayRec:'16-1',home:'Arizona',homeRec:'14-3',away_team:'Gonzaga Bulldogs',home_team:'Arizona Wildcats',awaySpread:'+2',homeSpread:'-2',awayML:'+105',homeML:'-125',ou:'155.5',time:'Sun 4:00 PM',lines:{spread:{away:{label:'Gonzaga +2',point:2},home:{label:'Arizona -2',point:-2}},totals:{point:155.5,over:{label:'Over 155.5'},under:{label:'Under 155.5'}}}},
+];
+
+const LEAGUES_FALLBACK = [];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PAGES
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const navEl = document.getElementById('nav-'+id);
+  if (navEl) navEl.classList.add('active');
+  if (id === 'sportsbook') loadSportsbook();
+  if (id === 'picks') loadMyPicks();
+  if (id === 'settings') {
+    renderSportToggles('sports-toggles', false);
+    renderBetTypeToggles();
+    if (currentLeague) {
+      // Pre-select sports
+      const leagueSports = (currentLeague.sports || []).map(s => s.toLowerCase());
+      document.querySelectorAll('#sports-toggles .sport-toggle').forEach(el => {
+        const name = el.querySelector('.sport-toggle-name')?.textContent.toLowerCase();
+        if (leagueSports.includes(name)) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+      // Pre-select bet types
+      const leagueBetTypes = (currentLeague.bet_types || []).filter(Boolean);
+      document.querySelectorAll('#bet-type-toggles .bet-type-toggle').forEach(el => {
+        if (leagueBetTypes.includes(el.dataset.id)) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+      // Pre-populate General tab fields
+      const nameEl2 = document.getElementById('s-name');
+      if (nameEl2) nameEl2.value = currentLeague.name || '';
+      const maxMembersEl = document.getElementById('s-max-members');
+      if (maxMembersEl) maxMembersEl.value = currentLeague.max_members ?? 12;
+      const ppwEl = document.getElementById('s-picks-per-week');
+      if (ppwEl) ppwEl.value = currentLeague.picks_per_week ?? 5;
+      const visEl2 = document.getElementById('s-visibility');
+      if (visEl2) visEl2.value = currentLeague.visibility || 'private';
+      // Pre-populate Sports & Bets tab fields
+      const maxEl = document.getElementById('s-odds-max');
+      const preview = document.getElementById('s-odds-preview');
+      if (maxEl) {
+        maxEl.value = currentLeague.odds_max ?? -120;
+        if (preview) preview.textContent = `Max odds: ${maxEl.value} (picks better than this are hidden)`;
+        maxEl.oninput = () => {
+          if (preview) preview.textContent = `Max odds: ${maxEl.value} (picks better than this are hidden)`;
+        };
+      }
+    }
+  }
+}
+
+function showLeagueTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lt-standings').style.display = tab==='standings' ? 'block' : 'none';
+  document.getElementById('lt-picks').style.display     = tab==='picks'     ? 'block' : 'none';
+  document.getElementById('lt-results').style.display   = tab==='results'   ? 'block' : 'none';
+  document.getElementById('lt-history').style.display   = tab==='history'   ? 'block' : 'none';
+  if (tab === 'picks')   renderLeaguePicks();
+  if (tab === 'results') loadThisWeek();
+  if (tab === 'history') loadLeagueHistory();
+}
+
+function getWeekRange() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 1=Mon...
+  // Week starts Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((day === 0 ? 7 : day) - 1));
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { monday, sunday };
+}
+
+async function manualGrade(pickId, result, btn) {
+  var btns = btn.parentElement.querySelectorAll('button');
+  btns.forEach(function(b) { b.disabled = true; });
+  try {
+    await api.post('/picks/manual-grade', { pick_id: pickId, result: result });
+    var label = result === 'pending' ? 'reset to PENDING' : ('marked as ' + result.toUpperCase());
+    showToast('✅ Pick ' + label);
+    // Refresh whichever tab is currently visible
+    var histTab = document.getElementById('lt-history');
+    var resultsTab = document.getElementById('lt-results');
+    if (histTab && histTab.style.display !== 'none') loadLeagueHistory();
+    else if (resultsTab && resultsTab.style.display !== 'none') loadThisWeek();
+    if (currentLeague) renderMyLeaguePicks(currentLeague.id);
+  } catch(err) {
+    showToast('❌ Failed: ' + (err.message || 'unknown'));
+    btns.forEach(function(b) { b.disabled = false; });
+  }
+}
+
+async function gradeNow(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Grading…';
+  btn.disabled = true;
+  try {
+    const res = await api.post('/picks/grade', {});
+    showToast(`✅ ${res.message || 'Grading complete'}`);
+    await loadThisWeek();
+  } catch(err) {
+    showToast('❌ Grading failed: ' + (err.message || 'unknown error'));
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+function thisWeekStatusBadge(pick) { return pickStatusBadge(pick); }
+
+function thisWeekSortOrder(p) {
+  const r = (p.result || '').toLowerCase();
+  if (r === 'win' || r === 'loss' || r === 'push') return 2;
+  if (p.commence_time && new Date() >= new Date(p.commence_time)) return 1;
+  return 0;
+}
+
+async function loadThisWeek() {
+  const container = document.getElementById('lt-results');
+  if (!container || !currentLeague) return;
+  container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Loading this week\'s picks\u2026</div>';
+
+  const { monday, sunday } = getWeekRange();
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const weekLabel = fmt(monday) + ' \u2013 ' + fmt(sunday);
+
+  const sportToKey = {
+    'nba':'basketball_nba','mlb':'baseball_mlb',
+    'nfl':'americanfootball_nfl','ncaafb':'americanfootball_ncaaf',
+    'ncaamb':'basketball_ncaab','ncaab':'basketball_ncaab',
+    // Also accept full keys directly
+    'basketball_nba':'basketball_nba','baseball_mlb':'baseball_mlb',
+    'americanfootball_nfl':'americanfootball_nfl',
+    'basketball_ncaab':'basketball_ncaab',
+  };
+  const leagueSportKeys = new Set(
+    (currentLeague.sports || []).map(s => sportToKey[s.toLowerCase()] || s)
+  );
+  // Also accept picks stored with short slugs matching league sports
+  const leagueShortSports = new Set((currentLeague.sports || []).map(s => s.toLowerCase()));
+
+  try {
+    const data = await api.get('/picks/league/' + currentLeague.id);
+    const members = data.members || [];
+
+    const weekMembers = members.map(function(m) {
+      return Object.assign({}, m, {
+        picks: (m.picks || []).filter(function(p) {
+          const t = p.commence_time ? new Date(p.commence_time) : null;
+          const inWeek = !t || (t >= monday && t <= sunday);
+          const inSport = leagueSportKeys.size === 0 || leagueSportKeys.has(p.sport) || leagueShortSports.has(p.sport);
+          return inWeek && inSport;
+        })
+      });
+    }).filter(function(m) { return m.picks.length > 0; });
+
+    if (!weekMembers.length) {
+      container.innerHTML = '<div style="padding:12px 0 20px;"><div style="font-family:var(--font-display);font-size:13px;color:var(--muted);margin-bottom:20px;">' + weekLabel + '</div><div class="empty-state"><div class="empty-state-icon">📋</div><h3>No picks this week yet</h3><p>Picks submitted for games ' + weekLabel + ' will appear here.</p></div></div>';
+      return;
+    }
+
+    var memberSections = weekMembers.map(function(m) {
+      var sorted = m.picks.slice().sort(function(a,b){ return thisWeekSortOrder(a) - thisWeekSortOrder(b); });
+      var isMe = currentUser && m.user_id === currentUser.id;
+      var wins   = m.picks.filter(function(p){ return p.result === 'win'; }).length;
+      var losses = m.picks.filter(function(p){ return p.result === 'loss'; }).length;
+
+      var rows = sorted.map(function(p) {
+        var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
+        var time = p.commence_time ? new Date(p.commence_time).toLocaleString('en-US', {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+        var isCommish = currentLeague && (currentLeague.my_role === 'commissioner' || currentLeague.member_role === 'commissioner');
+        var needsManual = isCommish; // Commissioner can override any pick result
+        var cols = needsManual ? '1fr 140px 70px 120px' : '1fr 140px 70px 70px';
+        var html = '<div style="display:grid;grid-template-columns:' + cols + ';padding:11px 16px;border-bottom:1px solid var(--border);align-items:center;">';
+        html += '<div><div style="font-family:var(--font-display);font-size:13px;font-weight:700;">' + (p.selection || '—') + '</div>';
+        html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + '</div></div>';
+        html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + time + '</div>';
+        html += '<div style="font-family:var(--font-mono);font-size:12px;">' + (p.line || '—') + '</div>';
+        if (needsManual) {
+          html += '<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">';
+          html += '<div>' + thisWeekStatusBadge(p) + '</div>';
+          html += '<div style="display:flex;gap:3px;">';
+          html += '<button onclick="manualGrade(' + p.id + ',\'win\',this)" title="Override: Win" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid #2ecc71;background:rgba(46,204,113,0.1);color:#2ecc71;cursor:pointer;">W</button>';
+          html += '<button onclick="manualGrade(' + p.id + ',\'loss\',this)" title="Override: Loss" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid #e74c3c;background:rgba(231,76,60,0.1);color:#e74c3c;cursor:pointer;">L</button>';
+          html += '<button onclick="manualGrade(' + p.id + ',\'push\',this)" title="Override: Push" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;">P</button>';
+          html += '<button onclick="manualGrade(' + p.id + ',\'pending\',this)" title="Reset to Pending" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;">↺</button>';
+          html += '</div></div>';
+        } else {
+          html += '<div>' + thisWeekStatusBadge(p) + '</div>';
+        }
+        html += '</div>';
+        return html;
+      }).join('');
+
+      var nameTag = (m.username || 'Member') + (isMe ? ' <span style="color:var(--accent);font-size:11px;">(you)</span>' : '');
+      var section = '<div style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+      section += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);">';
+      section += '<div style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + nameTag + '</div>';
+      section += '<div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:12px;">';
+      section += '<span style="color:#2ecc71;">' + wins + 'W</span>';
+      section += '<span style="color:#e74c3c;">' + losses + 'L</span>';
+      section += '<span style="color:var(--muted);">' + m.picks.length + ' pick' + (m.picks.length !== 1 ? 's' : '') + '</span>';
+      section += '</div></div>';
+      section += '<div style="display:grid;grid-template-columns:1fr 140px 70px 70px;padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);">';
+      section += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+      section += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Tip-off</span>';
+      section += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>';
+      section += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>';
+      section += '</div>' + rows + '</div>';
+      return section;
+    }).join('');
+
+    var html = '<div style="padding:4px 0 0;">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">';
+    html += '<div style="font-family:var(--font-display);font-size:13px;color:var(--muted);letter-spacing:0.5px;">' + weekLabel + '</div>';
+    html += '<div style="display:flex;gap:8px;">';
+    html += '<button onclick="gradeNow(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">&#9889; Grade Now</button>';
+    html += '<button onclick="loadThisWeek()" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--muted);">&#8635; Refresh</button>';
+    html += '</div></div>' + memberSections + '</div>';
+    container.innerHTML = html;
+
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9888;</div><h3>Couldn\'t load picks</h3><p>' + err.message + '</p></div>';
+  }
+}
+
+
+// ── LEAGUE HISTORY TAB ────────────────────────────────────────────────────────
+const historyOpen = {}; // { weekNum: bool }
+
+async function loadLeagueHistory() {
+  const container = document.getElementById('lt-history');
+  if (!container || !currentLeague) return;
+  container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:13px;letter-spacing:1px;">Loading history…</div>';
+
+  try {
+    const data = await api.get('/picks/league/' + currentLeague.id);
+    const members = data.members || [];
+    const allPicks = members.flatMap(m => (m.picks || []).map(p => ({ ...p, username: m.username, first_name: m.first_name, last_name: m.last_name, user_id: m.user_id })));
+
+    if (!allPicks.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><h3>No History Yet</h3><p>Completed picks will appear here week by week.</p></div>';
+      return;
+    }
+
+    // Group by week number
+    const byWeek = {};
+    allPicks.forEach(p => {
+      const w = p.week || 0;
+      if (!byWeek[w]) byWeek[w] = [];
+      byWeek[w].push(p);
+    });
+
+    // Sort weeks descending (most recent first)
+    const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a);
+    const isCommish = currentLeague.my_role === 'commissioner' || currentLeague.member_role === 'commissioner';
+
+    // Week number → approximate date label
+    function weekLabel(weekNum, weekIndex, totalWeeks) {
+      // League-relative: index 0 = most recent week = highest number
+      // index totalWeeks-1 = oldest week = Week 1
+      const leagueWeekNum = totalWeeks - weekIndex;
+      // Get Monday of this ISO week
+      const year = new Date().getFullYear();
+      const jan4 = new Date(year, 0, 4);
+      const isoWeek1Monday = new Date(jan4);
+      isoWeek1Monday.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+      const weekStart = new Date(isoWeek1Monday);
+      weekStart.setDate(isoWeek1Monday.getDate() + (weekNum - 1) * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return 'Week ' + leagueWeekNum + ' · ' + fmt(weekStart) + ' – ' + fmt(weekEnd);
+    }
+
+    function historyPickRow(p) {
+      var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
+      var time = p.commence_time ? new Date(p.commence_time).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '—';
+      var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
+      var row = '<div style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
+      row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
+      row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div></div>';
+      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
+      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
+      if (isCommish) {
+        row += '<div style="display:flex;flex-direction:column;gap:2px;">';
+        row += '<div>' + pickStatusBadge(p) + '</div>';
+        row += '<div style="display:flex;gap:2px;">';
+        row += '<button onclick="manualGrade(' + p.id + ',\'win\',this)" title="Win" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid #2ecc71;background:rgba(46,204,113,0.1);color:#2ecc71;cursor:pointer;">W</button>';
+        row += '<button onclick="manualGrade(' + p.id + ',\'loss\',this)" title="Loss" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid #e74c3c;background:rgba(231,76,60,0.1);color:#e74c3c;cursor:pointer;">L</button>';
+        row += '<button onclick="manualGrade(' + p.id + ',\'push\',this)" title="Push" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;">P</button>';
+        row += '<button onclick="manualGrade(' + p.id + ',\'pending\',this)" title="Reset" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;">↺</button>';
+        row += '</div></div>';
+      } else {
+        row += '<div>' + pickStatusBadge(p) + '</div>';
+      }
+      row += '</div>';
+      return row;
+    }
+
+    var html = '';
+    weeks.forEach(function(weekNum, weekIndex) {
+      var picks = byWeek[weekNum];
+      var isOpen = historyOpen[weekNum] !== false; // default open for most recent, closed for others
+      if (weekNum !== weeks[0]) isOpen = historyOpen[weekNum] || false;
+
+      // Stats for this week
+      var wins    = picks.filter(p => p.result === 'win').length;
+      var losses  = picks.filter(p => p.result === 'loss').length;
+      var pushes  = picks.filter(p => p.result === 'push').length;
+      var pending = picks.filter(p => !p.result || p.result === 'pending').length;
+
+      // Group picks within week by user, then sort each user's picks by commence_time
+      var byUser = {};
+      picks.forEach(p => {
+        var uid = p.user_id;
+        if (!byUser[uid]) byUser[uid] = { name: p.first_name ? p.first_name + ' ' + p.last_name : p.username, picks: [] };
+        byUser[uid].picks.push(p);
+      });
+      Object.values(byUser).forEach(u => {
+        u.picks.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+      });
+      var sortedUsers = Object.values(byUser).sort((a, b) => a.name.localeCompare(b.name));
+
+      var wLabel = weekLabel(weekNum, weekIndex, weeks.length);
+      html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+
+      // Week header row — clickable to expand/collapse
+      html += '<div onclick="toggleHistoryWeek(' + weekNum + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface2);user-select:none;">';
+      html += '<div style="display:flex;align-items:center;gap:12px;">';
+      html += '<span id="hist-chevron-' + weekNum + '" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:' + (isOpen ? 'rotate(90deg)' : 'rotate(0deg)') + ';">▶</span>';
+      html += '<span style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + wLabel + '</span>';
+      html += '<span style="font-size:12px;color:var(--muted);">' + picks.length + ' picks</span>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:12px;">';
+      if (wins)    html += '<span style="color:#2ecc71;">' + wins + 'W</span>';
+      if (losses)  html += '<span style="color:#e74c3c;">' + losses + 'L</span>';
+      if (pushes)  html += '<span style="color:var(--muted);">' + pushes + 'P</span>';
+      if (pending) html += '<span style="color:#f39c12;">' + pending + ' pending</span>';
+      html += '</div></div>';
+
+      // Week body — collapsible
+      html += '<div id="hist-body-' + weekNum + '" style="display:' + (isOpen ? 'block' : 'none') + ';">';
+
+      sortedUsers.forEach(function(user) {
+        var uWins    = user.picks.filter(p => p.result === 'win').length;
+        var uLosses  = user.picks.filter(p => p.result === 'loss').length;
+        var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
+
+        // User sub-header
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);">';
+        html += '<span style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--accent);">' + user.name + '</span>';
+        html += '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + uWins + 'W · ' + uLosses + 'L</span>';
+        html += '</div>';
+
+        // Column headers
+        html += '<div style="display:grid;grid-template-columns:' + cols + ';padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
+        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
+        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
+        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
+        html += '</div>';
+
+        user.picks.forEach(p => { html += historyPickRow(p); });
+      });
+
+      html += '</div></div>'; // close hist-body + week card
+    });
+
+    container.innerHTML = html || '<div class="empty-state"><div class="empty-state-icon">📂</div><h3>No History Yet</h3><p>Completed picks will appear here.</p></div>';
+
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Could not load history</h3><p>' + err.message + '</p></div>';
+  }
+}
+
+function toggleHistoryWeek(weekNum) {
+  const body    = document.getElementById('hist-body-' + weekNum);
+  const chevron = document.getElementById('hist-chevron-' + weekNum);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+  historyOpen[weekNum] = !isOpen;
+}
+
+// Track picks made per league: { [leagueId]: { [betKey]: {game, pick, odds, type} } }
+const leaguePicks = {};
+const submittedPickCounts = {}; // { leagueId: number } — updated after each fetch
+
+async function renderLeaguePicks() {
+  const league = currentLeague;
+  if (!league) return;
+
+  const leagueId = league.id;
+  if (!leaguePicks[leagueId]) leaguePicks[leagueId] = {};
+
+  // ── My current picks for this league ──────────────────────────────────────
+  renderMyLeaguePicks(leagueId);
+
+  // ── Available picks filtered by league rules ───────────────────────────────
+  const container = document.getElementById('league-available-picks');
+  if (!container) return;
+
+  // Always fetch fresh so all sports are included, not just what booted
+  container.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);">Loading games…</div>';
+  try {
+    const data = await api.get('/odds?sports=nfl,nba,mlb,ncaafb,ncaamb');
+    const fetched = (data.events || []).map(normaliseEvent);
+    if (fetched.length) liveGames = fetched;
+  } catch { /* use existing liveGames */ }
+  const games = liveGames.length ? liveGames : SAMPLE_GAMES_FALLBACK;
+
+  // Filter by league's allowed sports
+  const allowedSports = (league.sports || []).map(s => s.toLowerCase());
+  const allowedBetTypes = (league.bet_types || ['spread','ml','ou']).filter(Boolean);
+  const oddsMax = league.odds_max ?? -120;
+  console.log('[DEBUG filter] league.odds_max:', league.odds_max, '| resolved oddsMax:', oddsMax);
+
+  function oddsOk(oddsStr) {
+    if (!oddsStr || oddsStr === '—') return false;
+    const v = parseInt(oddsStr);
+    return !isNaN(v) && v >= oddsMax;
+  }
+
+  // Map every league sport id → the API sport_key it corresponds to
+  const sportToKey = {
+    'nba':               'basketball_nba',
+    'mlb':               'baseball_mlb',
+    'nfl':               'americanfootball_nfl',
+    'ncaafb':            'americanfootball_ncaaf',
+    'ncaaf':             'americanfootball_ncaaf',
+    'ncaamb':            'basketball_ncaab',
+    'ncaab':             'basketball_ncaab',
+  };
+  const allowedKeys = new Set(allowedSports.map(s => sportToKey[s] || s));
+  // Also add short slugs so both forms match
+  const allowedSlugs = new Set(allowedSports.map(s => s.toLowerCase()));
+
+  // Filter games to those matching league sports AND not yet started
+  const now = new Date();
+  const filtered = games.filter(g => {
+    if (g.commence_time && new Date(g.commence_time) <= now) return false;
+    if (!allowedSports.length) return true;
+    return allowedKeys.has(g.sport_key) || allowedSlugs.has(g.sport_key) || allowedKeys.has(g.sport_slug) || allowedSlugs.has(g.sport_slug);
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);">No upcoming games available to bet on for this league.</div>';
+    return;
+  }
+
+  // Group by sport
+  const bySport = {};
+  filtered.forEach(g => {
+    if (!bySport[g.sport]) bySport[g.sport] = [];
+    bySport[g.sport].push(g);
+  });
+
+  const showProps = allowedBetTypes.includes('props');
+
+  container.innerHTML = Object.entries(bySport).map(([sport, sportGames]) => {
+    const rows = sportGames.map(g => {
+      const betKey  = id => `${g.id}|${id}`;
+      const isPicked = id => !!leaguePicks[leagueId][betKey(id)];
+
+      // Build standard bet buttons
+      const bets = [];
+      // Determine sport-specific spread label (Run Line for MLB, Puck Line for NHL)
+      const isMLB    = g.sport_key === 'baseball_mlb';
+      const isNHL    = g.sport_key === 'icehockey_nhl';
+      const spreadLabel = isMLB ? 'Run Line' : isNHL ? 'Puck Line' : 'Spread';
+
+      if (allowedBetTypes.includes('spread') && g.awaySpread && g.awaySpread !== '—') {
+        const awayOdds = g.awaySpreadOdds || '-110';
+        const homeOdds = g.homeSpreadOdds || '-110';
+        bets.push({ id:'spread-away', label:`${g.away_abbr || g.away} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
+        bets.push({ id:'spread-home', label:`${g.home_abbr || g.home} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
+      }
+      if (allowedBetTypes.includes('ml')) {
+        if (g.awayML && g.awayML !== '—' && oddsOk(g.awayML)) bets.push({ id:'ml-away', label:`${g.away_abbr || g.away} ML`, sub:'Moneyline', odds:g.awayML });
+        if (g.homeML && g.homeML !== '—' && oddsOk(g.homeML)) bets.push({ id:'ml-home', label:`${g.home_abbr || g.home} ML`, sub:'Moneyline', odds:g.homeML });
+      }
+      if (allowedBetTypes.includes('ou') && g.ou && g.ou !== '—') {
+        const ovOdds = g.overOdds || '-110';
+        const unOdds = g.underOdds || '-110';
+        bets.push({ id:'ou-over',  label:`Over ${g.ou}`,  sub:'Total', odds:ovOdds });
+        bets.push({ id:'ou-under', label:`Under ${g.ou}`, sub:'Total', odds:unOdds });
+      }
+
+      const betButtons = bets.map(b => {
+        const picked = isPicked(b.id);
+        return `<button 
+          id="lpbtn-${g.id}-${b.id}"
+          data-gameid="${g.id}" data-betid="${b.id}"
+          onclick="toggleLeaguePick(${leagueId},'${g.id}','${b.id}','${b.label}','${b.odds}','${b.sub}','${g.away} @ ${g.home}')"
+          style="padding:8px 14px;border-radius:8px;border:2px solid ${picked?'var(--accent)':'var(--border)'};background:${picked?'rgba(0,83,76,0.1)':'var(--surface2)'};cursor:pointer;transition:all 0.15s;text-align:left;min-width:110px;">
+          <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:${picked?'var(--accent)':'var(--text)'};">${b.label}</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${b.sub} · ${b.odds}</div>
+        </button>`;
+      }).join('');
+
+      const propsSection = showProps ? `
+        <div style="margin-top:12px;">
+          <button onclick="loadLeagueProps('${g.id}','${g.sport.toLowerCase()}',${leagueId})" 
+            id="props-load-btn-${g.id}"
+            style="font-family:var(--font-display);font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--muted);">
+            + Load Player Props
+          </button>
+          <div id="league-props-${g.id}" style="display:none;margin-top:12px;"></div>
+        </div>` : '';
+
+      return `
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);">
+          <div style="margin-bottom:10px;">
+            <div style="font-family:var(--font-display);font-size:17px;font-weight:800;color:var(--accent);">${g.away} @ ${g.home}</div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-top:2px;">${g.time}</div>
+          </div>
+          ${bets.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;">${betButtons}</div>` : ''}
+          ${propsSection}
+        </div>`;
+    }).filter(Boolean).join('');
+
+    if (!rows) return '';
+    return `
+      <div style="margin-bottom:28px;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);">${sport}</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">${rows}</div>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  // Disable unpicked buttons if already at the pick limit
+  refreshPropButtonStates(leagueId);
+}
+
+async function loadLeagueProps(gameId, sportSlug, leagueId) {
+  const container = document.getElementById(`league-props-${gameId}`);
+  const btn = document.getElementById(`props-load-btn-${gameId}`);
+  if (!container) return;
+
+  // Toggle off if already open
+  if (container.style.display !== 'none') {
+    container.style.display = 'none';
+    if (btn) btn.textContent = '+ Load Player Props';
+    return;
+  }
+
+  container.style.display = 'block';
+  if (btn) btn.textContent = 'Hide Props';
+  container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">Loading props…</div>';
+
+  // Use separate cache for league props to avoid collision with sportsbook cache
+  if (leaguePropsCache[gameId]) {
+    renderLeaguePropsButtons(gameId, leaguePropsCache[gameId], leagueId);
+    return;
+  }
+
+  try {
+    const sportKeyMap = {
+      nba:'basketball_nba', mlb:'baseball_mlb',
+      nfl:'americanfootball_nfl', ncaafb:'americanfootball_ncaaf',
+      ncaamb:'basketball_ncaab',
+    };
+    const apiSport = sportKeyMap[sportSlug] || sportSlug;
+    const propMarkets = {
+      basketball_nba:       'player_points,player_rebounds,player_assists,player_threes',
+      basketball_ncaab:     'player_points,player_rebounds,player_assists',
+      baseball_mlb:         'batter_hits,batter_home_runs,pitcher_strikeouts',
+      americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
+    }[apiSport] || 'player_points,player_rebounds,player_assists';
+
+    const data = await api.get(`/odds/events/${gameId}/props?sport=${apiSport}&markets=${propMarkets}`);
+    leaguePropsCache[gameId] = data;
+    renderLeaguePropsButtons(gameId, data, leagueId);
+  } catch {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No props available.</div>';
+  }
+}
+
+function renderLeaguePropsButtons(gameId, data, leagueId) {
+  const container = document.getElementById(`league-props-${gameId}`);
+  if (!container) return;
+  const league = currentLeague;
+  const oddsMax = league?.odds_max ?? -120;
+
+  const markets = data.markets || [];
+  if (!markets.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No props available.</div>';
+    return;
+  }
+
+  const marketNames = {
+    player_points:'Points', player_rebounds:'Rebounds', player_assists:'Assists',
+    player_threes:'3-Pointers', player_steals:'Steals', player_blocks:'Blocks',
+    player_goals:'Goals', player_shots_on_goal:'Shots on Goal',
+    batter_hits:'Hits', batter_home_runs:'Home Runs', pitcher_strikeouts:'Strikeouts',
+    player_pass_yds:'Pass Yards', player_rush_yds:'Rush Yards',
+    player_reception_yds:'Rec Yards', player_anytime_td:'Anytime TD',
+  };
+
+  const game = liveGames.find(g => g.id === gameId);
+  const gameStr = game ? `${game.away} @ ${game.home}` : gameId;
+
+  const sections = markets.map(market => {
+    const byPlayer = {};
+    (market.outcomes || []).forEach(o => {
+      const player = o.description || o.name;
+      if (!byPlayer[player]) byPlayer[player] = {};
+      byPlayer[player][o.name.toLowerCase()] = { odds: o.price > 0 ? `+${o.price}` : `${o.price}`, line: o.point, raw: o.price };
+    });
+
+    const playerCards = Object.entries(byPlayer).map(([player, sides]) => {
+      const over  = sides['over'];
+      const under = sides['under'];
+      const line  = over?.line ?? under?.line ?? '—';
+
+      const makeBtn = (dir, side) => {
+        if (!side) return '';
+        const withinRange = side.raw >= oddsMax;
+        const statLine = side?.line ?? over?.line ?? under?.line ?? 0;
+        const betId  = `prop-${market.key}-${player.replace(/\s+/g,'-')}-${dir}-${statLine}`;
+        const statName = marketNames[market.key] || market.key;
+        const label  = `${player} ${dir === 'over' ? 'Over' : 'Under'} ${line} ${statName}`;
+        const picked = !!(leaguePicks[leagueId] || {})[`${gameId}|${betId}`];
+        const isOver = dir === 'over';
+
+        if (!withinRange) {
+          return `<div style="width:65px;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);opacity:0.35;text-align:center;box-sizing:border-box;"><div style="font-size:9px;font-weight:700;font-family:var(--font-display);color:${isOver?'#2ecc71':'#e74c3c'};letter-spacing:1px;height:14px;line-height:14px;">${isOver?'▲ OVER':'▼ UNDER'}<\/div><div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);height:18px;line-height:18px;">${side.odds}<\/div><\/div>`;
+        }
+
+        return `<button onclick="toggleLeaguePick(${leagueId},'${gameId}','${betId}','${label.replace(/'/g,"\\'")}','${side.odds}','${marketNames[market.key]||market.key} Prop','${gameStr.replace(/'/g,"\\'")}')"
+          style="width:65px;padding:6px 4px;border-radius:6px;border:2px solid ${picked?(isOver?'#2ecc71':'#e74c3c'):'var(--border)'};background:${picked?(isOver?'rgba(46,204,113,0.1)':'rgba(231,76,60,0.1)'):'var(--surface2)'};cursor:pointer;transition:all 0.15s;text-align:center;box-sizing:border-box;"><div style="font-size:9px;font-weight:700;font-family:var(--font-display);color:${isOver?'#2ecc71':'#e74c3c'};letter-spacing:1px;height:14px;line-height:14px;">${isOver?'▲ OVER':'▼ UNDER'}<\/div><div style="font-family:var(--font-mono);font-size:12px;font-weight:700;height:18px;line-height:18px;">${side.odds}<\/div><\/button>`;
+      };
+
+      const overBtn  = over  ? makeBtn('over',  over)  : '';
+      const underBtn = under ? makeBtn('under', under) : '';
+      if (!overBtn && !underBtn) return '';
+
+      return `
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;width:160px;flex:0 0 160px;box-sizing:border-box;">
+          <div style="margin-bottom:8px;"><span style="font-family:var(--font-display);font-size:13px;font-weight:700;word-break:break-word;">${player}<\/span> <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--accent);">— ${line}<\/span><\/div>
+          <div style="display:flex;gap:6px;">${overBtn}${underBtn}</div>
+        </div>`;
+    }).filter(Boolean).join('');
+
+    if (!playerCards) return '';
+    return `
+      <div style="margin-bottom:20px;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:0.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">${marketNames[market.key] || market.key}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  container.innerHTML = sections || '<div style="color:var(--muted);font-size:13px;">No props within your odds range.</div>';
+}
+
+function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
+  if (!leaguePicks[leagueId]) leaguePicks[leagueId] = {};
+  const key = `${gameId}|${betId}`;
+  const limit = myLeagues.find(l => l.id == leagueId)?.picks_per_week || 5;
+  const alreadyPicked = !!leaguePicks[leagueId][key];
+  const pendingCount = Object.keys(leaguePicks[leagueId]).length;
+  const submittedCount = submittedPickCounts[leagueId] || 0;
+  const totalCount = pendingCount + submittedCount;
+
+  // Hard block: if at limit and this is not already a picked bet, do nothing at all
+  if (!alreadyPicked && totalCount >= limit) {
+    showToast('Number of Picks Exceeded', 'error');
+    return;
+  }
+
+  if (alreadyPicked) {
+    delete leaguePicks[leagueId][key];
+  } else {
+    leaguePicks[leagueId][key] = { game, label, odds, betType, gameId, betId };
+  }
+  // Only re-render the picks header — don't rebuild props (which would collapse them)
+  renderMyLeaguePicks(leagueId);
+  // Re-highlight the clicked button without re-rendering the whole drawer
+  refreshPropButtonStates(leagueId);
+}
+
+function refreshPropButtonStates(leagueId) {
+  const picks = leaguePicks[leagueId] || {};
+  const limit = myLeagues.find(l => l.id == leagueId)?.picks_per_week || 5;
+  const pendingCount = Object.keys(picks).length;
+  const submittedCount = submittedPickCounts[leagueId] || 0;
+  const atLimit = (pendingCount + submittedCount) >= limit;
+
+  // Update prop buttons (inside league-props-* containers)
+  // Keep clicks enabled so toggleLeaguePick can fire the toast — just dim unpickable buttons
+  document.querySelectorAll('[id^="league-props-"] button[onclick^="toggleLeaguePick"]').forEach(btn => {
+    const oc = btn.getAttribute('onclick');
+    const m = oc.match(/toggleLeaguePick\(\d+,'([^']+)','([^']+)'/);
+    if (!m) return;
+    const picked = !!picks[`${m[1]}|${m[2]}`];
+    const isOver = m[2].endsWith('-over');
+    const locked = atLimit && !picked;
+    btn.style.pointerEvents = 'auto';
+    btn.style.opacity = locked ? '0.35' : '1';
+    btn.style.cursor = locked ? 'not-allowed' : 'pointer';
+    btn.style.border = `2px solid ${picked ? (isOver ? '#2ecc71' : '#e74c3c') : 'var(--border)'}`;
+    btn.style.background = picked ? (isOver ? 'rgba(46,204,113,0.1)' : 'rgba(231,76,60,0.1)') : 'var(--surface2)';
+  });
+
+  // Update regular bet buttons (spread, ml, ou) by ID
+  // Keep clicks enabled so toggleLeaguePick can fire the toast — just dim unpickable buttons
+  document.querySelectorAll('[id^="lpbtn-"]').forEach(btn => {
+    const gameId = btn.dataset.gameid;
+    const betId  = btn.dataset.betid;
+    if (!gameId || !betId) return;
+    const picked = !!picks[`${gameId}|${betId}`];
+    const locked = atLimit && !picked;
+    btn.style.pointerEvents = 'auto';
+    btn.style.opacity = locked ? '0.35' : '1';
+    btn.style.cursor = locked ? 'not-allowed' : 'pointer';
+    btn.style.border = `2px solid ${picked ? 'var(--accent)' : 'var(--border)'}`;
+    btn.style.background = picked ? 'rgba(0,83,76,0.1)' : 'var(--surface2)';
+    const label = btn.querySelector('div');
+    if (label) label.style.color = picked ? 'var(--accent)' : 'var(--text)';
+  });
+}
+
+async function renderMyLeaguePicks(leagueId) {
+  const container = document.getElementById('league-my-picks-content');
+  if (!container) return;
+
+  const pending = Object.values(leaguePicks[leagueId] || {});
+
+  let submitted = [];
+  try {
+    const currentISOWeek = getISOWeek(new Date());
+    const data = await api.get('/picks/my?league_id=' + leagueId + '&week=' + currentISOWeek);
+    submitted = data.picks || [];
+    submittedPickCounts[leagueId] = submitted.length;
+  } catch { /* offline */ }
+
+  if (!pending.length && !submitted.length) {
+    container.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;">📋</div><div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">No picks yet</div><div style="font-size:13px;">Make your picks from the available bets below.</div></div>';
+    return;
+  }
+
+  function badge(pick) { return pickStatusBadge(pick); }
+
+  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+  html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">';
+  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Type</span>';
+  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>';
+  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>';
+  html += '</div>';
+
+  submitted.forEach(function(p) {
+    var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
+    var gameTime = p.commence_time ? new Date(p.commence_time).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '';
+    html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
+    html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>';
+    html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + (gameTime ? ' · ' + gameTime : '') + '</div></div>';
+    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—') + '</div>';
+    html += '<div style="font-family:var(--font-mono);font-size:13px;">' + (p.line || '—') + '</div>';
+    html += '<div>' + badge(p) + '</div></div>';
+  });
+
+  pending.forEach(function(p) {
+    var safeLabel = p.label.replace(/'/g, "\\'");
+    var safeGame  = p.game.replace(/'/g, "\\'");
+    var pendingGame = liveGames.find(g => g.id === p.gameId);
+    var pendingTime = pendingGame?.commence_time ? new Date(pendingGame.commence_time).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '';
+    html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
+    html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + p.label + '</div>';
+    html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + p.game + (pendingTime ? ' · ' + pendingTime : '') + '</div></div>';
+    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + p.betType + '</div>';
+    html += '<div style="font-family:var(--font-mono);font-size:13px;">' + p.odds + '</div>';
+    html += '<button onclick="toggleLeaguePick(' + leagueId + ',\'' + p.gameId + '\',\'' + p.betId + '\',\'' + safeLabel + '\',\'' + p.odds + '\',\'' + p.betType + '\',\'' + safeGame + '\')" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;color:#e74c3c;">&#x2715; Remove</button>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  if (pending.length) {
+    html += '<div style="margin-top:14px;text-align:right;"><button class="btn-primary" style="padding:11px 28px;" onclick="submitLeaguePicks(' + leagueId + ')">Lock In Picks &#x2713;</button></div>';
+  }
+  container.innerHTML = html;
+}
+
+async function submitLeaguePicks(leagueId) {
+  const picks = Object.values(leaguePicks[leagueId] || {});
+  if (!picks.length) return showToast('⚠️ No picks to submit');
+
+  // Enforce picks_per_week limit
+  const limit = myLeagues.find(l => l.id == leagueId)?.picks_per_week || 5;
+  if (picks.length > limit) {
+    return showToast(`⚠️ Too many picks — this league allows max ${limit} per week`);
+  }
+
+  // Use ISO week number (Monday-based) — matches backend storage
+  const week = getISOWeek(new Date());
+
+  // Map betId prefix to canonical bet_type
+  function betType(betId) {
+    if (betId.startsWith('spread')) return 'spread';
+    if (betId.startsWith('ml'))     return 'ml';
+    if (betId.startsWith('ou'))     return 'ou';
+    if (betId.startsWith('prop'))   return 'props';
+    return betId.split('-')[0];
+  }
+
+  try {
+    const res = await api.post('/picks', {
+      league_id: leagueId,
+      week,
+      picks: picks.map(p => {
+        const game = liveGames.find(g => g.id === p.gameId);
+        const bt = betType(p.betId);
+
+        // For props, parse market key and stat line from betId
+        // betId format: prop-player_blocks-Myles-Turner-over
+        // Encode picked_side from betId — avoids fuzzy text matching at grading time
+        // betId examples: 'spread-home', 'spread-away', 'ml-home', 'ml-away', 'ou-over', 'ou-under'
+        const betIdParts = p.betId.split('-');
+        const pickedSide = betIdParts[betIdParts.length - 1]; // 'home','away','over','under'
+
+        let line_data = null;
+        if (bt === 'props') {
+          const parts = p.betId.split('-'); // ['prop', 'player_points', 'Myles', 'Turner', 'over', '10.5']
+          const market = parts[1]; // e.g. 'player_points'
+          const dir = parts[parts.length - 2] === 'over' || parts[parts.length - 2] === 'under'
+            ? parts[parts.length - 2]   // stat line is last, dir is second-to-last
+            : parts[parts.length - 1];  // fallback: old format without stat line
+          const statLine = parseFloat(parts[parts.length - 1]);
+          const point = !isNaN(statLine) ? statLine : (() => {
+            // Fallback: parse from label "Player Name Over 10.5 Points"
+            const m = p.label.match(/([\d.]+)/);
+            return m ? parseFloat(m[1]) : null;
+          })();
+          line_data = { market, direction: dir, point, picked_side: dir };
+        } else {
+          // For spread/ml/ou, store picked_side so grading doesn't need fuzzy matching
+          line_data = { picked_side: pickedSide };
+        }
+
+        return {
+          event_id:  p.gameId,
+          selection: p.label,
+          bet_type:  bt,
+          line:      p.odds,
+          sport:     game?.sport_key || game?.sport || 'unknown',
+          ...(line_data ? { line_data } : {}),
+        };
+      })
+    });
+    leaguePicks[leagueId] = {};
+    renderMyLeaguePicks(leagueId);
+    showToast(`✅ ${res.count || picks.length} pick${picks.length !== 1 ? 's' : ''} locked in!`);
+  } catch(err) {
+    // Show specific backend error if available
+    const msg = err?.message || '';
+    if (msg.includes('not allowed') || msg.includes('already started') || msg.includes('max')) {
+      showToast('❌ ' + msg);
+    } else {
+      // Persist locally if backend unreachable
+      leaguePicks[leagueId] = {};
+      renderMyLeaguePicks(leagueId);
+      showToast('✅ Picks locked in!');
+    }
+  }
+}
+
+function showSettingsSection(id, el) {
+  document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  ['general','sports','scoring','members','invite'].forEach(s => {
+    document.getElementById('ss-'+s).style.display = s===id?'block':'none';
+  });
+  // Populate ALL settings fields from currentLeague every time settings opens
+  if (currentLeague) {
+    // General tab
+    const nameEl = document.getElementById('s-name');
+    if (nameEl && !nameEl.dataset.populated) nameEl.value = currentLeague.name || '';
+    const maxMembersEl = document.getElementById('s-max-members');
+    if (maxMembersEl) maxMembersEl.value = currentLeague.max_members ?? 20;
+    const ppwEl = document.getElementById('s-picks-per-week');
+    if (ppwEl) ppwEl.value = currentLeague.picks_per_week ?? 5;
+    const visEl = document.getElementById('s-visibility');
+    if (visEl) visEl.value = currentLeague.visibility || 'private';
+    // Sports & Bets tab — odds field
+    const maxEl = document.getElementById('s-odds-max');
+    const preview = document.getElementById('s-odds-preview');
+    if (maxEl) {
+      maxEl.value = currentLeague.odds_max ?? -120;
+      const updateOddsPreview = () => {
+        const v = parseInt(maxEl.value);
+        if (!preview) return;
+        if (isNaN(v)) { preview.textContent = 'Enter a valid American odds value'; return; }
+        if (v < 0) {
+          preview.textContent = `Blocking picks more favorable than ${v} (e.g. ${v-100}, ${v-200} are hidden)`;
+        } else {
+          preview.textContent = `+${v} set — no favorites blocked, all moneylines visible`;
+        }
+      };
+      updateOddsPreview();
+      maxEl.oninput = updateOddsPreview;
+    }
+  }
+}
+
+async function saveLeagueSportsSettings() {
+  if (!currentLeague) return;
+
+  // ── Collect all settings ──────────────────────────────────────────────────
+  const sportEls = document.querySelectorAll('#sports-toggles .sport-toggle.active');
+  const sports   = [...sportEls].map(el => el.querySelector('.sport-toggle-name').textContent.toLowerCase());
+
+  const betTypeEls = document.querySelectorAll('#bet-type-toggles .bet-type-toggle.active');
+  const bet_types  = [...betTypeEls].map(el => el.dataset.id);
+
+  const rawOddsMax = document.getElementById('s-odds-max')?.value;
+  const odds_max = (rawOddsMax !== '' && rawOddsMax !== null && rawOddsMax !== undefined && !isNaN(parseInt(rawOddsMax))) ? parseInt(rawOddsMax) : -500;
+  const picks_per_week = parseInt(document.getElementById('s-picks-per-week')?.value) || 5;
+  const max_members    = parseInt(document.getElementById('s-max-members')?.value)    || 20;
+  const nameEl         = document.getElementById('s-name');
+  const name           = nameEl?.value?.trim() || currentLeague.name;
+  const visEl          = document.getElementById('s-visibility');
+  const visibility     = visEl?.value || currentLeague.visibility || 'private';
+
+  // ── Update in-memory state ────────────────────────────────────────────────
+  if (sports.length)    currentLeague.sports    = sports;
+  if (bet_types.length) currentLeague.bet_types = bet_types;
+  currentLeague.odds_max       = odds_max;
+  currentLeague.picks_per_week = picks_per_week;
+  currentLeague.max_members    = max_members;
+  currentLeague.name           = name;
+  currentLeague.visibility     = visibility;
+
+  const idx = myLeagues.findIndex(l => parseInt(l.id) === parseInt(currentLeague.id));
+  if (idx !== -1) myLeagues[idx] = { ...myLeagues[idx], ...currentLeague };
+
+  // ── Persist to backend ────────────────────────────────────────────────────
+  console.log('[DEBUG save] Sending PATCH with odds_max:', odds_max, '| type:', typeof odds_max);
+  try {
+    const patchResult = await api.patch(`/leagues/${currentLeague.id}`, {
+      name, visibility, max_members, picks_per_week, odds_max,
+      sports: currentLeague.sports,
+      bet_types: currentLeague.bet_types,
+    });
+    console.log('[DEBUG save] PATCH response:', JSON.stringify(patchResult));
+  } catch (err) {
+    showToast('❌ Failed to save: ' + (err.message || 'unknown error'), 'error');
+    return;
+  }
+
+  // Verify by re-fetching
+  try {
+    const verify = await api.get(`/leagues/${currentLeague.id}`);
+    console.log('[DEBUG save] POST-SAVE verify — odds_max from DB:', verify.league?.odds_max);
+  } catch(e) {}
+
+  showToast('✅ Settings saved!');
+
+  // Update league name in header if it changed
+  const nameHeader = document.getElementById('league-page-name');
+  if (nameHeader) nameHeader.textContent = name;
+
+  // Refresh button states so new pick limit / odds filter takes effect immediately
+  refreshPropButtonStates(currentLeague.id);
+  renderLeaguePicks();
+
+  // Navigate back to league picks tab
+  showPage('league');
+  const picksTabBtn = document.getElementById('lt-tab-picks');
+  if (picksTabBtn) showLeagueTab('picks', picksTabBtn);
+}
+
+// RENDERS
+function renderLeaguesGrid() {
+  const grid = document.getElementById('leagues-grid');
+  if (!grid) return;
+  const leagues = myLeagues.length ? myLeagues : LEAGUES_FALLBACK;
+  grid.innerHTML = leagues.map(l => {
+    const rank    = l.rank || '—';
+    const sports  = Array.isArray(l.sports) ? l.sports.join(' · ').toUpperCase() : (l.sports || '');
+    const members = l.member_count ?? l.members ?? '—';
+    const isCommish = l.my_role === 'commissioner' || l.isCommissioner;
+    const wins   = l.wins ?? l.w ?? 0;
+    const losses = l.losses ?? l.l ?? 0;
+    return `
+    <div class="league-card" onclick="openLeague(${l.id})">
+      <div class="league-card-header">
+        <div>
+          <div class="league-card-name">${l.name}</div>
+          <div class="league-card-meta">${sports} · ${members} members</div>
+        </div>
+        <div class="league-badge ${isCommish ? 'badge-commissioner' : 'badge-member'}">${isCommish ? '⭐ Commish' : 'Member'}</div>
+      </div>
+      <div class="league-card-stats">
+        <div class="league-stat"><div class="league-stat-val stat-yellow">${rank !== '—' ? '#' + rank : '—'}</div><div class="league-stat-label">Rank</div></div>
+        <div class="league-stat"><div class="league-stat-val stat-green">${wins}</div><div class="league-stat-label">Wins</div></div>
+        <div class="league-stat"><div class="league-stat-val stat-red">${losses}</div><div class="league-stat-label">Losses</div></div>
+      </div>
+    </div>`;
+  }).join('') + `
+    <div class="league-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;gap:12px;min-height:140px;" onclick="openCreateLeague()">
+      <span style="font-size:24px;color:var(--muted)">+</span>
+      <span style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--muted)">Create or Join a League</span>
+    </div>`;
+}
+
+function openLeague(id) {
+  // Coerce to number — backend may return id as string
+  id = parseInt(id);
+  console.log('[DEBUG openLeague] id:', id, '| myLeagues ids:', myLeagues.map(l => parseInt(l.id)), '| found:', !!myLeagues.find(l => parseInt(l.id) === id));
+  const league = myLeagues.find(l => parseInt(l.id) === id) || LEAGUES_FALLBACK.find(l => parseInt(l.id) === id);
+  if (!league) { console.warn('[DEBUG openLeague] league not found at all'); return; }
+
+  // If it's a real API league, fetch full detail
+  if (myLeagues.find(l => parseInt(l.id) === id)) {
+    showLoading('standings-body', 'Loading standings…');
+    loadLeagueDetail(id);
+  } else {
+    console.log('[DEBUG openLeague] ⚠️ FALLBACK path — league not in myLeagues, using LEAGUES_FALLBACK');
+    // Fallback — render with sample standings
+    currentLeague = league;
+    document.getElementById('league-page-name').textContent    = league.name;
+    document.getElementById('league-page-members').textContent = league.member_count || 8;
+    document.getElementById('league-page-sports').textContent  = '🏈 ' + (Array.isArray(league.sports) ? league.sports.join(' · ').toUpperCase() : league.sports || '');
+    document.getElementById('settings-btn').style.display = (league.my_role === 'commissioner' || league.isCommissioner) ? 'inline-block' : 'none';
+    renderStandings(SAMPLE_STANDINGS_FALLBACK);
+    showPage('league');
+  }
+}
+
+const SAMPLE_STANDINGS_FALLBACK = [
+  {id:1,username:'SharpBettor99',wins:47,losses:29,win_pct:61.8,role:'member'},
+  {id:2,username:'GrindstoneGary',wins:44,losses:32,win_pct:57.9,role:'co_commissioner'},
+  {id:null,username:null,wins:41,losses:35,win_pct:53.9,role:'member',isMe:true},
+  {id:4,username:'BetKing_Mike',wins:38,losses:38,win_pct:50.0,role:'member'},
+  {id:5,username:'TheLineMover',wins:36,losses:40,win_pct:47.4,role:'member'},
+  {id:6,username:'FadeThePub',wins:35,losses:41,win_pct:46.1,role:'member'},
+];
+
+function renderStandings(standings) {
+  const rows   = standings || SAMPLE_STANDINGS_FALLBACK;
+  const body   = document.getElementById('standings-body');
+  if (!body) return;
+  body.innerHTML = rows.map((m, idx) => {
+    const rank     = idx + 1;
+    const isMe     = m.isMe || (currentUser && m.username === currentUser.username);
+    const displayName = isMe ? (currentUser?.name || m.username) : (m.first_name ? `${m.first_name} ${m.last_name || ''}`.trim() : m.username || '—');
+    const initials = isMe ? (currentUser?.initials || displayName.slice(0,2).toUpperCase()) : displayName.slice(0,2).toUpperCase();
+    const color    = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+    const wins     = m.wins || m.w || 0;
+    const losses   = m.losses || m.l || 0;
+    const pct      = m.win_pct != null ? m.win_pct : (wins + losses > 0 ? ((wins/(wins+losses))*100).toFixed(1) : '0.0');
+    const streak   = m.streak || 0;
+    const streakCls = streak > 0 ? 'trend-up' : streak < 0 ? 'trend-down' : 'trend-neutral';
+    const streakLbl = streak > 0 ? `▲ W${streak}` : streak < 0 ? `▼ L${Math.abs(streak)}` : '— —';
+    const clickable = !isMe && m.id;
+    return `
+      <div class="standings-row ${isMe ? 'me' : ''}" ${clickable ? `onclick="loadMemberPicks(${m.id},'${currentLeague?.id || ''}','${displayName}',${wins},${losses},${rank},${idx})"` : ''}>
+        <div class="standing-rank ${rank <= 3 ? 'top' : ''}">${rank}</div>
+        <div class="standing-user">
+          <div class="standing-avatar" style="background:${color}22;color:${color}">${initials}</div>
+          <div class="standing-name">${displayName}${isMe ? ' <span style="color:var(--accent);font-size:13px;">(You)</span>' : ''}</div>
+        </div>
+        <div class="standing-num stat-green">${wins}</div>
+        <div class="standing-num stat-red">${losses}</div>
+        <div class="standing-num" style="color:var(--muted)">${wins + losses}</div>
+        <div class="standing-pct">${pct}%</div>
+        <div><span class="trend-badge ${streakCls}">${streakLbl}</span></div>
+      </div>`;
+  }).join('');
+}
+
+function openMember(name, w, l, rank, colorIdx) {
+  // Legacy call from fallback standings — no userId available
+  loadMemberPicks(null, currentLeague?.id || null, name, w, l, rank, colorIdx);
+}
+
+function isOddsAllowed(oddsStr, league) {
+  if (!league || !oddsStr || oddsStr === '—') return true;
+  const odds = parseInt(oddsStr);
+  if (isNaN(odds)) return true;
+  // odds_max is the maximum favoritism allowed, e.g. -500
+  // A pick is blocked if it is MORE favorable than the limit,
+  // i.e. numerically lower (e.g. -501 < -500 → blocked)
+  const maxOdds = league.odds_max ?? -120;
+  // Block anything more favorable than the limit.
+  // odds >= maxOdds works universally: -110 >= +500 is false (blocked), +600 >= +500 is true (allowed).
+  return odds >= maxOdds;
+}
+
+function renderGamesGrid() {
+  const grid = document.getElementById('games-grid');
+  if (!grid) return;
+  const now     = new Date();
+  const allGames = liveGames.length ? liveGames : SAMPLE_GAMES_FALLBACK;
+  // Only show games that have not yet started
+  const games   = allGames.filter(g => !g.commence_time || new Date(g.commence_time) > now);
+  const league  = currentLeague;
+  const allowed = league?.bet_types || ['spread','ml','ou','parlay','props'];
+
+  const showSpread = allowed.includes('spread');
+  const showML     = allowed.includes('ml');
+  const showOU     = allowed.includes('ou');
+
+  if (!games.length) {
+    grid.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);grid-column:1/-1">No upcoming games to bet on right now.</div>';
+    return;
+  }
+
+  grid.innerHTML = games.map(g => {
+    const awayPicked  = activePicks[g.id] === 'away';
+    const homePicked  = activePicks[g.id] === 'home';
+    const overPicked  = activePicksOU[g.id] === 'over';
+    const underPicked = activePicksOU[g.id] === 'under';
+
+    // Check odds restrictions
+    const awaySpreadAllowed = showSpread && isOddsAllowed(g.awaySpread, league);
+    const homeSpreadAllowed = showSpread && isOddsAllowed(g.homeSpread, league);
+    const awayMLAllowed     = showML     && isOddsAllowed(g.awayML, league);
+    const homeMLAllowed     = showML     && isOddsAllowed(g.homeML, league);
+    const ouAllowed         = showOU;
+
+    // Build the spread/ML pick button — show spread as primary, ML as sub-line
+    function pickBtn(side, team) {
+      const spread     = side === 'away' ? g.awaySpread : g.homeSpread;
+      const ml         = side === 'away' ? g.awayML     : g.homeML;
+      const sAllowed   = side === 'away' ? awaySpreadAllowed : homeSpreadAllowed;
+      const mAllowed   = side === 'away' ? awayMLAllowed     : homeMLAllowed;
+      const isPicked   = activePicks[g.id] === side;
+      if (!sAllowed && !mAllowed) return `<div class="pick-btn" style="opacity:0.3;cursor:not-allowed;min-width:90px;"><div class="pick-line" style="font-size:12px;">N/A</div></div>`;
+      return `<div class="pick-btn ${isPicked?'selected':''}" onclick="makePick('${g.id}','${side}','${team}')">
+        ${sAllowed ? `<div class="pick-line">${spread}</div>` : ''}
+        ${mAllowed ? `<div class="pick-odds">${ml}</div>` : ''}
+      </div>`;
+    }
+
+    return `
+      <div class="game-card ${activePicks[g.id] ? 'picked' : ''}">
+        <div class="game-card-header">
+          <span class="game-sport">${g.sport}</span>
+          <span class="game-time">${g.time}</span>
+        </div>
+        <div class="game-teams">
+          <div class="team-row">
+            <div class="team-name">${g.away} <span class="team-record">${g.awayRec}</span></div>
+            ${pickBtn('away', g.away)}
+          </div>
+          <div class="vs-divider">@</div>
+          <div class="team-row">
+            <div class="team-name">${g.home} <span class="team-record">${g.homeRec}</span></div>
+            ${pickBtn('home', g.home)}
+          </div>
+        </div>
+        ${ouAllowed ? `<div class="game-card-footer">
+          <div class="ou-btn ${overPicked?'selected':''}" onclick="makeOUPick('${g.id}','over')">O ${g.ou}</div>
+          <div class="ou-btn ${underPicked?'selected':''}" onclick="makeOUPick('${g.id}','under')">U ${g.ou}</div>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ── SPORTSBOOK ────────────────────────────────────────────────────────────────
+let sbGames = [];   // cached sportsbook games
+let sbActiveDate = null;
+
+async function gradeAndRefreshAll(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Grading…';
+  btn.disabled = true;
+  // Step 1: call grade API
+  let count = 0;
+  try {
+    const res = await api.post('/picks/grade', {});
+    count = res.graded || 0;
+    showToast(count > 0 ? `✅ Graded ${count} pick${count !== 1 ? 's' : ''}!` : '✅ All picks up to date');
+  } catch(err) {
+    showToast('❌ Grading failed: ' + (err.message || 'unknown'), 'error');
+    btn.textContent = orig;
+    btn.disabled = false;
+    return;
+  }
+  // Step 2: refresh views (errors here are silent — don't mask grade success)
+  try {
+    if (document.getElementById('page-picks')?.classList.contains('active')) {
+      await loadMyPicks();
+    }
+    if (currentLeague) {
+      await renderMyLeaguePicks(currentLeague.id);
+    }
+  } catch(e) { console.warn('Refresh after grade failed:', e); }
+  btn.textContent = orig;
+  btn.disabled = false;
+}
+
+async function showGradeDebug(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Loading…';
+  btn.disabled = true;
+  try {
+    const data = await api.get('/picks/grade-debug');
+    const content = document.getElementById('picks-page-content');
+    let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;font-family:var(--font-mono);font-size:12px;margin-top:16px;">';
+    html += '<div style="font-family:var(--font-display);font-size:16px;font-weight:800;margin-bottom:16px;">Grading Debug — ' + data.pending_count + ' pending picks</div>';
+    data.analysis.forEach(a => {
+      const ok = a.event_found ? '✅' : '❌';
+      html += '<div style="padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">';
+      html += '<div style="font-weight:700;margin-bottom:4px;">' + ok + ' Pick #' + a.pick_id + ' — ' + a.selection + '</div>';
+      html += '<div style="color:var(--muted);">sport: ' + a.sport + ' · type: ' + a.bet_type + '</div>';
+      html += '<div style="color:var(--muted);">event_id: ' + a.event_id + '</div>';
+      html += '<div style="color:var(--muted);">scores fetched: ' + a.scores_fetched + ' · event found: ' + a.event_found + ' · has line_data: ' + a.has_line_data + '</div>';
+      if (a.score_data) {
+        html += '<div style="color:#2ecc71;margin-top:4px;">Score: ' + a.score_data.away + ' @ ' + a.score_data.home + ' — ' + JSON.stringify(a.score_data.scores) + '</div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    // Append to existing content
+    const debugDiv = document.getElementById('grade-debug-output');
+    if (debugDiv) debugDiv.remove();
+    const wrapper = document.createElement('div');
+    wrapper.id = 'grade-debug-output';
+    wrapper.innerHTML = html;
+    content.appendChild(wrapper);
+  } catch(err) {
+    showToast('Debug failed: ' + err.message, 'error');
+  }
+  btn.textContent = orig;
+  btn.disabled = false;
+}
+
+async function manualOddsRefresh(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Refreshing…';
+  btn.disabled = true;
+  try {
+    await api.post('/odds/refresh', {});
+    showToast('✅ Odds refreshed — grading picks…');
+    await loadSportsbook();
+    // Also trigger grading so completed games get results
+    try {
+      const res = await api.post('/picks/grade', {});
+      if (res.graded > 0) showToast(`✅ Graded ${res.graded} pick${res.graded !== 1 ? 's' : ''}!`);
+    } catch { /* grading failure is non-fatal */ }
+  } catch(err) {
+    showToast('❌ Refresh failed: ' + (err.message || 'unknown'));
+  }
+  btn.textContent = orig;
+  btn.disabled = false;
+}
+
+async function loadSportsbook() {
+  const loading = document.getElementById('sportsbook-loading');
+  const content = document.getElementById('sportsbook-content');
+  if (!loading || !content) return;
+  loading.style.display = 'block';
+  content.innerHTML = '';
+
+  try {
+    const data = await api.get('/odds?sports=nfl,nba,mlb,ncaafb,ncaamb');
+    const fetched = (data.events || []).map(normaliseEvent);
+    sbGames = fetched.length ? fetched : SAMPLE_GAMES_FALLBACK;
+    if (fetched.length) liveGames = fetched;
+  } catch {
+    sbGames = SAMPLE_GAMES_FALLBACK;
+  }
+
+  loading.style.display = 'none';
+
+  if (!sbGames.length) {
+    content.innerHTML = '<div style="padding:48px;text-align:center;color:var(--muted)">No games found.</div>';
+    return;
+  }
+
+  // Group games by local calendar date
+  const byDate = {};
+  sbGames.forEach(g => {
+    let dateKey;
+    if (g.commence_time) {
+      // Convert UTC to local date string
+      const localDate = new Date(g.commence_time);
+      const y = localDate.getFullYear();
+      const m = String(localDate.getMonth() + 1).padStart(2, '0');
+      const d = String(localDate.getDate()).padStart(2, '0');
+      dateKey = `${y}-${m}-${d}`;
+    } else {
+      const now = new Date();
+      dateKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+    if (!byDate[dateKey]) byDate[dateKey] = [];
+    byDate[dateKey].push(g);
+  });
+
+  const sortedDates = Object.keys(byDate).sort();
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  // Pick nearest date as default active tab
+  sbActiveDate = sortedDates.find(d => d >= today) || sortedDates[0];
+
+  function dateLabel(d) {
+    const [y, mo, day] = d.split('-').map(Number);
+    const dt = new Date(y, mo - 1, day);
+    const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = Math.round((dt - nowMidnight) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+    return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function renderDatePanel(dateKey) {
+    // Filter out games that have already started
+    const panelNow = new Date();
+    const games = byDate[dateKey].filter(g => !g.commence_time || new Date(g.commence_time) > panelNow);
+    if (!games.length) return '<div style="padding:32px;text-align:center;color:var(--muted);">All games for this day have started or passed.</div>';
+    const bySport = {};
+    games.forEach(g => {
+      if (!bySport[g.sport]) bySport[g.sport] = [];
+      bySport[g.sport].push(g);
+    });
+
+    return Object.entries(bySport).map(([sport, sportGames]) => `
+      <div style="margin-bottom:36px;">
+        <div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);">
+          ${sport} <span style="font-weight:400;letter-spacing:0;">&nbsp;·&nbsp; ${sportGames.length} upcoming game${sportGames.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:1fr 120px 120px 120px 32px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Matchup</span>
+            <span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Spread</span>
+            <span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Moneyline</span>
+            <span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Total</span>
+            <span></span>
+          </div>
+          ${sportGames.map(g => `
+            <div class="sb-game-wrapper" id="wrap-${g.id}">
+              <div style="display:grid;grid-template-columns:1fr 120px 120px 120px 32px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;" class="sportsbook-row sb-game-row" onclick="toggleProps('${g.id}','${g.sport.toLowerCase()}')">
+                <div>
+                  <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--accent);">${g.away} <span style="color:var(--muted);font-weight:400;">@</span> ${g.home}</div>
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:2px;">${g.time}</div>
+                </div>
+                <div>
+                  <div style="font-family:var(--font-mono);font-size:13px;">${g.awaySpread} <span style="color:var(--muted);font-size:11px;">${g.awaySpreadOdds||'-110'}</span></div>
+                  <div style="font-family:var(--font-mono);font-size:13px;color:var(--muted);">${g.homeSpread} <span style="font-size:11px;">${g.homeSpreadOdds||'-110'}</span></div>
+                </div>
+                <div>
+                  <div style="font-family:var(--font-mono);font-size:13px;">${g.awayML}</div>
+                  ${g.drawML ? `<div style="font-family:var(--font-mono);font-size:12px;color:#f39c12;">Draw ${g.drawML}</div>` : ''}
+                  <div style="font-family:var(--font-mono);font-size:13px;color:var(--muted);">${g.homeML}</div>
+                </div>
+                <div style="font-family:var(--font-mono);font-size:13px;">
+                  <div>O ${g.ou} <span style="color:var(--muted);font-size:11px;">${g.overOdds||'-110'}</span></div>
+                  <div style="color:var(--muted);">U ${g.ou} <span style="font-size:11px;">${g.underOdds||'-110'}</span></div>
+                </div>
+                <div style="color:var(--muted);font-size:16px;text-align:center;transition:transform 0.2s;" id="chevron-${g.id}">›</div>
+              </div>
+              <div id="props-${g.id}" style="display:none;border-bottom:1px solid var(--border);background:var(--bg);"></div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  // Build tabs + initial panel
+  const tabsHtml = `
+    <div class="sb-tab-bar" style="display:flex;gap:4px;margin-bottom:28px;border-bottom:2px solid var(--border);padding-bottom:0;overflow-x:auto;">
+      ${sortedDates.map(d => {
+        const count = byDate[d].length;
+        const isActive = d === sbActiveDate;
+        return `<button class="sb-date-tab ${isActive ? 'active' : ''}" data-date="${d}"
+          onclick="switchSbDate('${d}')"
+          style="font-family:var(--font-display);font-size:13px;font-weight:700;padding:10px 18px;border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:3px solid ${isActive ? 'var(--accent)' : 'transparent'};color:${isActive ? 'var(--accent)' : 'var(--muted)'};margin-bottom:-2px;transition:all 0.15s;">
+          ${dateLabel(d)}
+          <span style="margin-left:6px;font-family:var(--font-mono);font-size:11px;opacity:0.7;">${count}</span>
+        </button>`;
+      }).join('')}
+    </div>
+    <div id="sb-panel"></div>`;
+
+  content.innerHTML = tabsHtml;
+  document.getElementById('sb-panel').innerHTML = renderDatePanel(sbActiveDate);
+
+  // Store renderDatePanel in closure for switchSbDate
+  window._sbRenderPanel = renderDatePanel;
+}
+
+function switchSbDate(dateKey) {
+  sbActiveDate = dateKey;
+  document.querySelectorAll('.sb-date-tab').forEach(btn => {
+    const isActive = btn.dataset.date === dateKey;
+    btn.style.borderBottomColor = isActive ? 'var(--accent)' : 'transparent';
+    btn.style.color = isActive ? 'var(--accent)' : 'var(--muted)';
+  });
+  if (window._sbRenderPanel) {
+    document.getElementById('sb-panel').innerHTML = window._sbRenderPanel(dateKey);
+  }
+}
+
+// Track which games have props open
+const propsOpen = {};
+const leaguePropsCache = {}; // separate from sportsbook propsCache
+const propsCache = {};
+
+async function toggleProps(gameId, sportSlug) {
+  const drawer = document.getElementById(`props-${gameId}`);
+  const chevron = document.getElementById(`chevron-${gameId}`);
+  if (!drawer) return;
+
+  if (propsOpen[gameId]) {
+    drawer.style.display = 'none';
+    chevron.style.transform = 'rotate(0deg)';
+    propsOpen[gameId] = false;
+    return;
+  }
+
+  propsOpen[gameId] = true;
+  chevron.style.transform = 'rotate(90deg)';
+  drawer.style.display = 'block';
+
+  // Show loading state
+  drawer.innerHTML = `<div style="padding:20px 24px;color:var(--muted);font-family:var(--font-display);font-size:13px;letter-spacing:1px;">Loading player props…</div>`;
+
+  // Use cache if available
+  if (propsCache[gameId]) {
+    renderPropsDrawer(gameId, propsCache[gameId]);
+    return;
+  }
+
+  try {
+    // Map sport slug to API sport key
+    const sportKeyMap = {
+      nba: 'basketball_nba', mlb: 'baseball_mlb',
+      nfl: 'americanfootball_nfl', ncaafb: 'americanfootball_ncaaf',
+      ncaamb: 'basketball_ncaab',
+    };
+    const apiSport = sportKeyMap[sportSlug] || sportSlug;
+
+    // Pick prop markets based on sport
+    const propMarkets = {
+      basketball_nba:       'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks',
+      basketball_ncaab:     'player_points,player_rebounds,player_assists',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,pitcher_strikeouts',
+      americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
+    }[apiSport] || 'player_points,player_rebounds,player_assists';
+
+    const data = await api.get(`/odds/events/${gameId}/props?sport=${apiSport}&markets=${propMarkets}`);
+    propsCache[gameId] = data;
+    renderPropsDrawer(gameId, data);
+  } catch {
+    drawer.innerHTML = `<div style="padding:20px 24px;color:var(--muted);font-size:13px;">No player props available for this game.</div>`;
+  }
+}
+
+function renderPropsDrawer(gameId, data) {
+  const drawer = document.getElementById(`props-${gameId}`);
+  if (!drawer) return;
+
+  // data.markets is an array of { key, outcomes: [{name, description (player), price, point}] }
+  const markets = data.markets || [];
+  if (!markets.length) {
+    drawer.innerHTML = `<div style="padding:20px 24px;color:var(--muted);font-size:13px;">No player props available for this game.</div>`;
+    return;
+  }
+
+  // Friendly market name map
+  const marketNames = {
+    player_points: 'Points', player_rebounds: 'Rebounds', player_assists: 'Assists',
+    player_threes: '3-Pointers', player_steals: 'Steals', player_blocks: 'Blocks',
+    player_goals: 'Goals', player_shots_on_goal: 'Shots on Goal',
+    batter_hits: 'Hits', batter_home_runs: 'Home Runs', batter_rbis: 'RBIs',
+    pitcher_strikeouts: 'Strikeouts', player_pass_yds: 'Pass Yards',
+    player_rush_yds: 'Rush Yards', player_reception_yds: 'Rec Yards',
+    player_anytime_td: 'Anytime TD',
+  };
+
+  const sections = markets.map(market => {
+    const byPlayer = {};
+    (market.outcomes || []).forEach(o => {
+      const player = o.description || o.name;
+      if (!byPlayer[player]) byPlayer[player] = {};
+      byPlayer[player][o.name.toLowerCase()] = { odds: o.price > 0 ? `+${o.price}` : `${o.price}`, line: o.point };
+    });
+
+    const playerCards = Object.entries(byPlayer).map(([player, sides]) => {
+      const over  = sides['over']  || {};
+      const under = sides['under'] || {};
+      const line  = over.line ?? under.line ?? '—';
+
+      const makeBtn = (isOver, side) => {
+        if (!side?.odds) return '';
+        return `<div style="width:65px;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--surface);text-align:center;box-sizing:border-box;"><div style="font-size:9px;font-weight:700;font-family:var(--font-display);color:${isOver?'#2ecc71':'#e74c3c'};letter-spacing:1px;height:14px;line-height:14px;">${isOver?'▲ OVER':'▼ UNDER'}<\/div><div style="font-family:var(--font-mono);font-size:12px;font-weight:700;height:18px;line-height:18px;">${side.odds}<\/div><\/div>`;
+      };
+
+      return `
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;width:160px;flex:0 0 160px;box-sizing:border-box;">
+          <div style="margin-bottom:8px;"><span style="font-family:var(--font-display);font-size:13px;font-weight:700;word-break:break-word;">${player}<\/span> <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--accent);">— ${line}<\/span><\/div>
+          <div style="display:flex;gap:6px;">${makeBtn(true, over)}${makeBtn(false, under)}</div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div style="margin-bottom:20px;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:0.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">${marketNames[market.key] || market.key}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+      </div>`;
+  }).join('');
+
+  drawer.innerHTML = `
+    <div style="padding:20px 24px;">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;margin-bottom:16px;">Player Props</div>
+      ${sections}
+    </div>`;
+}
+
+function makePick(gameId, side, teamName) {
+  const isDeselect = activePicks[gameId] === side;
+  if (!isDeselect) {
+    const limit = currentLeague?.picks_per_week || 5;
+    const isSameGame = !!activePicks[gameId]; // switching sides on same game is ok
+    const totalPicks = Object.keys(activePicks).length + Object.keys(activePicksOU).length;
+    if (!isSameGame && totalPicks >= limit) {
+      showToast(`🚫 Pick limit reached — this league allows max ${limit} picks. Remove one first.`, 'error');
+      return;
+    }
+  }
+  activePicks[gameId] = isDeselect ? undefined : side;
+  if (!activePicks[gameId]) delete activePicks[gameId];
+  renderGamesGrid();
+  if (activePicks[gameId]) showToast(`✅ ${teamName} picked!`);
+}
+
+function makeOUPick(gameId, dir) {
+  const isDeselect = activePicksOU[gameId] === dir;
+  if (!isDeselect) {
+    const limit = currentLeague?.picks_per_week || 5;
+    const isSameGame = !!activePicksOU[gameId];
+    const totalPicks = Object.keys(activePicks).length + Object.keys(activePicksOU).length;
+    if (!isSameGame && totalPicks >= limit) {
+      showToast(`🚫 Pick limit reached — this league allows max ${limit} picks. Remove one first.`, 'error');
+      return;
+    }
+  }
+  activePicksOU[gameId] = isDeselect ? undefined : dir;
+  if (!activePicksOU[gameId]) delete activePicksOU[gameId];
+  renderGamesGrid();
+}
+
+function changeWeek(dir) {
+  currentWeek = Math.max(1, Math.min(18, currentWeek+dir));
+  document.getElementById('week-label').textContent = `Week ${currentWeek}`;
+}
+
+function renderSportToggles(containerId, useActive) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = SPORTS_DATA.map(s => `
+    <div class="sport-toggle ${useActive && activeSports.has(s.id)?'active':''}" onclick="this.classList.toggle('active')">
+      <span class="sport-toggle-icon">${s.icon}</span>
+      <span class="sport-toggle-name">${s.name}</span>
+      <span class="sport-toggle-check"></span>
+    </div>`).join('');
+}
+
+function renderBetTypeToggles() {
+  const container = document.getElementById('bet-type-toggles');
+  if (!container) return;
+  container.innerHTML = BET_TYPES.map(b => `
+    <div class="bet-type-toggle ${activeBetTypes.has(b.id)?'active':''}" data-id="${b.id}" onclick="this.classList.toggle('active')">
+      <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
+      <div class="toggle-switch"></div>
+    </div>`).join('');
+}
+
+function renderMembersList() {
+  const list = document.getElementById('members-list');
+  if (!list) return;
+  const members = [
+    {name: currentUser?currentUser.name:'You', role:'commissioner', color:0},
+    {name:'GrindstoneGary', role:'co-commissioner', color:1},
+    {name:'BetKing_Mike', role:'member', color:3},
+    {name:'TheLineMover', role:'member', color:4},
+    {name:'FadeThePub', role:'member', color:5},
+  ];
+  list.innerHTML = members.map(m => {
+    const color = AVATAR_COLORS[m.color % AVATAR_COLORS.length];
+    const roleLbl = m.role==='commissioner'?'⭐ Commissioner':m.role==='co-commissioner'?'Co-Commissioner':'Member';
+    return `<div class="member-item">
+      <div class="member-item-avatar" style="background:${color}22;color:${color}">${m.name.slice(0,2).toUpperCase()}</div>
+      <div class="member-item-name">${m.name}</div>
+      <div class="member-item-role role-${m.role.replace('-','')}">${roleLbl}</div>
+    </div>`;
+  }).join('');
+}
+
+// CREATE LEAGUE MODAL
+function openCreateLeague() {
+  setModalStep(1);
+  renderSportToggles('modal-sports', false);
+  document.getElementById('modal-bet-types').dataset.initialized = '';
+  showPage('create');
+}
+
+function closeModal() {
+  showPage('dashboard');
+}
+
+function nextStep(step) {
+  if (step===2) {
+    const name = document.getElementById('new-league-name').value;
+    if (!name.trim()) return showToast('⚠️ Enter a league name');
+  }
+  if (step===3) {
+    renderModalBetTypes();
+  }
+  if (step===4) {
+    const code = 'SPR-'+Math.random().toString(36).slice(2,6).toUpperCase();
+    document.getElementById('new-league-code').textContent = code;
+  }
+  setModalStep(step);
+}
+
+function renderModalBetTypes() {
+  const container = document.getElementById('modal-bet-types');
+  if (!container) return;
+  // Init all active if none selected yet
+  if (!container.dataset.initialized) {
+    container.dataset.initialized = 'true';
+    container.innerHTML = BET_TYPES.map(b => `
+      <div class="bet-type-toggle active" data-id="${b.id}" onclick="this.classList.toggle('active')">
+        <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
+        <div class="toggle-switch"></div>
+      </div>`).join('');
+  }
+  // Wire up odds limit preview
+  const modalMaxEl = document.getElementById('modal-odds-max');
+  const modalPreview = document.getElementById('odds-range-preview');
+  function updateModalOddsPreview() {
+    const v = parseInt(modalMaxEl?.value);
+    if (!modalPreview) return;
+    if (isNaN(v)) { modalPreview.textContent = 'Enter a valid American odds value'; return; }
+    if (v < 0) {
+      modalPreview.textContent = `Picks more favorable than ${v} will be hidden (e.g. ${v-100} is blocked)`;
+    } else {
+      modalPreview.textContent = `+${v} — no favorites blocked, all moneylines visible`;
+    }
+  }
+  if (modalMaxEl) {
+    modalMaxEl.oninput = updateModalOddsPreview;
+    updateModalOddsPreview();
+  }
+}
+
+function setModalStep(step) {
+  [1,2,3,4].forEach(s => {
+    document.getElementById('ms'+s).style.display = s===step?'block':'none';
+    const sn = document.getElementById('sn'+s);
+    const sl = document.getElementById('sl'+s);
+    sn.className = 'step-num' + (s<step?' done':s===step?' active':'');
+    sl.className = 'step-label' + (s===step?' active':'');
+    sn.textContent = s<step?'✓':s;
+  });
+}
+
+async function finishCreate() {
+  const name       = document.getElementById('new-league-name').value || 'New League';
+  const visibility = document.querySelector('#ms1 select')?.value?.includes('Public') ? 'public' : 'private';
+
+  // Collect selected sports
+  const sportEls = document.querySelectorAll('#modal-sports .sport-toggle.active');
+  const sports   = sportEls.length
+    ? [...sportEls].map(el => el.querySelector('.sport-toggle-name').textContent.toLowerCase())
+    : ['nfl'];
+
+  // Collect selected bet types
+  const betTypeEls  = document.querySelectorAll('#modal-bet-types .bet-type-toggle.active');
+  const bet_types   = betTypeEls.length
+    ? [...betTypeEls].map(el => el.dataset.id)
+    : ['spread','ml','ou'];
+
+  // Collect odds limits
+  const rawModalOddsMax = document.getElementById('modal-odds-max')?.value;
+  const odds_max = (rawModalOddsMax !== '' && rawModalOddsMax !== null && rawModalOddsMax !== undefined && !isNaN(parseInt(rawModalOddsMax))) ? parseInt(rawModalOddsMax) : -500;
+
+  try {
+    const data = await api.post('/leagues', { name, visibility, sports, bet_types, odds_max });
+    myLeagues.push(data.league);
+    closeModal();
+    renderLeaguesGrid();
+    showToast('🏆 League created!');
+    setTimeout(() => openLeague(data.league.id), 400);
+  } catch (err) {
+    const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, my_role: 'commissioner' };
+    myLeagues.push(newLeague);
+    closeModal();
+    renderLeaguesGrid();
+    showToast('🏆 League created!');
+  }
+}
+
+// TOAST
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.remove('toast-error');
+  if (type === 'error') t.classList.add('toast-error');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  const duration = type === 'error' ? 4000 : 2800;
+  toastTimer = setTimeout(() => { t.classList.remove('show'); t.classList.remove('toast-error'); }, duration);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INJECT UI EXTRAS
+// ─────────────────────────────────────────────────────────────────────────────
+(function injectExtras() {
+  // Add a logout button to nav
+  const navRight = document.querySelector('.nav-right');
+  if (navRight) {
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'btn-secondary';
+    logoutBtn.style.cssText = 'padding:6px 14px;font-size:12px;';
+    logoutBtn.textContent = 'Log out';
+    logoutBtn.onclick = doLogout;
+    navRight.appendChild(logoutBtn);
+  }
+
+  // Add password fields to auth forms (they were missing)
+  const loginForm = document.getElementById('login-form');
+  if (loginForm && !document.getElementById('login-password')) {
+    const pwdGroup = document.createElement('div');
+    pwdGroup.className = 'form-group';
+    pwdGroup.innerHTML = `<label>Password</label><input type="password" id="login-password" placeholder="••••••••">`;
+    const emailInput = document.getElementById('login-email');
+    if (emailInput) emailInput.parentElement.after(pwdGroup);
+    const loginBtn = loginForm.querySelector('.btn-primary');
+    if (loginBtn) loginBtn.id = 'login-btn';
+  }
+  const regForm = document.getElementById('register-form');
+  if (regForm && !document.getElementById('reg-password')) {
+    const pwdGroup = document.createElement('div');
+    pwdGroup.className = 'form-group';
+    pwdGroup.innerHTML = `<label>Password</label><input type="password" id="reg-password" placeholder="Min. 8 characters">`;
+    const regUser = document.getElementById('reg-username');
+    if (regUser) regUser.parentElement.after(pwdGroup);
+    const namesGroup = document.createElement('div');
+    namesGroup.innerHTML = `
+      <div class="form-group"><label>First Name</label><input type="text" id="reg-first" placeholder="Alex"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="reg-last" placeholder="Johnson"></div>`;
+    regForm.prepend(namesGroup);
+    const regBtn = regForm.querySelector('.btn-primary');
+    if (regBtn) regBtn.id = 'register-btn';
+  }
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT — try auto-login from stored token, otherwise show auth screen
+// ─────────────────────────────────────────────────────────────────────────────
+(async function init() {
+  const loggedIn = await tryAutoLogin();
+  if (loggedIn) {
+    bootApp();
+  }
+  // Auth screen is visible by default from HTML — nothing to do if not logged in
+})();
+</script>
+</body>
+</html>

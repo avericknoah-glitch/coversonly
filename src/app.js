@@ -76,9 +76,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ── 404 ──────────────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
+// ── Serve frontend ───────────────────────────────────────────────────────────
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../public')));
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, '../public/index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
+  }
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────
