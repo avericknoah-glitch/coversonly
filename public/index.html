@@ -283,17 +283,19 @@
     <div id="login-form">
       <div class="auth-form-title">Welcome back.</div>
       <div class="auth-form-sub">Sign in to your Covers Only account</div>
-      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" value="demo@spread.com"></div>
-      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" value="password"></div>
-      <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In →</button>
     </div>
     <div id="register-form" style="display:none">
       <div class="auth-form-title">Join Covers Only.</div>
       <div class="auth-form-sub">Create your free account</div>
+      <div class="form-group"><label>First Name</label><input type="text" id="reg-first" placeholder="Alex"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="reg-last" placeholder="Johnson"></div>
       <div class="form-group"><label>Username</label><input type="text" id="reg-username" placeholder="SharpBettor99"></div>
       <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
-      <div class="form-group"><label>Password</label><input type="password" id="reg-pass" placeholder="Min. 8 characters"></div>
-      <button class="btn-primary" onclick="doRegister()">Create Account →</button>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="Min. 8 characters"></div>
+      <button class="btn-primary" id="register-btn" onclick="doRegister()">Create Account →</button>
     </div>
   </div>
 </div>
@@ -2926,32 +2928,7 @@ function showToast(msg, type) {
     navRight.appendChild(logoutBtn);
   }
 
-  // Add password fields to auth forms (they were missing)
-  const loginForm = document.getElementById('login-form');
-  if (loginForm && !document.getElementById('login-password')) {
-    const pwdGroup = document.createElement('div');
-    pwdGroup.className = 'form-group';
-    pwdGroup.innerHTML = `<label>Password</label><input type="password" id="login-password" placeholder="••••••••">`;
-    const emailInput = document.getElementById('login-email');
-    if (emailInput) emailInput.parentElement.after(pwdGroup);
-    const loginBtn = loginForm.querySelector('.btn-primary');
-    if (loginBtn) loginBtn.id = 'login-btn';
-  }
-  const regForm = document.getElementById('register-form');
-  if (regForm && !document.getElementById('reg-password')) {
-    const pwdGroup = document.createElement('div');
-    pwdGroup.className = 'form-group';
-    pwdGroup.innerHTML = `<label>Password</label><input type="password" id="reg-password" placeholder="Min. 8 characters">`;
-    const regUser = document.getElementById('reg-username');
-    if (regUser) regUser.parentElement.after(pwdGroup);
-    const namesGroup = document.createElement('div');
-    namesGroup.innerHTML = `
-      <div class="form-group"><label>First Name</label><input type="text" id="reg-first" placeholder="Alex"></div>
-      <div class="form-group"><label>Last Name</label><input type="text" id="reg-last" placeholder="Johnson"></div>`;
-    regForm.prepend(namesGroup);
-    const regBtn = regForm.querySelector('.btn-primary');
-    if (regBtn) regBtn.id = 'register-btn';
-  }
+  // Auth forms already have password fields in HTML
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
