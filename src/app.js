@@ -14,6 +14,9 @@ const userRoutes   = require('./routes/users');
 
 const app = express();
 
+// ── Trust proxy (required for Railway/Heroku deployments) ────────────────────
+app.set('trust proxy', 1);
+
 // ── Security & compression ──────────────────────────────────────────────────
 app.use(helmet());
 app.use(compression());
