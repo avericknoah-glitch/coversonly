@@ -311,6 +311,7 @@
       <button class="nav-link" id="nav-member" style="display:none" onclick="showPage('member')">Member</button>
     </div>
     <div class="nav-right">
+      <button class="btn-secondary" onclick="openJoinLeague()">Join League</button>
       <button class="btn-secondary" onclick="openCreateLeague()">+ Create League</button>
       <div class="nav-user">
         <div class="nav-avatar" id="nav-avatar">?</div>
@@ -494,15 +495,22 @@
             </div>
             <div id="ss-invite" style="display:none">
               <div class="settings-section-title">Invite Members</div>
-              <div class="settings-section-sub">Share your code or send email invites</div>
+              <div class="settings-section-sub">Share your code or link to invite people</div>
               <div class="invite-banner">
                 <div>
                   <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">League Code</div>
-                  <div class="invite-code">SHRP-4492</div>
+                  <div class="invite-code" id="settings-invite-code">—</div>
                 </div>
-                <button class="btn-accent2" onclick="showToast('📋 Code copied!')">Copy</button>
+                <button class="btn-accent2" onclick="copyInviteCode()">Copy Code</button>
               </div>
-              <div class="settings-field"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
+              <div style="margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Shareable Link</div>
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div id="settings-invite-link" style="font-size:13px;color:var(--muted);word-break:break-all;flex:1;">—</div>
+                  <button class="btn-accent2" onclick="copyInviteLink()" style="white-space:nowrap;">Copy Link</button>
+                </div>
+              </div>
+              <div class="settings-field" style="margin-top:20px;"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="showToast('📧 Invite sent!')">Send Invite</button>
             </div>
           </div>
@@ -609,6 +617,24 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- JOIN LEAGUE MODAL -->
+<div class="modal-overlay" id="join-league-modal" style="display:none;z-index:1100;" onclick="if(event.target===this)closeJoinLeague()">
+  <div class="modal-container" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Join a League</div>
+      <button class="modal-close" onclick="closeJoinLeague()">✕</button>
+    </div>
+    <div style="padding:32px;">
+      <div class="form-group">
+        <label>Invite Code</label>
+        <input type="text" id="join-invite-code" placeholder="e.g. SHRP-4492" style="text-transform:uppercase;letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Enter the code shared by your league commissioner</div>
+      </div>
+      <button class="btn-primary" id="join-submit-btn" onclick="submitJoinLeague()" style="width:100%;padding:14px;margin-top:8px;">Join League</button>
     </div>
   </div>
 </div>
@@ -886,7 +912,8 @@ async function doLogin() {
     const data = await api.post('/auth/login', { email, password });
     api.setToken(data.token);
     currentUser = userToLocal(data.user);
-    bootApp();
+    await bootApp();
+    if (window._pendingJoinCode) { openJoinLeague(window._pendingJoinCode); window._pendingJoinCode = null; }
   } catch (err) {
     showToast('❌ ' + err.message);
   } finally {
@@ -911,7 +938,8 @@ async function doRegister() {
     const data = await api.post('/auth/register', { username, email, password, first_name, last_name });
     api.setToken(data.token);
     currentUser = userToLocal(data.user);
-    bootApp();
+    await bootApp();
+    if (window._pendingJoinCode) { openJoinLeague(window._pendingJoinCode); window._pendingJoinCode = null; }
   } catch (err) {
     showToast('❌ ' + err.message);
   } finally {
@@ -2085,6 +2113,7 @@ function showSettingsSection(id, el) {
   ['general','sports','scoring','members','invite'].forEach(s => {
     document.getElementById('ss-'+s).style.display = s===id?'block':'none';
   });
+  if (id === 'invite' && currentLeague) loadInviteCode();
   // Populate ALL settings fields from currentLeague every time settings opens
   if (currentLeague) {
     // General tab
@@ -2212,9 +2241,9 @@ function renderLeaguesGrid() {
       </div>
     </div>`;
   }).join('') + `
-    <div class="league-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;gap:12px;min-height:140px;" onclick="openCreateLeague()">
-      <span style="font-size:24px;color:var(--muted)">+</span>
-      <span style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--muted)">Create or Join a League</span>
+    <div class="league-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:140px;">
+      <button class="btn-primary" onclick="openCreateLeague()" style="width:180px;">+ Create League</button>
+      <button class="btn-secondary" onclick="openJoinLeague()" style="width:180px;">Join League</button>
     </div>`;
 }
 
@@ -2942,12 +2971,82 @@ function showToast(msg, type) {
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
+// INVITE CODE — fetch real code and display with copy helpers
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadInviteCode() {
+  if (!currentLeague) return;
+  const codeEl = document.getElementById('settings-invite-code');
+  const linkEl = document.getElementById('settings-invite-link');
+  codeEl.textContent = '…';
+  linkEl.textContent = '…';
+  try {
+    const data = await api.get(`/leagues/${currentLeague.id}`);
+    const code = data.league?.invite_code || '—';
+    codeEl.textContent = code;
+    const base = 'https://coversonly-production.up.railway.app';
+    linkEl.textContent = `${base}?join=${code}`;
+  } catch {
+    codeEl.textContent = '—';
+    linkEl.textContent = '—';
+  }
+}
+
+function copyInviteCode() {
+  const code = document.getElementById('settings-invite-code').textContent;
+  if (!code || code === '—') return;
+  navigator.clipboard.writeText(code).then(() => showToast('📋 Code copied!'));
+}
+
+function copyInviteLink() {
+  const link = document.getElementById('settings-invite-link').textContent;
+  if (!link || link === '—') return;
+  navigator.clipboard.writeText(link).then(() => showToast('🔗 Link copied!'));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// JOIN LEAGUE — modal open/close/submit
+// ─────────────────────────────────────────────────────────────────────────────
+function openJoinLeague(prefillCode) {
+  const modal = document.getElementById('join-league-modal');
+  const input = document.getElementById('join-invite-code');
+  input.value = prefillCode ? prefillCode.toUpperCase() : '';
+  modal.style.display = 'flex';
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeJoinLeague() {
+  document.getElementById('join-league-modal').style.display = 'none';
+}
+
+async function submitJoinLeague() {
+  const code = document.getElementById('join-invite-code').value.trim();
+  if (!code) return showToast('⚠️ Enter an invite code');
+  const btn = document.getElementById('join-submit-btn');
+  btn.textContent = 'Joining…'; btn.disabled = true;
+  try {
+    const data = await api.post('/leagues/join', { invite_code: code });
+    closeJoinLeague();
+    showToast('🎉 Joined ' + (data.league?.name || 'league') + '!');
+    await loadLeagues();
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  } finally {
+    btn.textContent = 'Join League'; btn.disabled = false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INIT — try auto-login from stored token, otherwise show auth screen
 // ─────────────────────────────────────────────────────────────────────────────
 (async function init() {
+  const joinCode = new URLSearchParams(window.location.search).get('join');
   const loggedIn = await tryAutoLogin();
   if (loggedIn) {
-    bootApp();
+    await bootApp();
+    if (joinCode) openJoinLeague(joinCode);
+  } else if (joinCode) {
+    // Store so we can open modal after user logs in
+    window._pendingJoinCode = joinCode;
   }
   // Auth screen is visible by default from HTML — nothing to do if not logged in
 })();
