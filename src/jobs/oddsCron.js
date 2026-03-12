@@ -36,40 +36,42 @@ async function runGrading() {
   }
 }
 
+const TZ = { timezone: 'America/New_York' };
+
 function start() {
-  // ── Weekday schedule: 1am, 5pm, 10pm (Mon-Fri) ──────────────────────────
+  // ── Weekday schedule: 1am, 5pm, 10pm ET (Mon-Fri) ───────────────────────
   // cron: minute hour * * day-of-week (0=Sun, 1=Mon...5=Fri)
   const weekdayJobs = [
-    cron.schedule('0 1  * * 1-5', runOddsRefresh),  // 1:00am  Mon–Fri
-    cron.schedule('0 17 * * 1-5', runOddsRefresh),  // 5:00pm  Mon–Fri
-    cron.schedule('0 22 * * 1-5', runOddsRefresh),  // 10:00pm Mon–Fri
+    cron.schedule('0 1  * * 1-5', runOddsRefresh, TZ),  // 1:00am ET  Mon–Fri
+    cron.schedule('0 17 * * 1-5', runOddsRefresh, TZ),  // 5:00pm ET  Mon–Fri
+    cron.schedule('0 22 * * 1-5', runOddsRefresh, TZ),  // 10:00pm ET Mon–Fri
   ];
 
-  // ── Weekend schedule: 1am, 3pm, 5pm, 8pm, 10pm (Sat-Sun) ───────────────
+  // ── Weekend schedule: 1am, 3pm, 5pm, 8pm, 10pm ET (Sat-Sun) ────────────
   const weekendJobs = [
-    cron.schedule('0 1  * * 0,6', runOddsRefresh),  // 1:00am  Sat–Sun
-    cron.schedule('0 15 * * 0,6', runOddsRefresh),  // 3:00pm  Sat–Sun
-    cron.schedule('0 17 * * 0,6', runOddsRefresh),  // 5:00pm  Sat–Sun
-    cron.schedule('0 20 * * 0,6', runOddsRefresh),  // 8:00pm  Sat–Sun
-    cron.schedule('0 22 * * 0,6', runOddsRefresh),  // 10:00pm Sat–Sun
+    cron.schedule('0 1  * * 0,6', runOddsRefresh, TZ),  // 1:00am ET  Sat–Sun
+    cron.schedule('0 15 * * 0,6', runOddsRefresh, TZ),  // 3:00pm ET  Sat–Sun
+    cron.schedule('0 17 * * 0,6', runOddsRefresh, TZ),  // 5:00pm ET  Sat–Sun
+    cron.schedule('0 20 * * 0,6', runOddsRefresh, TZ),  // 8:00pm ET  Sat–Sun
+    cron.schedule('0 22 * * 0,6', runOddsRefresh, TZ),  // 10:00pm ET Sat–Sun
   ];
 
   oddsJob = { stop: () => { [...weekdayJobs, ...weekendJobs].forEach(j => j.stop()); } };
 
-  logger.info('[Cron] Odds schedule: weekdays 1am/5pm/10pm | weekends 1am/3pm/5pm/8pm/10pm');
+  logger.info('[Cron] Odds schedule (ET): weekdays 1am/5pm/10pm | weekends 1am/3pm/5pm/8pm/10pm');
 
   // ── Grade picks on same schedule, 30min after each odds refresh ─────────
-  // Weekdays: 1:30am, 5:30pm, 10:30pm
-  // Weekends: 1:30am, 3:30pm, 5:30pm, 8:30pm, 10:30pm
+  // Weekdays: 1:30am, 5:30pm, 10:30pm ET
+  // Weekends: 1:30am, 3:30pm, 5:30pm, 8:30pm, 10:30pm ET
   const gradingJobs = [
-    cron.schedule('30 1  * * 1-5', runGrading),
-    cron.schedule('30 17 * * 1-5', runGrading),
-    cron.schedule('30 22 * * 1-5', runGrading),
-    cron.schedule('30 1  * * 0,6', runGrading),
-    cron.schedule('30 15 * * 0,6', runGrading),
-    cron.schedule('30 17 * * 0,6', runGrading),
-    cron.schedule('30 20 * * 0,6', runGrading),
-    cron.schedule('30 22 * * 0,6', runGrading),
+    cron.schedule('30 1  * * 1-5', runGrading, TZ),
+    cron.schedule('30 17 * * 1-5', runGrading, TZ),
+    cron.schedule('30 22 * * 1-5', runGrading, TZ),
+    cron.schedule('30 1  * * 0,6', runGrading, TZ),
+    cron.schedule('30 15 * * 0,6', runGrading, TZ),
+    cron.schedule('30 17 * * 0,6', runGrading, TZ),
+    cron.schedule('30 20 * * 0,6', runGrading, TZ),
+    cron.schedule('30 22 * * 0,6', runGrading, TZ),
   ];
   gradingJob = { stop: () => gradingJobs.forEach(j => j.stop()) };
 

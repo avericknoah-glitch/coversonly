@@ -26,7 +26,7 @@ async function start() {
 
   // 3. Start the odds-refresh cron job
   cron.start();
-  logger.info(`⏱️   Odds refresh cron started (every ${process.env.ODDS_REFRESH_INTERVAL_MINUTES || 30} min)`);
+  logger.info('⏱️   Odds refresh cron started (weekdays 1am/5pm/10pm ET | weekends 1am/3pm/5pm/8pm/10pm ET)');
 }
 
 start();
