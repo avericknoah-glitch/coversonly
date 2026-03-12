@@ -18,7 +18,9 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ── Security & compression ──────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled — frontend is a single inline HTML file
+}));
 app.use(compression());
 
 // ── CORS ────────────────────────────────────────────────────────────────────
