@@ -276,6 +276,11 @@
     </div>
   </div>
   <div class="auth-right">
+    <div id="join-banner" style="display:none;text-align:center;margin-bottom:32px;padding:28px 24px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;">
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.5px;color:var(--accent);margin-bottom:12px;">COVERS ONLY</div>
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:8px;">You've been invited to join a league</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.5;">Create a free account or sign in to accept your invite</div>
+    </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="showAuthTab('login',this)">Sign In</button>
       <button class="auth-tab" onclick="showAuthTab('register',this)">Create Account</button>
@@ -2919,12 +2924,13 @@ async function finishCreate() {
     ? [...betTypeEls].map(el => el.dataset.id)
     : ['spread','ml','ou'];
 
-  // Collect odds limits
+  // Collect picks per week and odds limits
+  const picks_per_week = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
   const rawModalOddsMax = document.getElementById('modal-odds-max')?.value;
   const odds_max = (rawModalOddsMax !== '' && rawModalOddsMax !== null && rawModalOddsMax !== undefined && !isNaN(parseInt(rawModalOddsMax))) ? parseInt(rawModalOddsMax) : -500;
 
   try {
-    const data = await api.post('/leagues', { name, visibility, sports, bet_types, odds_max });
+    const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max });
     myLeagues.push(data.league);
     closeModal();
     renderLeaguesGrid();
@@ -3045,8 +3051,9 @@ async function submitJoinLeague() {
     await bootApp();
     if (joinCode) openJoinLeague(joinCode);
   } else if (joinCode) {
-    // Store so we can open modal after user logs in
+    // Store so we can open modal after user logs in, and show invite banner
     window._pendingJoinCode = joinCode;
+    document.getElementById('join-banner').style.display = 'block';
   }
   // Auth screen is visible by default from HTML — nothing to do if not logged in
 })();
