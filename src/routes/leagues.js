@@ -243,6 +243,48 @@ router.post('/:leagueId/invite', requireAuth, requireCommissioner, async (req, r
   }
 });
 
+// ── POST /api/leagues/join ────────────────────────────────────────────────────
+// Join a league via invite code in request body { invite_code }
+router.post('/join', requireAuth, async (req, res, next) => {
+  try {
+    const { invite_code } = req.body;
+    if (!invite_code) return res.status(400).json({ error: 'invite_code is required' });
+
+    const { rows: leagues } = await db.query(
+      'SELECT * FROM leagues WHERE invite_code = $1',
+      [invite_code.toUpperCase()]
+    );
+    if (!leagues[0]) return res.status(404).json({ error: 'Invalid invite code' });
+
+    const league = leagues[0];
+
+    // Check already a member
+    const { rows: existing } = await db.query(
+      'SELECT id FROM league_members WHERE league_id = $1 AND user_id = $2',
+      [league.id, req.user.id]
+    );
+    if (existing[0]) return res.status(409).json({ error: 'Already a member of this league' });
+
+    // Check capacity
+    const { rows: members } = await db.query(
+      'SELECT COUNT(*) AS count FROM league_members WHERE league_id = $1',
+      [league.id]
+    );
+    if (parseInt(members[0].count) >= league.max_members) {
+      return res.status(409).json({ error: 'League is full' });
+    }
+
+    await db.query(
+      'INSERT INTO league_members (league_id, user_id, role) VALUES ($1, $2, $3)',
+      [league.id, req.user.id, 'member']
+    );
+
+    res.json({ league });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── POST /api/leagues/join/:inviteCode ───────────────────────────────────────
 // Join a league via invite code
 router.post('/join/:inviteCode', requireAuth, async (req, res, next) => {
