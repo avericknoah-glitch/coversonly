@@ -12,7 +12,7 @@ router.get('/', requireAuth, async (req, res, next) => {
     const { rows } = await db.query(`
       SELECT l.*,
              lm.role        AS member_role,
-             COUNT(lm2.id)  AS member_count,
+             COUNT(DISTINCT lm2.user_id) AS member_count,
              -- User's own stats in this league
              SUM(CASE WHEN p.result = 'win'  THEN 1 ELSE 0 END) AS wins,
              SUM(CASE WHEN p.result = 'loss' THEN 1 ELSE 0 END) AS losses,
