@@ -828,14 +828,6 @@ const SAMPLE_GAMES = [
   {sport:'MLB',away:'Yankees',awayRec:'—',home:'Red Sox',homeRec:'—',awaySpread:'+1.5',homeSpread:'-1.5',awayML:'+110',homeML:'-130',ou:'8.5',time:'Sat 7:00 PM',id:'g6'},
 ];
 
-const PICK_HISTORY = [
-  {game:'Chiefs @ Bills',pick:'Bills -3.5',line:'-110',result:'win'},
-  {game:'Lakers @ Celtics',pick:'Celtics ML',line:'-310',result:'win'},
-  {game:'Eagles @ Cowboys',pick:'Eagles -1.5',line:'-115',result:'loss'},
-  {game:'Warriors @ Nuggets',pick:'Over 218',line:'-110',result:'pending'},
-  {game:'Ravens @ Steelers',pick:'Ravens -5',line:'-110',result:'win'},
-  {game:'Yankees @ Red Sox',pick:'Under 8.5',line:'-105',result:'loss'},
-];
 
 let LEAGUES = [];
 
@@ -2103,16 +2095,7 @@ async function submitLeaguePicks(leagueId) {
     renderMyLeaguePicks(leagueId);
     showToast(`✅ ${res.count || picks.length} pick${picks.length !== 1 ? 's' : ''} locked in!`);
   } catch(err) {
-    // Show specific backend error if available
-    const msg = err?.message || '';
-    if (msg.includes('not allowed') || msg.includes('already started') || msg.includes('max')) {
-      showToast('❌ ' + msg);
-    } else {
-      // Persist locally if backend unreachable
-      leaguePicks[leagueId] = {};
-      renderMyLeaguePicks(leagueId);
-      showToast('✅ Picks locked in!');
-    }
+    showToast('❌ ' + (err?.message || 'Failed to save picks. Please try again.'));
   }
 }
 
