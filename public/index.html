@@ -2420,9 +2420,16 @@ function renderStandings(standings) {
   if (!body) return;
   body.innerHTML = rows.map((m, idx) => {
     const rank     = idx + 1;
-    const isMe     = m.isMe || (currentUser && m.username === currentUser.username);
-    const displayName = isMe ? (currentUser?.name || m.username) : (m.first_name ? `${m.first_name} ${m.last_name || ''}`.trim() : m.username || '—');
-    const initials = isMe ? (currentUser?.initials || displayName.slice(0,2).toUpperCase()) : displayName.slice(0,2).toUpperCase();
+    const isMe     = m.isMe || (currentUser && m.user_id === currentUser.id);
+    const _fn = isMe ? currentUser?.first_name : m.first_name;
+    const _ln = isMe ? currentUser?.last_name  : m.last_name;
+    const _un = isMe ? currentUser?.username   : m.username;
+    const displayName = _fn
+      ? `${_fn} ${_ln || ''}`.trim() + ` (${_un || ''})`
+      : (_un || '—');
+    const initials = isMe
+      ? (currentUser?.initials || (_fn ? (_fn[0] + (_ln?.[0] || '')).toUpperCase() : (_un || '?').slice(0,2).toUpperCase()))
+      : (_fn ? (_fn[0] + (_ln?.[0] || '')).toUpperCase() : (_un || '?').slice(0,2).toUpperCase());
     const color    = AVATAR_COLORS[idx % AVATAR_COLORS.length];
     const wins     = parseInt(m.wins || m.w || 0);
     const losses   = parseInt(m.losses || m.l || 0);

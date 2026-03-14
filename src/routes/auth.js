@@ -22,13 +22,20 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ error: 'Username must be 3–30 chars, letters/numbers/underscores only' });
     }
 
-    // Check uniqueness
-    const { rows: existing } = await db.query(
-      'SELECT id FROM users WHERE email = $1 OR username = $2',
-      [email.toLowerCase(), username.toLowerCase()]
+    // Check uniqueness (case-insensitive comparisons, preserve stored casing)
+    const { rows: emailConflict } = await db.query(
+      'SELECT id FROM users WHERE lower(email) = $1',
+      [email.toLowerCase()]
     );
-    if (existing.length > 0) {
-      return res.status(409).json({ error: 'Email or username already taken' });
+    if (emailConflict.length > 0) {
+      return res.status(409).json({ error: 'Email already taken' });
+    }
+    const { rows: usernameConflict } = await db.query(
+      'SELECT id FROM users WHERE lower(username) = $1',
+      [username.toLowerCase()]
+    );
+    if (usernameConflict.length > 0) {
+      return res.status(409).json({ error: 'Username already taken' });
     }
 
     const hash = await bcrypt.hash(password, 12);
@@ -37,7 +44,7 @@ router.post('/register', async (req, res, next) => {
       INSERT INTO users (email, password_hash, username, first_name, last_name)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, email, username, first_name, last_name, created_at
-    `, [email.toLowerCase(), hash, username.toLowerCase(), first_name || '', last_name || '']);
+    `, [email.toLowerCase(), hash, username, first_name || '', last_name || '']);
 
     const user  = rows[0];
     const token = signToken(user);
@@ -119,14 +126,23 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
 
-    // Check uniqueness of username/email against other users
-    if (username || email) {
-      const { rows: conflicts } = await db.query(
-        'SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3',
-        [(email || user.email).toLowerCase(), (username || user.username).toLowerCase(), req.user.id]
+    // Check uniqueness of username/email against other users (separate checks for specific errors)
+    if (email) {
+      const { rows: emailConflict } = await db.query(
+        'SELECT id FROM users WHERE lower(email) = $1 AND id != $2',
+        [email.toLowerCase(), req.user.id]
       );
-      if (conflicts.length > 0) {
-        return res.status(409).json({ error: 'Username or email already taken by another account' });
+      if (emailConflict.length > 0) {
+        return res.status(409).json({ error: 'Email already taken' });
+      }
+    }
+    if (username) {
+      const { rows: usernameConflict } = await db.query(
+        'SELECT id FROM users WHERE lower(username) = $1 AND id != $2',
+        [username.toLowerCase(), req.user.id]
+      );
+      if (usernameConflict.length > 0) {
+        return res.status(409).json({ error: 'Username already taken' });
       }
     }
 
@@ -146,8 +162,8 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
     `, [
       first_name ?? user.first_name,
       last_name  ?? user.last_name,
-      (username  || user.username).toLowerCase(),
-      (email     || user.email).toLowerCase(),
+      username  || user.username,
+      (email || user.email).toLowerCase(),
       newHash,
       req.user.id,
     ]);
