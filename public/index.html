@@ -2302,7 +2302,7 @@ function renderStandings(standings) {
     const wins     = m.wins || m.w || 0;
     const losses   = m.losses || m.l || 0;
     const pushes   = m.pushes || 0;
-    const pct      = m.win_pct != null ? m.win_pct : (wins + losses > 0 ? ((wins/(wins+losses))*100).toFixed(1) : '0.0');
+    const pct      = m.win_pct != null ? m.win_pct : (wins + losses + pushes > 0 ? (((wins + 0.5 * pushes) / (wins + losses + pushes)) * 100).toFixed(1) : '0.0');
     const streak   = m.streak || 0;
     const streakCls = streak > 0 ? 'trend-up' : streak < 0 ? 'trend-down' : 'trend-neutral';
     const streakLbl = streak > 0 ? `▲ W${streak}` : streak < 0 ? `▼ L${Math.abs(streak)}` : '— —';
