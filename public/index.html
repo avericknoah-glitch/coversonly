@@ -1915,6 +1915,11 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
   if (alreadyPicked) {
     delete leaguePicks[leagueId][key];
   } else {
+    // Spread and ou only allow one side per game — automatically deselect the
+    // opposite side so it doesn't get silently overwritten by the DB upsert.
+    const opposite = { 'spread-home': 'spread-away', 'spread-away': 'spread-home',
+                       'ou-over': 'ou-under', 'ou-under': 'ou-over' };
+    if (opposite[betId]) delete leaguePicks[leagueId][`${gameId}|${opposite[betId]}`];
     leaguePicks[leagueId][key] = { game, label, odds, betType, gameId, betId };
   }
   // Only re-render the picks header — don't rebuild props (which would collapse them)
