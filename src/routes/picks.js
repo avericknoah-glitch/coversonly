@@ -144,17 +144,17 @@ router.post('/', requireAuth, async (req, res, next) => {
       'soccer_copa_america':'soccer_conmebol_copa_america',
     };
     const savedPicks = [];
+    const skippedGames = new Set(); // track started game names already warned about
     for (const pick of picks) {
       const events = await oddsService.getOdds(pick.sport);
       const event  = events.find(e => e.id === pick.event_id);
       const lineData = pick.line_data || event?.lines || null;
       const sport = sportSlugToKey[pick.sport] || pick.sport;
 
-      // Check deadline hasn't passed
+      // Skip picks for games that have already started instead of failing the whole batch
       if (event && new Date(event.commence_time) <= new Date()) {
-        return res.status(400).json({
-          error: `Game has already started: ${event.home_team} vs ${event.away_team}`,
-        });
+        skippedGames.add(`${event.away_team} @ ${event.home_team}`);
+        continue;
       }
 
       // Upsert: replace any existing pick for same (user, league, week, event, bet_type)
@@ -181,7 +181,9 @@ router.post('/', requireAuth, async (req, res, next) => {
     }
 
     await client.query('COMMIT');
-    res.status(201).json({ picks: savedPicks, count: savedPicks.length });
+
+    const skipped = [...skippedGames];
+    res.status(201).json({ picks: savedPicks, count: savedPicks.length, skipped });
   } catch (err) {
     await client.query('ROLLBACK');
     next(err);

@@ -2093,7 +2093,11 @@ async function submitLeaguePicks(leagueId) {
     });
     leaguePicks[leagueId] = {};
     renderMyLeaguePicks(leagueId);
-    showToast(`✅ ${res.count || picks.length} pick${picks.length !== 1 ? 's' : ''} locked in!`);
+    if (res.skipped?.length) {
+      showToast(`✅ ${res.count} pick${res.count !== 1 ? 's' : ''} locked in! ⚠️ ${res.skipped.length} game${res.skipped.length !== 1 ? 's' : ''} already started and were skipped.`);
+    } else {
+      showToast(`✅ ${res.count || picks.length} pick${picks.length !== 1 ? 's' : ''} locked in!`);
+    }
   } catch(err) {
     showToast('❌ ' + (err?.message || 'Failed to save picks. Please try again.'));
   }
