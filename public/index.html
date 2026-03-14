@@ -323,7 +323,7 @@
     <div class="nav-right">
       <button class="btn-secondary" onclick="openJoinLeague()">Join League</button>
       <button class="btn-secondary" onclick="openCreateLeague()">+ Create League</button>
-      <div class="nav-user">
+      <div class="nav-user" onclick="openAccountSettings()">
         <div class="nav-avatar" id="nav-avatar">?</div>
         <span class="nav-username" id="nav-username">user</span>
       </div>
@@ -610,6 +610,50 @@
 </div>
 
 <!-- JOIN LEAGUE MODAL -->
+<!-- ACCOUNT SETTINGS MODAL -->
+<div class="modal-overlay" id="account-settings-modal" style="display:none;z-index:1100;" onclick="if(event.target===this)closeAccountSettings()">
+  <div class="modal-container" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Account Settings</div>
+      <button class="modal-close" onclick="closeAccountSettings()">✕</button>
+    </div>
+    <div style="padding:32px;display:flex;flex-direction:column;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group" style="margin:0;">
+          <label>First Name</label>
+          <input type="text" id="acct-first-name" placeholder="First name">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Last Name</label>
+          <input type="text" id="acct-last-name" placeholder="Last name">
+        </div>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Username</label>
+        <input type="text" id="acct-username" placeholder="Username">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Email</label>
+        <input type="email" id="acct-email" placeholder="Email">
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;">
+      <div class="form-group" style="margin:0;">
+        <label>Current Password</label>
+        <input type="password" id="acct-current-password" placeholder="Required to save changes">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>New Password</label>
+        <input type="password" id="acct-new-password" placeholder="Leave blank to keep current">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Confirm New Password</label>
+        <input type="password" id="acct-confirm-password" placeholder="Confirm new password">
+      </div>
+      <button class="btn-primary" onclick="saveAccountSettings()" style="width:100%;padding:14px;margin-top:4px;">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="join-league-modal" style="display:none;z-index:1100;" onclick="if(event.target===this)closeJoinLeague()">
   <div class="modal-container" style="max-width:440px;">
     <div class="modal-header">
@@ -3099,6 +3143,62 @@ function copyInviteLink() {
 // ─────────────────────────────────────────────────────────────────────────────
 // JOIN LEAGUE — modal open/close/submit
 // ─────────────────────────────────────────────────────────────────────────────
+// ── ACCOUNT SETTINGS ─────────────────────────────────────────────────────────
+function openAccountSettings() {
+  if (!currentUser) return;
+  document.getElementById('acct-first-name').value     = currentUser.first_name || '';
+  document.getElementById('acct-last-name').value      = currentUser.last_name  || '';
+  document.getElementById('acct-username').value       = currentUser.username   || '';
+  document.getElementById('acct-email').value          = currentUser.email      || '';
+  document.getElementById('acct-current-password').value = '';
+  document.getElementById('acct-new-password').value     = '';
+  document.getElementById('acct-confirm-password').value = '';
+  document.getElementById('account-settings-modal').style.display = 'flex';
+}
+
+function closeAccountSettings() {
+  document.getElementById('account-settings-modal').style.display = 'none';
+  document.getElementById('acct-current-password').value = '';
+  document.getElementById('acct-new-password').value     = '';
+  document.getElementById('acct-confirm-password').value = '';
+}
+
+async function saveAccountSettings() {
+  const currentPassword = document.getElementById('acct-current-password').value;
+  const newPassword     = document.getElementById('acct-new-password').value;
+  const confirmPassword = document.getElementById('acct-confirm-password').value;
+
+  if (!currentPassword) return showToast('⚠️ Current password is required');
+  if (newPassword && newPassword !== confirmPassword) {
+    return showToast('⚠️ New passwords do not match');
+  }
+  if (newPassword && newPassword.length < 8) {
+    return showToast('⚠️ New password must be at least 8 characters');
+  }
+
+  const payload = {
+    first_name:       document.getElementById('acct-first-name').value.trim(),
+    last_name:        document.getElementById('acct-last-name').value.trim(),
+    username:         document.getElementById('acct-username').value.trim(),
+    email:            document.getElementById('acct-email').value.trim(),
+    current_password: currentPassword,
+  };
+  if (newPassword) payload.new_password = newPassword;
+
+  try {
+    const data = await api.patch('/auth/profile', payload);
+    const u = data.user;
+    // Merge into currentUser and refresh nav
+    currentUser = userToLocal({ ...currentUser, ...u });
+    document.getElementById('nav-avatar').textContent   = currentUser.initials;
+    document.getElementById('nav-username').textContent = currentUser.name;
+    showToast('✅ Account updated');
+    closeAccountSettings();
+  } catch (err) {
+    showToast('❌ ' + (err?.message || 'Failed to save changes'));
+  }
+}
+
 function openJoinLeague(prefillCode) {
   const modal = document.getElementById('join-league-modal');
   const input = document.getElementById('join-invite-code');

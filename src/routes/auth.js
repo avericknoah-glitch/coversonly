@@ -99,6 +99,65 @@ router.get('/me', requireAuth, async (req, res, next) => {
   }
 });
 
+// ── PATCH /api/auth/profile ──────────────────────────────────────────────────
+// Update the current user's profile. current_password is always required.
+router.patch('/profile', requireAuth, async (req, res, next) => {
+  try {
+    const { first_name, last_name, username, email, current_password, new_password } = req.body;
+
+    if (!current_password) {
+      return res.status(400).json({ error: 'current_password is required' });
+    }
+
+    // Fetch stored hash
+    const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+    const user = rows[0];
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const passwordOk = await bcrypt.compare(current_password, user.password_hash);
+    if (!passwordOk) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Check uniqueness of username/email against other users
+    if (username || email) {
+      const { rows: conflicts } = await db.query(
+        'SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3',
+        [(email || user.email).toLowerCase(), (username || user.username).toLowerCase(), req.user.id]
+      );
+      if (conflicts.length > 0) {
+        return res.status(409).json({ error: 'Username or email already taken by another account' });
+      }
+    }
+
+    // Build update
+    const newHash = new_password ? await bcrypt.hash(new_password, 12) : null;
+
+    const { rows: updated } = await db.query(`
+      UPDATE users SET
+        first_name    = $1,
+        last_name     = $2,
+        username      = $3,
+        email         = $4,
+        password_hash = COALESCE($5, password_hash),
+        updated_at    = NOW()
+      WHERE id = $6
+      RETURNING id, email, username, first_name, last_name, created_at, last_login
+    `, [
+      first_name ?? user.first_name,
+      last_name  ?? user.last_name,
+      (username  || user.username).toLowerCase(),
+      (email     || user.email).toLowerCase(),
+      newHash,
+      req.user.id,
+    ]);
+
+    res.json({ user: updated[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── POST /api/auth/logout ────────────────────────────────────────────────────
 // JWTs are stateless, so logout is handled client-side by deleting the token.
 // This endpoint exists so clients have a consistent API surface.
