@@ -1034,8 +1034,7 @@ async function loadMemberPicks(userId, leagueId, username, wins, losses, pushes,
         </div>
       </div>
     </div>
-    <div class="picks-history" style="margin-top:24px;">
-      <div class="picks-history-header"><span>Game</span><span>Pick</span><span>Line</span><span>Result</span></div>
+    <div style="margin-top:24px;">
       <div id="member-picks-body"><div style="padding:20px;text-align:center;color:var(--muted)">Loading picks…</div></div>
     </div>`;
 
@@ -1174,17 +1173,91 @@ function renderMemberPicks(picks) {
     body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No picks found for this league.</div>';
     return;
   }
-  body.innerHTML = picks.map(p => {
-    const game = (p.away_team && p.home_team) ? `${p.away_team} @ ${p.home_team}` : (p.game || '—');
-    const pick = p.selection || '—';
-    const line = p.line_data?.spread?.home?.odds ?? p.line_data?.line ?? p.line ?? '—';
-    return `<div class="pick-history-row">
-      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${game}</div>
-      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${pick}</div>
-      <div style="font-family:var(--font-mono);font-size:13px;color:var(--muted)">${line}</div>
-      <div>${pickStatusBadge(p, 'class')}</div>
-    </div>`;
-  }).join('');
+
+  // Group by week, sort weeks descending
+  const byWeek = {};
+  picks.forEach(p => {
+    const w = p.week || 0;
+    if (!byWeek[w]) byWeek[w] = [];
+    byWeek[w].push(p);
+  });
+  const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a);
+
+  function mpWeekLabel(weekNum, weekIndex) {
+    const leagueWeekNum = weeks.length - weekIndex;
+    const year = new Date().getFullYear();
+    const jan4 = new Date(year, 0, 4);
+    const isoWeek1Monday = new Date(jan4);
+    isoWeek1Monday.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+    const weekStart = new Date(isoWeek1Monday);
+    weekStart.setDate(isoWeek1Monday.getDate() + (weekNum - 1) * 7);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return 'Week ' + leagueWeekNum + ' · ' + fmt(weekStart) + ' – ' + fmt(weekEnd);
+  }
+
+  var html = '';
+  weeks.forEach(function(weekNum, weekIndex) {
+    var weekPicks = byWeek[weekNum];
+    var wins    = weekPicks.filter(p => p.result === 'win').length;
+    var losses  = weekPicks.filter(p => p.result === 'loss').length;
+    var pushes  = weekPicks.filter(p => p.result === 'push').length;
+    var pending = weekPicks.filter(p => !p.result || p.result === 'pending').length;
+    var isOpen  = weekNum === weeks[0];
+    var wLabel  = mpWeekLabel(weekNum, weekIndex);
+
+    html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+
+    // Week header
+    html += '<div onclick="toggleMemberWeek(' + weekNum + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface2);user-select:none;">';
+    html += '<div style="display:flex;align-items:center;gap:12px;">';
+    html += '<span id="mp-chevron-' + weekNum + '" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:' + (isOpen ? 'rotate(90deg)' : 'rotate(0deg)') + ';">▶</span>';
+    html += '<span style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + wLabel + '</span>';
+    html += '<span style="font-size:12px;color:var(--muted);">' + weekPicks.length + ' picks</span>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:12px;">';
+    if (wins)    html += '<span style="color:#2ecc71;">' + wins + 'W</span>';
+    if (losses)  html += '<span style="color:#e74c3c;">' + losses + 'L</span>';
+    if (pushes)  html += '<span style="color:var(--muted);">' + pushes + 'P</span>';
+    if (pending) html += '<span style="color:#f39c12;">' + pending + ' pending</span>';
+    html += '</div></div>';
+
+    // Week body
+    html += '<div id="mp-body-' + weekNum + '" style="display:' + (isOpen ? 'block' : 'none') + ';">';
+    html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
+    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
+    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
+    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
+    html += '</div>';
+
+    var sortedPicks = weekPicks.slice().sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+    sortedPicks.forEach(function(p) {
+      var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
+      var time = p.commence_time ? fmtTime(p.commence_time) : '';
+      html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
+      html += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + (time ? ' · ' + time : '') + '</div></div>';
+      html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props_.*/, 'props').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
+      html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
+      html += '<div>' + pickStatusBadge(p) + '</div>';
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  body.innerHTML = html;
+}
+
+function toggleMemberWeek(weekNum) {
+  const body    = document.getElementById('mp-body-' + weekNum);
+  const chevron = document.getElementById('mp-chevron-' + weekNum);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
 }
 
 // Loading skeleton
@@ -1478,9 +1551,12 @@ async function loadLeagueHistory() {
       return;
     }
 
+    const isCommish = ['commissioner', 'co_commissioner'].includes(currentLeague.my_role) || ['commissioner', 'co_commissioner'].includes(currentLeague.member_role);
+    const picksToShow = isCommish ? allPicks : allPicks.filter(p => p.user_id === currentUser?.id);
+
     // Group by week number
     const byWeek = {};
-    allPicks.forEach(p => {
+    picksToShow.forEach(p => {
       const w = p.week || 0;
       if (!byWeek[w]) byWeek[w] = [];
       byWeek[w].push(p);
@@ -1488,7 +1564,6 @@ async function loadLeagueHistory() {
 
     // Sort weeks descending (most recent first)
     const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a);
-    const isCommish = currentLeague.my_role === 'commissioner' || currentLeague.member_role === 'commissioner';
 
     // Week number → approximate date label
     function weekLabel(weekNum, weekIndex, totalWeeks) {
@@ -1545,18 +1620,6 @@ async function loadLeagueHistory() {
       var pushes  = picks.filter(p => p.result === 'push').length;
       var pending = picks.filter(p => !p.result || p.result === 'pending').length;
 
-      // Group picks within week by user, then sort each user's picks by commence_time
-      var byUser = {};
-      picks.forEach(p => {
-        var uid = p.user_id;
-        if (!byUser[uid]) byUser[uid] = { name: p.first_name ? p.first_name + ' ' + p.last_name : p.username, picks: [] };
-        byUser[uid].picks.push(p);
-      });
-      Object.values(byUser).forEach(u => {
-        u.picks.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
-      });
-      var sortedUsers = Object.values(byUser).sort((a, b) => a.name.localeCompare(b.name));
-
       var wLabel = weekLabel(weekNum, weekIndex, weeks.length);
       html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
 
@@ -1577,27 +1640,50 @@ async function loadLeagueHistory() {
       // Week body — collapsible
       html += '<div id="hist-body-' + weekNum + '" style="display:' + (isOpen ? 'block' : 'none') + ';">';
 
-      sortedUsers.forEach(function(user) {
-        var uWins    = user.picks.filter(p => p.result === 'win').length;
-        var uLosses  = user.picks.filter(p => p.result === 'loss').length;
-        var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
+      if (isCommish) {
+        // Group by user, show sub-headers and grade buttons
+        var byUser = {};
+        picks.forEach(p => {
+          var uid = p.user_id;
+          if (!byUser[uid]) byUser[uid] = { name: p.first_name ? p.first_name + ' ' + p.last_name : p.username, picks: [] };
+          byUser[uid].picks.push(p);
+        });
+        Object.values(byUser).forEach(u => {
+          u.picks.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+        });
+        var sortedUsers = Object.values(byUser).sort((a, b) => a.name.localeCompare(b.name));
 
-        // User sub-header
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);">';
-        html += '<span style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--accent);">' + user.name + '</span>';
-        html += '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + uWins + 'W · ' + uLosses + 'L</span>';
-        html += '</div>';
+        sortedUsers.forEach(function(user) {
+          var uWins   = user.picks.filter(p => p.result === 'win').length;
+          var uLosses = user.picks.filter(p => p.result === 'loss').length;
 
-        // Column headers
-        html += '<div style="display:grid;grid-template-columns:' + cols + ';padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
+          // User sub-header
+          html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);">';
+          html += '<span style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--accent);">' + user.name + '</span>';
+          html += '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + uWins + 'W · ' + uLosses + 'L</span>';
+          html += '</div>';
+
+          // Column headers
+          html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 110px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
+          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
+          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
+          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
+          html += '</div>';
+
+          user.picks.forEach(p => { html += historyPickRow(p); });
+        });
+      } else {
+        // Member view: flat list sorted by game time, no grade buttons
+        var sortedPicks = picks.slice().sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+        html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
         html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
         html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
         html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
         html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
         html += '</div>';
-
-        user.picks.forEach(p => { html += historyPickRow(p); });
-      });
+        sortedPicks.forEach(p => { html += historyPickRow(p); });
+      }
 
       html += '</div></div>'; // close hist-body + week card
     });
@@ -1982,7 +2068,10 @@ async function renderMyLeaguePicks(leagueId) {
 
   function badge(pick) { return pickStatusBadge(pick); }
 
-  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+  const { monday: wrMon, sunday: wrSun } = getWeekRange();
+  const fmtWR = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  var html = '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;">My Picks · ' + fmtWR(wrMon) + ' – ' + fmtWR(wrSun) + '</div>';
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
   html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">';
   html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>';
   html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Type</span>';
