@@ -319,7 +319,6 @@
       <button class="nav-link" id="nav-sportsbook" onclick="showPage('sportsbook')">Sportsbook</button>
       <button class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">My Leagues</button>
       <button class="nav-link" id="nav-picks" onclick="showPage('picks')">My Picks</button>
-      <button class="nav-link" id="nav-member" style="display:none" onclick="showPage('member')">Member</button>
     </div>
     <div class="nav-right">
       <button class="btn-secondary" onclick="openJoinLeague()">Join League</button>
@@ -381,6 +380,7 @@
           <button class="tab-btn" id="lt-tab-picks" onclick="showLeagueTab('picks',this)">My Picks</button>
           <button class="tab-btn" id="lt-tab-results" onclick="showLeagueTab('results',this)">This Week</button>
           <button class="tab-btn" id="lt-tab-history" onclick="showLeagueTab('history',this)">History</button>
+          <button class="tab-btn" id="lt-tab-member" onclick="showLeagueTab('member',this)" style="display:none">Member Picks</button>
         </div>
         <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>G</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
         <div id="lt-picks" style="display:none">
@@ -407,6 +407,7 @@
         </div>
         <div id="lt-results" style="display:none"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Week Results</h3><p>Games in progress — check back later for final results.</p></div></div>
         <div id="lt-history" style="display:none"></div>
+        <div id="lt-member" style="display:none"></div>
       </div>
 
       <!-- MY PICKS -->
@@ -422,27 +423,6 @@
       </div>
 
       <!-- MEMBER PAGE -->
-      <div class="page" id="page-member">
-        <button class="back-btn" onclick="showPage('league')">‹ Back to League</button>
-        <div class="member-header">
-          <div class="member-big-avatar" id="member-avatar">?</div>
-          <div class="member-info">
-            <h2 id="member-name">—</h2>
-            <div style="color:var(--muted);font-size:14px;">Member since Jan 2025</div>
-            <div class="member-stats-row">
-              <div class="member-stat"><div class="member-stat-val stat-green" id="member-wins">—</div><div class="member-stat-label">Wins</div></div>
-              <div class="member-stat"><div class="member-stat-val stat-red" id="member-losses">—</div><div class="member-stat-label">Losses</div></div>
-              <div class="member-stat"><div class="member-stat-val stat-yellow" id="member-pct">—</div><div class="member-stat-label">Win %</div></div>
-              <div class="member-stat"><div class="member-stat-val" id="member-rank">—</div><div class="member-stat-label">Rank</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="section-title">Recent Picks</div>
-        <div class="picks-history">
-          <div class="picks-history-header"><span>Game</span><span>Pick</span><span>Line</span><span>Result</span></div>
-          <div id="member-picks-body"></div>
-        </div>
-      </div>
 
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
@@ -1042,29 +1022,43 @@ async function loadLeagueDetail(leagueId) {
   }
 }
 
-async function loadMemberPicks(userId, leagueId, memberName, wins, losses, rank, colorIdx) {
-  // Populate header immediately with what we know
+async function loadMemberPicks(userId, leagueId, username, wins, losses, pushes, rank, colorIdx) {
   const color    = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
-  const initials = memberName.slice(0, 2).toUpperCase();
-  const pct      = wins + losses > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0';
+  const initials = username.slice(0, 2).toUpperCase();
+  const total    = wins + losses + pushes;
+  const pct      = total > 0 ? (((wins + 0.5 * pushes) / total) * 100).toFixed(1) : '0.0';
 
-  document.getElementById('member-avatar').textContent = initials;
-  document.getElementById('member-avatar').style.cssText = `background:${color}22;color:${color}`;
-  document.getElementById('member-name').textContent    = memberName;
-  document.getElementById('member-wins').textContent    = wins;
-  document.getElementById('member-losses').textContent  = losses;
-  document.getElementById('member-pct').textContent     = pct + '%';
-  document.getElementById('member-rank').textContent    = '#' + rank;
-  document.getElementById('member-picks-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Loading picks…</div>';
-  document.getElementById('nav-member').style.display = 'inline-block';
-  showPage('member');
+  // Reveal the member tab and switch to it within the league page
+  const memberTabBtn = document.getElementById('lt-tab-member');
+  memberTabBtn.textContent = username;
+  memberTabBtn.style.display = 'inline-block';
+
+  document.getElementById('lt-member').innerHTML = `
+    <div class="member-header">
+      <div class="member-big-avatar" style="background:${color}22;color:${color}">${initials}</div>
+      <div class="member-info">
+        <h2>${username}</h2>
+        <div class="member-stats-row">
+          <div class="member-stat"><div class="member-stat-val stat-green">${wins}</div><div class="member-stat-label">Wins</div></div>
+          <div class="member-stat"><div class="member-stat-val stat-red">${losses}</div><div class="member-stat-label">Losses</div></div>
+          <div class="member-stat"><div class="member-stat-val stat-yellow">${pct}%</div><div class="member-stat-label">Win %</div></div>
+          <div class="member-stat"><div class="member-stat-val">#${rank}</div><div class="member-stat-label">Rank</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="picks-history" style="margin-top:24px;">
+      <div class="picks-history-header"><span>Game</span><span>Pick</span><span>Line</span><span>Result</span></div>
+      <div id="member-picks-body"><div style="padding:20px;text-align:center;color:var(--muted)">Loading picks…</div></div>
+    </div>`;
+
+  showLeagueTab('member', memberTabBtn);
 
   try {
-    const data = await api.get(`/picks/member/${userId}/league/${leagueId}`);
+    const data = await api.get(`/leagues/${leagueId}/members/${userId}/picks`);
     renderMemberPicks(data.picks || []);
   } catch (err) {
-    // Fall back to sample history
-    renderMemberPicks(null);
+    document.getElementById('member-picks-body').innerHTML =
+      '<div style="padding:20px;text-align:center;color:var(--muted)">Could not load picks.</div>';
   }
 }
 
@@ -1187,13 +1181,15 @@ function abbreviate(name) {
 
 function renderMemberPicks(picks) {
   const body = document.getElementById('member-picks-body');
-  const rows  = picks && picks.length ? picks : PICK_HISTORY;
-  body.innerHTML = rows.map(p => {
-    const game   = p.home_team ? `${p.away_team || ''} @ ${p.home_team}` : (p.game || '—');
-    const pick   = p.selection || p.pick || '—';
-    const line   = p.line_data?.spread?.home?.odds || p.line || '—';
-    const result = p.result || 'pending';
-    const cls    = result === 'win' ? 'result-win' : result === 'loss' ? 'result-loss' : result === 'push' ? 'result-push' : 'result-pending';
+  if (!body) return;
+  if (!picks || !picks.length) {
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No picks found for this league.</div>';
+    return;
+  }
+  body.innerHTML = picks.map(p => {
+    const game = (p.away_team && p.home_team) ? `${p.away_team} @ ${p.home_team}` : (p.game || '—');
+    const pick = p.selection || '—';
+    const line = p.line_data?.spread?.home?.odds ?? p.line_data?.line ?? p.line ?? '—';
     return `<div class="pick-history-row">
       <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${game}</div>
       <div style="font-family:var(--font-display);font-weight:700;font-size:14px;">${pick}</div>
@@ -1306,6 +1302,9 @@ function showLeagueTab(tab, btn) {
   document.getElementById('lt-picks').style.display     = tab==='picks'     ? 'block' : 'none';
   document.getElementById('lt-results').style.display   = tab==='results'   ? 'block' : 'none';
   document.getElementById('lt-history').style.display   = tab==='history'   ? 'block' : 'none';
+  document.getElementById('lt-member').style.display    = tab==='member'    ? 'block' : 'none';
+  // Hide the dynamic member tab button when leaving the member view
+  if (tab !== 'member') document.getElementById('lt-tab-member').style.display = 'none';
   if (tab === 'picks')   renderLeaguePicks();
   if (tab === 'results') loadThisWeek();
   if (tab === 'history') loadLeagueHistory();
@@ -2302,13 +2301,15 @@ function renderStandings(standings) {
     const color    = AVATAR_COLORS[idx % AVATAR_COLORS.length];
     const wins     = m.wins || m.w || 0;
     const losses   = m.losses || m.l || 0;
+    const pushes   = m.pushes || 0;
     const pct      = m.win_pct != null ? m.win_pct : (wins + losses > 0 ? ((wins/(wins+losses))*100).toFixed(1) : '0.0');
     const streak   = m.streak || 0;
     const streakCls = streak > 0 ? 'trend-up' : streak < 0 ? 'trend-down' : 'trend-neutral';
     const streakLbl = streak > 0 ? `▲ W${streak}` : streak < 0 ? `▼ L${Math.abs(streak)}` : '— —';
+    const username  = (m.username || displayName).replace(/'/g, "\\'");
     const clickable = !isMe && m.id;
     return `
-      <div class="standings-row ${isMe ? 'me' : ''}" ${clickable ? `onclick="loadMemberPicks(${m.id},'${currentLeague?.id || ''}','${displayName}',${wins},${losses},${rank},${idx})"` : ''}>
+      <div class="standings-row ${isMe ? 'me' : ''}" ${clickable ? `onclick="loadMemberPicks(${m.id},'${currentLeague?.id || ''}','${username}',${wins},${losses},${pushes},${rank},${idx})"` : ''}>
         <div class="standing-rank ${rank <= 3 ? 'top' : ''}">${rank}</div>
         <div class="standing-user">
           <div class="standing-avatar" style="background:${color}22;color:${color}">${initials}</div>

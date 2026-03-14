@@ -349,6 +349,41 @@ router.patch('/:leagueId/members/:userId/role', requireAuth, requireCommissioner
   }
 });
 
+// ── GET /api/leagues/:leagueId/members/:userId/picks ─────────────────────────
+// Get a specific member's picks in a league (any member can view)
+router.get('/:leagueId/members/:userId/picks', requireAuth, async (req, res, next) => {
+  try {
+    const { leagueId, userId } = req.params;
+
+    // Verify requesting user is a member of the league
+    const { rows: membership } = await db.query(
+      'SELECT id FROM league_members WHERE league_id = $1 AND user_id = $2',
+      [leagueId, req.user.id]
+    );
+    if (!membership[0]) return res.status(403).json({ error: 'Not a member of this league' });
+
+    // Verify target user is also a member
+    const { rows: targetMembership } = await db.query(
+      'SELECT id FROM league_members WHERE league_id = $1 AND user_id = $2',
+      [leagueId, userId]
+    );
+    if (!targetMembership[0]) return res.status(404).json({ error: 'Member not found in this league' });
+
+    const { rows: picks } = await db.query(`
+      SELECT p.*,
+             e.home_team, e.away_team, e.commence_time
+      FROM picks p
+      LEFT JOIN events e ON e.external_id = p.event_id
+      WHERE p.user_id = $1 AND p.league_id = $2
+      ORDER BY p.week DESC, COALESCE(e.commence_time, p.created_at) DESC
+    `, [userId, leagueId]);
+
+    res.json({ picks });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function generateInviteCode(leagueId) {
   const chars  = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
