@@ -12,15 +12,14 @@ router.get('/', requireAuth, async (req, res, next) => {
     const { rows } = await db.query(`
       SELECT l.*,
              lm.role        AS member_role,
-             COUNT(DISTINCT lm2.user_id) AS member_count,
+             (SELECT COUNT(*) FROM league_members WHERE league_id = l.id) AS member_count,
              -- User's own stats in this league
              SUM(CASE WHEN p.result = 'win'  THEN 1 ELSE 0 END) AS wins,
              SUM(CASE WHEN p.result = 'loss' THEN 1 ELSE 0 END) AS losses,
              SUM(CASE WHEN p.result = 'push' THEN 1 ELSE 0 END) AS pushes
       FROM leagues l
-      JOIN league_members lm  ON lm.league_id = l.id AND lm.user_id = $1
-      JOIN league_members lm2 ON lm2.league_id = l.id
-      LEFT JOIN picks p       ON p.league_id = l.id AND p.user_id = $1
+      JOIN league_members lm ON lm.league_id = l.id AND lm.user_id = $1
+      LEFT JOIN picks p      ON p.league_id = l.id AND p.user_id = $1
       GROUP BY l.id, lm.role
       ORDER BY l.created_at DESC
     `, [req.user.id]);
@@ -152,10 +151,11 @@ router.get('/:leagueId', requireAuth, async (req, res, next) => {
              SUM(CASE WHEN p.result = 'push'   THEN 1 ELSE 0 END) AS pushes,
              SUM(CASE WHEN p.result = 'pending' THEN 1 ELSE 0 END) AS pending,
              CASE
-               WHEN SUM(CASE WHEN p.result IN ('win','loss') THEN 1 ELSE 0 END) = 0 THEN 0
+               WHEN SUM(CASE WHEN p.result IN ('win','loss','push') THEN 1 ELSE 0 END) = 0 THEN 0
                ELSE ROUND(
-                 SUM(CASE WHEN p.result = 'win' THEN 1 ELSE 0 END)::numeric /
-                 NULLIF(SUM(CASE WHEN p.result IN ('win','loss') THEN 1 ELSE 0 END), 0) * 100, 1
+                 (SUM(CASE WHEN p.result = 'win' THEN 1 ELSE 0 END) +
+                  0.5 * SUM(CASE WHEN p.result = 'push' THEN 1 ELSE 0 END))::numeric /
+                 NULLIF(SUM(CASE WHEN p.result IN ('win','loss','push') THEN 1 ELSE 0 END), 0) * 100, 1
                )
              END AS win_pct
       FROM league_members lm
