@@ -2299,9 +2299,9 @@ function renderStandings(standings) {
     const displayName = isMe ? (currentUser?.name || m.username) : (m.first_name ? `${m.first_name} ${m.last_name || ''}`.trim() : m.username || '—');
     const initials = isMe ? (currentUser?.initials || displayName.slice(0,2).toUpperCase()) : displayName.slice(0,2).toUpperCase();
     const color    = AVATAR_COLORS[idx % AVATAR_COLORS.length];
-    const wins     = m.wins || m.w || 0;
-    const losses   = m.losses || m.l || 0;
-    const pushes   = m.pushes || 0;
+    const wins     = parseInt(m.wins || m.w || 0);
+    const losses   = parseInt(m.losses || m.l || 0);
+    const pushes   = parseInt(m.pushes || 0);
     const pct      = m.win_pct != null ? m.win_pct : (wins + losses + pushes > 0 ? (((wins + 0.5 * pushes) / (wins + losses + pushes)) * 100).toFixed(1) : '0.0');
     const streak   = m.streak || 0;
     const streakCls = streak > 0 ? 'trend-up' : streak < 0 ? 'trend-down' : 'trend-neutral';
