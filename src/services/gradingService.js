@@ -215,7 +215,7 @@ function gradePick(pick, score) {
   }
 
   // ── PROPS ─────────────────────────────────────────────────────────────────────
-  if (bet_type === 'props') {
+  if (bet_type.startsWith('props')) {
     // Graded by propsGradingService via Ball Don't Lie API.
     // Push rule: stat lands exactly on a whole-number line → push.
     return 'pending';

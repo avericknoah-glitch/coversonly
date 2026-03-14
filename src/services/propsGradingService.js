@@ -209,7 +209,7 @@ async function gradeNBAPropPicks() {
     FROM picks p
     LEFT JOIN events e ON e.external_id = p.event_id
     WHERE p.result = 'pending'
-      AND p.bet_type = 'props'
+      AND p.bet_type LIKE 'props%'
       AND p.sport IN ('basketball_nba', 'nba')
   `);
 

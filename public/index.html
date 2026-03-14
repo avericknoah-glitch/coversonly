@@ -762,7 +762,7 @@ async function loadMyPicks() {
       const time    = p.commence_time
         ? fmtTime(p.commence_time)
         : 'TBD';
-      const betType = (p.bet_type || 'pick').toUpperCase();
+      const betType = (p.bet_type || 'pick').replace(/^props_.*/, 'props').toUpperCase();
       return '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;" class="sportsbook-row">'
         + '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + game + '</div>'
         + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + time + '</div></div>'
@@ -1523,7 +1523,7 @@ async function loadLeagueHistory() {
       var row = '<div style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
       row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
       row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div></div>';
-      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
+      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props_.*/, 'props').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
       row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
       if (isCommish) {
         row += '<div style="display:flex;flex-direction:column;gap:2px;">';
@@ -1999,7 +1999,7 @@ async function renderMyLeaguePicks(leagueId) {
     html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
     html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>';
     html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + (gameTime ? ' · ' + gameTime : '') + '</div></div>';
-    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—') + '</div>';
+    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—').replace(/^props_.*/, 'props') + '</div>';
     html += '<div style="font-family:var(--font-mono);font-size:13px;">' + (p.line || '—') + '</div>';
     html += '<div>' + badge(p) + '</div></div>';
   });
@@ -2043,7 +2043,15 @@ async function submitLeaguePicks(leagueId) {
     if (betId.startsWith('spread')) return 'spread';
     if (betId.startsWith('ml'))     return 'ml';
     if (betId.startsWith('ou'))     return 'ou';
-    if (betId.startsWith('prop'))   return 'props';
+    if (betId.startsWith('prop')) {
+      // Encode market + player into bet_type so each player prop is a distinct
+      // key in the DB unique constraint (user, league, week, event_id, bet_type).
+      // Format: props_{market}_{Player}_{Name}  (direction excluded so over/under upsert)
+      const parts = betId.split('-');
+      const dirIdx = parts.findIndex((p, i) => i > 1 && (p === 'over' || p === 'under'));
+      const key = (dirIdx > 1 ? parts.slice(1, dirIdx) : parts.slice(1)).join('_');
+      return 'props_' + key;
+    }
     return betId.split('-')[0];
   }
 

@@ -126,9 +126,11 @@ router.post('/', requireAuth, async (req, res, next) => {
         .replace('totals', 'ou')
         .replace('over_under', 'ou')
         .replace('moneyline', 'ml');
-      if (!league.bet_types.includes(pick.bet_type)) {
+      // Props are stored with an encoded key (props_market_player) — validate against 'props'
+      const canonicalType = pick.bet_type.startsWith('props') ? 'props' : pick.bet_type;
+      if (!league.bet_types.includes(canonicalType)) {
         return res.status(400).json({
-          error: `Bet type '${pick.bet_type}' not allowed in this league. Allowed: ${league.bet_types.join(', ')}`,
+          error: `Bet type '${canonicalType}' not allowed in this league. Allowed: ${league.bet_types.join(', ')}`,
         });
       }
     }
