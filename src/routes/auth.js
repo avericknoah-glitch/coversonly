@@ -136,7 +136,8 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
         return res.status(409).json({ error: 'Email already taken' });
       }
     }
-    if (username) {
+    // Only check username conflict if it's not just a casing change of the user's own username
+    if (username && username.toLowerCase() !== user.username.toLowerCase()) {
       const { rows: usernameConflict } = await db.query(
         'SELECT id FROM users WHERE lower(username) = $1 AND id != $2',
         [username.toLowerCase(), req.user.id]

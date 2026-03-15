@@ -2424,12 +2424,10 @@ function renderStandings(standings) {
     const _fn = isMe ? currentUser?.first_name : m.first_name;
     const _ln = isMe ? currentUser?.last_name  : m.last_name;
     const _un = isMe ? currentUser?.username   : m.username;
-    const displayName = _fn
-      ? `${_fn} ${_ln || ''}`.trim() + ` (${_un || ''})`
-      : (_un || '—');
-    const initials = isMe
-      ? (currentUser?.initials || (_fn ? (_fn[0] + (_ln?.[0] || '')).toUpperCase() : (_un || '?').slice(0,2).toUpperCase()))
-      : (_fn ? (_fn[0] + (_ln?.[0] || '')).toUpperCase() : (_un || '?').slice(0,2).toUpperCase());
+    const fullName   = _fn ? `${_fn} ${_ln || ''}`.trim() : null;
+    const initials   = _fn
+      ? (_fn[0] + (_ln?.[0] || '')).toUpperCase()
+      : (_un || '?').slice(0, 2).toUpperCase();
     const color    = AVATAR_COLORS[idx % AVATAR_COLORS.length];
     const wins     = parseInt(m.wins || m.w || 0);
     const losses   = parseInt(m.losses || m.l || 0);
@@ -2438,14 +2436,14 @@ function renderStandings(standings) {
     const streak   = m.streak || 0;
     const streakCls = streak > 0 ? 'trend-up' : streak < 0 ? 'trend-down' : 'trend-neutral';
     const streakLbl = streak > 0 ? `▲ W${streak}` : streak < 0 ? `▼ L${Math.abs(streak)}` : '— —';
-    const username  = (m.username || displayName).replace(/'/g, "\\'");
+    const username  = (_un || '').replace(/'/g, "\\'");
     const clickable = !isMe && m.id;
     return `
       <div class="standings-row ${isMe ? 'me' : ''}" ${clickable ? `onclick="loadMemberPicks(${m.id},'${currentLeague?.id || ''}','${username}',${wins},${losses},${pushes},${rank},${idx})"` : ''}>
         <div class="standing-rank ${rank <= 3 ? 'top' : ''}">${rank}</div>
         <div class="standing-user">
           <div class="standing-avatar" style="background:${color}22;color:${color}">${initials}</div>
-          <div class="standing-name">${displayName}${isMe ? ' <span style="color:var(--accent);font-size:13px;">(You)</span>' : ''}</div>
+          <div class="standing-name">${_un || '—'}${fullName ? `<span style="color:var(--muted);font-size:12px;font-weight:500;"> (${fullName})</span>` : ''}${isMe ? ' <span style="color:var(--accent);font-size:13px;">(You)</span>' : ''}</div>
         </div>
         <div class="standing-num stat-green">${wins}</div>
         <div class="standing-num stat-red">${losses}</div>
