@@ -40,7 +40,7 @@
   .auth-tabs { display: flex; margin-bottom: 36px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .auth-tab { flex: 1; padding: 10px 16px; background: transparent; border: none; color: var(--muted); font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .auth-tab.active { background: var(--accent); color: #fff; }
-  .auth-form-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .auth-form-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; color: var(--text); }
   .auth-form-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
   .form-group { margin-bottom: 20px; }
   .form-group label { display: block; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -71,9 +71,9 @@
   .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; width: 100%; }
   .page.active { display: block; animation: fadeIn 0.25s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .page-title { font-family: var(--font-display); font-size: 42px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+  .page-title { font-family: var(--font-display); font-size: 42px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; color: var(--accent); }
   .page-sub { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
-  .section-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .section-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
 
   /* LEAGUE CARDS */
   .leagues-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 40px; }
@@ -81,7 +81,7 @@
   .league-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
   .league-card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .league-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-  .league-card-name { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .league-card-name { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; color: var(--text); }
   .league-card-meta { font-size: 13px; color: var(--muted); }
   .league-badge { padding: 4px 10px; border-radius: 4px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
   .badge-commissioner { background: rgba(0,83,76,0.15); color: var(--accent); border: 1px solid rgba(0,83,76,0.3); }
@@ -98,7 +98,7 @@
   .league-header-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 28px; display: flex; align-items: center; gap: 32px; position: relative; overflow: hidden; }
   .league-header-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
   .league-header-info { flex: 1; }
-  .league-header-name { font-family: var(--font-display); font-size: 48px; font-weight: 900; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+  .league-header-name { font-family: var(--font-display); font-size: 48px; font-weight: 900; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; color: var(--accent); }
   .league-header-details { display: flex; gap: 20px; color: var(--muted); font-size: 14px; flex-wrap: wrap; }
   .league-header-actions { display: flex; gap: 10px; }
   .tab-bar { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
@@ -119,7 +119,7 @@
   .standing-rank.top { color: var(--accent); }
   .standing-user { display: flex; align-items: center; gap: 10px; }
   .standing-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 13px; font-weight: 800; flex-shrink: 0; }
-  .standing-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  .standing-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); }
   .standing-num { font-family: var(--font-mono); font-size: 14px; }
   .standing-pct { font-family: var(--font-mono); font-size: 14px; }
   .trend-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-family: var(--font-display); font-size: 12px; font-weight: 700; }
@@ -183,7 +183,7 @@
   .settings-nav-item:hover { color: var(--text); background: var(--surface2); }
   .settings-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,83,76,0.04); }
   .settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; }
-  .settings-section-title { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .settings-section-title { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; color: var(--accent); }
   .settings-section-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
   .settings-field { margin-bottom: 24px; }
   .settings-field label { display: block; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -245,7 +245,7 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
   .modal-container { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.5); overflow: hidden; }
   .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
-  .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+  .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text); }
   .modal-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
   .modal-close:hover { color: var(--text); background: var(--surface2); }
 </style>
@@ -891,7 +891,7 @@ async function loadMyPicks() {
 
     return '<div style="margin-bottom:36px;">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
-      + '<div><div style="font-family:var(--font-display);font-size:24px;font-weight:900;letter-spacing:-0.3px;">' + leagueName + '</div>'
+      + '<div><div style="font-family:var(--font-display);font-size:24px;font-weight:900;letter-spacing:-0.3px;color:var(--accent);">' + leagueName + '</div>'
       + '<div style="font-size:13px;color:var(--muted);">' + sports + '</div></div>'
       + '<button class="btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="openLeague(' + league.id + ')">View League →</button>'
       + '</div>'
