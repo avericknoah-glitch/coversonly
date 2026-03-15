@@ -3150,6 +3150,7 @@ function copyInviteLink() {
 // ─────────────────────────────────────────────────────────────────────────────
 // ── ACCOUNT SETTINGS ─────────────────────────────────────────────────────────
 function openAccountSettings() {
+  console.log('[DEBUG openAccountSettings] currentUser:', currentUser);
   if (!currentUser) return;
   document.getElementById('acct-first-name').value     = currentUser.first_name || '';
   document.getElementById('acct-last-name').value      = currentUser.last_name  || '';
@@ -3169,6 +3170,7 @@ function closeAccountSettings() {
 }
 
 async function saveAccountSettings() {
+  console.log('[DEBUG saveAccountSettings] called');
   const currentPassword = document.getElementById('acct-current-password').value;
   const newPassword     = document.getElementById('acct-new-password').value;
   const confirmPassword = document.getElementById('acct-confirm-password').value;
