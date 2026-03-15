@@ -1028,8 +1028,6 @@ async function loadLeagues() {
 async function loadLeagueDetail(leagueId) {
   try {
     const data = await api.get(`/leagues/${leagueId}`);
-    console.log('[DEBUG loadLeagueDetail] raw data.league:', JSON.stringify(data.league));
-    console.log('[DEBUG loadLeagueDetail] odds_max from backend:', data.league?.odds_max, '| type:', typeof data.league?.odds_max);
     currentLeague = data.league;
     if (!currentLeague.pick_type_limits) {
       currentLeague.pick_type_limits = { any: currentLeague.picks_per_week || 5 };
@@ -1806,7 +1804,6 @@ async function renderLeaguePicks() {
   const allowedSports = (league.sports || []).map(s => s.toLowerCase());
   const allowedBetTypes = (league.bet_types || ['spread','ml','ou']).filter(Boolean);
   const oddsMax = league.odds_max ?? -120;
-  console.log('[DEBUG filter] league.odds_max:', league.odds_max, '| resolved oddsMax:', oddsMax);
 
   function oddsOk(oddsStr) {
     if (!oddsStr || oddsStr === '—') return false;
@@ -2134,7 +2131,6 @@ function refreshPropButtonStates(leagueId) {
   const byTypeSubmitted = submittedPickCounts[leagueId + '_byType'] || {};
 
   function isTypeLocked(betId) {
-    console.log('[DEBUG isTypeLocked]', betId, '| limits:', JSON.stringify(limits), '| byTypePending:', JSON.stringify(byTypePending), '| byTypeSubmitted:', JSON.stringify(byTypeSubmitted));
     if (!limits || !Object.keys(limits).some(k => k !== 'any' && limits[k] > 0)) return false;
     const pickType = betId.startsWith('spread') ? 'spread'
       : betId.startsWith('ml') ? 'ml'
@@ -2209,7 +2205,6 @@ async function renderMyLeaguePicks(leagueId) {
       byType[bt] = (byType[bt] || 0) + 1;
     });
     submittedPickCounts[leagueId + '_byType'] = byType;
-    console.log('[DEBUG byType]', leagueId, JSON.stringify(byType));
   } catch { /* offline */ }
 
   if (!pending.length && !submitted.length) {
@@ -2524,14 +2519,12 @@ async function saveLeagueSportsSettings() {
   }
 
   // ── Persist to backend ────────────────────────────────────────────────────
-  console.log('[DEBUG save] Sending PATCH with odds_max:', odds_max, '| type:', typeof odds_max);
   try {
     const patchResult = await api.patch(`/leagues/${currentLeague.id}`, {
       name, visibility, max_members, picks_per_week, odds_max, pick_type_limits,
       sports: currentLeague.sports,
       bet_types: currentLeague.bet_types,
     });
-    console.log('[DEBUG save] PATCH response:', JSON.stringify(patchResult));
   } catch (err) {
     showToast('❌ Failed to save: ' + (err.message || 'unknown error'), 'error');
     return;
@@ -2540,7 +2533,6 @@ async function saveLeagueSportsSettings() {
   // Verify by re-fetching
   try {
     const verify = await api.get(`/leagues/${currentLeague.id}`);
-    console.log('[DEBUG save] POST-SAVE verify — odds_max from DB:', verify.league?.odds_max);
   } catch(e) {}
 
   showToast('✅ Settings saved!');
@@ -2596,16 +2588,14 @@ function renderLeaguesGrid() {
 function openLeague(id) {
   // Coerce to number — backend may return id as string
   id = parseInt(id);
-  console.log('[DEBUG openLeague] id:', id, '| myLeagues ids:', myLeagues.map(l => parseInt(l.id)), '| found:', !!myLeagues.find(l => parseInt(l.id) === id));
   const league = myLeagues.find(l => parseInt(l.id) === id) || LEAGUES_FALLBACK.find(l => parseInt(l.id) === id);
-  if (!league) { console.warn('[DEBUG openLeague] league not found at all'); return; }
+  if (!league) return;
 
   // If it's a real API league, fetch full detail
   if (myLeagues.find(l => parseInt(l.id) === id)) {
     showLoading('standings-body', 'Loading standings…');
     loadLeagueDetail(id);
   } else {
-    console.log('[DEBUG openLeague] ⚠️ FALLBACK path — league not in myLeagues, using LEAGUES_FALLBACK');
     // Fallback — render with sample standings
     currentLeague = league;
     if (!currentLeague.pick_type_limits) {
