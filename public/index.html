@@ -430,7 +430,6 @@
           <div class="settings-nav">
             <div class="settings-nav-item active" onclick="showSettingsSection('general',this)">General</div>
             <div class="settings-nav-item" onclick="showSettingsSection('sports',this)">Sports & Bets</div>
-            <div class="settings-nav-item" onclick="showSettingsSection('scoring',this)">Scoring</div>
             <div class="settings-nav-item" onclick="showSettingsSection('members',this)">Members</div>
             <div class="settings-nav-item" onclick="showSettingsSection('invite',this)">Invite</div>
           </div>
@@ -465,16 +464,6 @@
                 <div id="s-odds-preview" style="padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px;color:var(--accent);max-width:400px;margin-bottom:20px;"></div>
               </div>
               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="saveLeagueSportsSettings()">Save Changes</button>
-            </div>
-            <div id="ss-scoring" style="display:none">
-              <div class="settings-section-title">Scoring Rules</div>
-              <div class="settings-section-sub">Configure how points are awarded</div>
-              <div class="settings-field"><label>Correct Spread Pick</label><input type="number" value="1"><div class="settings-field-hint">Points awarded per correct spread pick</div></div>
-              <div class="settings-field"><label>Correct Moneyline</label><input type="number" value="1"></div>
-              <div class="settings-field"><label>Correct Over/Under</label><input type="number" value="1"></div>
-              <div class="settings-field"><label>Parlay Bonus</label><select><option>No parlays</option><option>2x per leg</option><option>True odds multiplier</option></select></div>
-              <div class="settings-field"><label>Tiebreaker</label><select><option>Win percentage</option><option>Total wins</option><option>Most recent result</option></select></div>
-              <button class="btn-primary" style="width:auto;padding:12px 28px;margin-top:4px;" onclick="showToast('✅ Scoring rules saved!')">Save Changes</button>
             </div>
             <div id="ss-members" style="display:none">
               <div class="settings-section-title">Manage Members</div>
@@ -848,7 +837,6 @@ const BET_TYPES = [
   {id:'spread',name:'Point Spread',desc:'Pick a team to cover the spread'},
   {id:'ml',name:'Moneyline',desc:'Pick the outright winner'},
   {id:'ou',name:'Over / Under',desc:'Bet on total points scored'},
-  {id:'parlay',name:'Parlays',desc:'Combine picks for bigger payouts'},
   {id:'props',name:'Player Props',desc:'Bet on individual player stats'},
 ];
 
@@ -1041,8 +1029,7 @@ async function loadLeagueDetail(leagueId) {
     document.getElementById('league-page-name').textContent     = data.league.name;
     document.getElementById('league-page-members').textContent  = data.standings.length;
     document.getElementById('league-page-sports').textContent   = '🏈 ' + (data.league.sports || []).join(' · ').toUpperCase();
-    document.getElementById('settings-btn').style.display =
-      (data.league.my_role === 'commissioner' || data.league.my_role === 'co_commissioner') ? 'inline-block' : 'none';
+    document.getElementById('settings-btn').style.display = 'inline-block';
     // Reset tab content so stale picks from previous league don't show
     const myPicksEl = document.getElementById('league-my-picks-content');
     if (myPicksEl) myPicksEl.innerHTML = '';
@@ -1397,6 +1384,14 @@ function showPage(id) {
         };
       }
     }
+    // Read-only view for non-commissioners
+    const isCommish = currentLeague && ['commissioner','co_commissioner'].includes(currentLeague.my_role);
+    document.querySelectorAll('.settings-panel input, .settings-panel select').forEach(el => {
+      el.disabled = !isCommish;
+    });
+    document.querySelectorAll('.settings-panel .btn-primary').forEach(el => {
+      el.style.display = isCommish ? '' : 'none';
+    });
   }
 }
 
@@ -2244,7 +2239,7 @@ async function submitLeaguePicks(leagueId) {
 function showSettingsSection(id, el) {
   document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
-  ['general','sports','scoring','members','invite'].forEach(s => {
+  ['general','sports','members','invite'].forEach(s => {
     document.getElementById('ss-'+s).style.display = s===id?'block':'none';
   });
   if (id === 'invite' && currentLeague) loadInviteCode();
@@ -2399,7 +2394,7 @@ function openLeague(id) {
     document.getElementById('league-page-name').textContent    = league.name;
     document.getElementById('league-page-members').textContent = league.member_count || 8;
     document.getElementById('league-page-sports').textContent  = '🏈 ' + (Array.isArray(league.sports) ? league.sports.join(' · ').toUpperCase() : league.sports || '');
-    document.getElementById('settings-btn').style.display = (league.my_role === 'commissioner' || league.isCommissioner) ? 'inline-block' : 'none';
+    document.getElementById('settings-btn').style.display = 'inline-block';
     renderStandings(SAMPLE_STANDINGS_FALLBACK);
     showPage('league');
   }
