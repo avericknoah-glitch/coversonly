@@ -2643,6 +2643,11 @@ async function loadSportsbook() {
     sbGames = SAMPLE_GAMES_FALLBACK;
   }
 
+  const oneWeekFromNow = new Date();
+  oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+  oneWeekFromNow.setHours(23, 59, 59, 999);
+  sbGames = sbGames.filter(g => !g.commence_time || new Date(g.commence_time) <= oneWeekFromNow);
+
   loading.style.display = 'none';
 
   if (!sbGames.length) {
