@@ -1792,82 +1792,105 @@ async function loadLeagueHistory() {
     }
 
     var html = '';
-    weeks.forEach(function(weekNum, weekIndex) {
-      var picks = byWeek[weekNum];
-      var isOpen = historyOpen[weekNum] || false;
 
-      // Stats for this week
-      var wins    = picks.filter(p => p.result === 'win').length;
-      var losses  = picks.filter(p => p.result === 'loss').length;
-      var pushes  = picks.filter(p => p.result === 'push').length;
-      var pending = picks.filter(p => !p.result || p.result === 'pending').length;
+    // Group all picks by user
+    const byUser = {};
+    picksToShow.forEach(p => {
+      const uid = p.user_id;
+      if (!byUser[uid]) byUser[uid] = {
+        name: p.first_name ? (p.first_name + ' ' + (p.last_name || '')).trim() : p.username,
+        username: p.username,
+        picks: []
+      };
+      byUser[uid].picks.push(p);
+    });
 
-      var wLabel = weekLabel(weekNum, weekIndex, weeks.length);
-      html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+    const sortedUsers = Object.values(byUser).sort((a, b) => a.name.localeCompare(b.name));
 
-      // Week header row — clickable to expand/collapse
-      html += '<div onclick="toggleHistoryWeek(' + weekNum + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface2);user-select:none;">';
-      html += '<div style="display:flex;align-items:center;gap:12px;">';
-      html += '<span id="hist-chevron-' + weekNum + '" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:' + (isOpen ? 'rotate(90deg)' : 'rotate(0deg)') + ';">▶</span>';
-      html += '<span style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + wLabel + '</span>';
-      html += '<span style="font-size:12px;color:var(--muted);">' + picks.length + ' picks</span>';
-      html += '</div>';
-      html += '<div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:12px;">';
-      if (wins)    html += '<span style="color:#2ecc71;">' + wins + 'W</span>';
-      if (losses)  html += '<span style="color:#e74c3c;">' + losses + 'L</span>';
-      if (pushes)  html += '<span style="color:var(--muted);">' + pushes + 'P</span>';
-      if (pending) html += '<span style="color:#f39c12;">' + pending + ' pending</span>';
-      html += '</div></div>';
+    const BET_TYPE_ORDER   = ['spread', 'ml', 'ou', 'props', 'other'];
+    const BET_TYPE_DISPLAY = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', other: 'Other' };
 
-      // Week body — collapsible
-      html += '<div id="hist-body-' + weekNum + '" style="display:' + (isOpen ? 'block' : 'none') + ';">';
+    sortedUsers.forEach(function(user) {
+      html += '<div style="margin-bottom:32px;">';
+      html += '<div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;color:var(--accent);margin-bottom:12px;">' + user.name + '</div>';
 
-      if (isCommish) {
-        // Group by user, show sub-headers and grade buttons
-        var byUser = {};
-        picks.forEach(p => {
-          var uid = p.user_id;
-          if (!byUser[uid]) byUser[uid] = { name: p.first_name ? p.first_name + ' ' + p.last_name : p.username, picks: [] };
-          byUser[uid].picks.push(p);
+      // Group this user's picks by week
+      const userByWeek = {};
+      user.picks.forEach(p => {
+        const w = p.week || 0;
+        if (!userByWeek[w]) userByWeek[w] = [];
+        userByWeek[w].push(p);
+      });
+      const userWeeks = Object.keys(userByWeek).map(Number).sort((a, b) => b - a);
+
+      userWeeks.forEach(function(weekNum, weekIndex) {
+        const weekPicks = userByWeek[weekNum];
+        const domId = 'hist-' + (user.username || 'u') + '-' + weekNum;
+
+        const wins    = weekPicks.filter(p => p.result === 'win').length;
+        const losses  = weekPicks.filter(p => p.result === 'loss').length;
+        const pushes  = weekPicks.filter(p => p.result === 'push').length;
+        const pending = weekPicks.filter(p => !p.result || p.result === 'pending').length;
+
+        // Week label
+        const leagueWeekNum = userWeeks.length - weekIndex;
+        const year = new Date().getFullYear();
+        const jan4 = new Date(year, 0, 4);
+        const isoWeek1Monday = new Date(jan4);
+        isoWeek1Monday.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+        const weekStart = new Date(isoWeek1Monday);
+        weekStart.setDate(isoWeek1Monday.getDate() + (weekNum - 1) * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const wLabel = 'Week ' + leagueWeekNum + ' · ' + fmt(weekStart) + ' – ' + fmt(weekEnd);
+
+        // Group by bet type, sort by commence_time desc
+        const byType = {};
+        weekPicks.forEach(p => {
+          const bt = (p.bet_type || '').startsWith('props') ? 'props'
+            : p.bet_type === 'spread' ? 'spread'
+            : p.bet_type === 'ml' ? 'ml'
+            : p.bet_type === 'ou' ? 'ou'
+            : 'other';
+          if (!byType[bt]) byType[bt] = [];
+          byType[bt].push(p);
         });
-        Object.values(byUser).forEach(u => {
-          u.picks.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+        Object.values(byType).forEach(arr => {
+          arr.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
         });
-        var sortedUsers = Object.values(byUser).sort((a, b) => a.name.localeCompare(b.name));
 
-        sortedUsers.forEach(function(user) {
-          var uWins   = user.picks.filter(p => p.result === 'win').length;
-          var uLosses = user.picks.filter(p => p.result === 'loss').length;
-
-          // User sub-header
-          html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);">';
-          html += '<span style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--accent);">' + user.name + '</span>';
-          html += '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + uWins + 'W · ' + uLosses + 'L</span>';
-          html += '</div>';
-
-          // Column headers
-          html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 110px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
-          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
-          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
-          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
-          html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
-          html += '</div>';
-
-          user.picks.forEach(p => { html += historyPickRow(p); });
+        let rowsHtml = '';
+        BET_TYPE_ORDER.forEach(bt => {
+          const bpicks = byType[bt];
+          if (!bpicks || !bpicks.length) return;
+          rowsHtml += '<div style="padding:6px 16px 4px;background:var(--surface2);border-top:1px solid var(--border);">';
+          rowsHtml += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>';
+          rowsHtml += '</div>';
+          bpicks.forEach(p => { rowsHtml += historyPickRow(p); });
         });
-      } else {
-        // Member view: flat list sorted by game time, no grade buttons
-        var sortedPicks = picks.slice().sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
-        html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
-        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
-        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
-        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
-        html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
+
+        let statsHtml = '';
+        if (wins)    statsHtml += '<span style="color:#2ecc71;font-family:var(--font-mono);font-size:12px;">' + wins + 'W</span> ';
+        if (losses)  statsHtml += '<span style="color:#e74c3c;font-family:var(--font-mono);font-size:12px;">' + losses + 'L</span> ';
+        if (pushes)  statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span> ';
+        if (pending) statsHtml += '<span style="color:#f39c12;font-family:var(--font-mono);font-size:12px;">' + pending + ' pending</span>';
+
+        html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+        html += '<div onclick="toggleHistoryWeek(\'' + domId + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface2);user-select:none;">';
+        html += '<div style="display:flex;align-items:center;gap:12px;">';
+        html += '<span id="' + domId + '-chevron" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>';
+        html += '<span style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + wLabel + '</span>';
+        html += '<span style="font-size:12px;color:var(--muted);">' + weekPicks.length + ' picks</span>';
         html += '</div>';
-        sortedPicks.forEach(p => { html += historyPickRow(p); });
-      }
+        html += '<div style="display:flex;gap:12px;">' + statsHtml + '</div>';
+        html += '</div>';
+        html += '<div id="' + domId + '" style="display:none;">';
+        html += rowsHtml;
+        html += '</div></div>';
+      });
 
-      html += '</div></div>'; // close hist-body + week card
+      html += '</div>';
     });
 
     container.innerHTML = html || '<div class="empty-state"><div class="empty-state-icon">📂</div><h3>No History Yet</h3><p>Completed picks will appear here.</p></div>';
@@ -1886,14 +1909,13 @@ function toggleMyPicksWeek(domId) {
   chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
 }
 
-function toggleHistoryWeek(weekNum) {
-  const body    = document.getElementById('hist-body-' + weekNum);
-  const chevron = document.getElementById('hist-chevron-' + weekNum);
+function toggleHistoryWeek(domId) {
+  const body    = document.getElementById(domId);
+  const chevron = document.getElementById(domId + '-chevron');
   if (!body) return;
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
   chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
-  historyOpen[weekNum] = !isOpen;
 }
 
 // Track picks made per league: { [leagueId]: { [betKey]: {game, pick, odds, type} } }
