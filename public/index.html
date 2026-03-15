@@ -817,7 +817,7 @@ async function loadMyPicks() {
       const losses  = weekPicks.filter(p => p.result === 'loss').length;
       const pushes  = weekPicks.filter(p => p.result === 'push').length;
       const pending = weekPicks.filter(p => !p.result || p.result === 'pending').length;
-      const isOpen  = weekNum === weeks[0];
+      const isOpen  = false;
       const wLabel  = weekLabel(weekNum, weekIndex);
       const domId   = 'mypicks-week-' + league.id + '-' + weekNum;
 
@@ -1357,7 +1357,7 @@ function renderMemberPicks(picks) {
     var losses  = weekPicks.filter(p => p.result === 'loss').length;
     var pushes  = weekPicks.filter(p => p.result === 'push').length;
     var pending = weekPicks.filter(p => !p.result || p.result === 'pending').length;
-    var isOpen  = weekNum === weeks[0];
+    var isOpen  = false;
     var wLabel  = mpWeekLabel(weekNum, weekIndex);
 
     html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
@@ -1794,8 +1794,7 @@ async function loadLeagueHistory() {
     var html = '';
     weeks.forEach(function(weekNum, weekIndex) {
       var picks = byWeek[weekNum];
-      var isOpen = historyOpen[weekNum] !== false; // default open for most recent, closed for others
-      if (weekNum !== weeks[0]) isOpen = historyOpen[weekNum] || false;
+      var isOpen = historyOpen[weekNum] || false;
 
       // Stats for this week
       var wins    = picks.filter(p => p.result === 'win').length;
