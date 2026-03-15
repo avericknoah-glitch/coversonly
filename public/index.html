@@ -350,12 +350,6 @@
         <div class="page-sub">Here are your active leagues. Click a league to view standings.</div>
         <div class="section-title">Your Leagues</div>
         <div class="leagues-grid" id="leagues-grid"></div>
-        <div id="dashboard-stats-section">
-          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:16px;margin-bottom:12px;color:var(--accent);">This Week</div>
-          <div id="this-week-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;margin-bottom:28px;"></div>
-          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:8px;margin-bottom:12px;color:var(--accent);">All-Time</div>
-          <div id="all-time-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;"></div>
-        </div>
       </div>
 
       <!-- LEAGUE HOME -->
@@ -414,6 +408,12 @@
           <button id="grade-btn-main" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
         </div>
         <div class="page-sub">Your active picks across all leagues — sorted by league.</div>
+        <div id="dashboard-stats-section" style="margin-bottom:32px;">
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-bottom:12px;color:var(--accent);">This Week</div>
+          <div id="this-week-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;margin-bottom:28px;"></div>
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-bottom:12px;color:var(--accent);">All-Time</div>
+          <div id="all-time-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;margin-bottom:32px;"></div>
+        </div>
         <div id="picks-page-content">
           <div style="padding:48px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">Loading your picks…</div>
         </div>
@@ -738,6 +738,7 @@ async function loadMyPicks() {
   const content = document.getElementById('picks-page-content');
   if (!content) return;
   content.innerHTML = '<div style="padding:48px;text-align:center;color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;">Loading your picks…</div>';
+  loadDashboardStats();
 
   // Ensure leagues are loaded before fetching picks
   if (!myLeagues.length) {
@@ -955,8 +956,6 @@ async function bootApp() {
     loadGames(),
     loadLeagues(),
   ]);
-  loadDashboardStats();
-
   renderSportToggles('sports-toggles', true);
   renderSportToggles('modal-sports', false);
   renderBetTypeToggles();
