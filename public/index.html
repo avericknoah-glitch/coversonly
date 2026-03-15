@@ -782,51 +782,116 @@ async function loadMyPicks() {
   }
 
   content.innerHTML = allLeaguePicks.map(({ league, picks }) => {
-    const wins    = picks.filter(p => p.result === 'win').length;
-    const losses  = picks.filter(p => p.result === 'loss').length;
-    const pending = picks.filter(p => !p.result || p.result === 'pending').length;
-
-    // Sort: locked first, live, then settled
-    const sorted = picks.slice().sort((a, b) => {
-      const order = r => { const v = (r||'').toLowerCase(); if(v==='win'||v==='loss'||v==='push') return 2; const t = a.commence_time&&new Date()>=new Date(a.commence_time); return t?1:0; };
-      return order(a.result) - order(b.result);
-    });
-
-    const rows = sorted.map(p => {
-      const game    = p.home_team ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
-      const pick    = p.selection || '—';
-      const odds    = p.line || '—';
-      const time    = p.commence_time
-        ? fmtTime(p.commence_time)
-        : 'TBD';
-      const betType = (p.bet_type || 'pick').replace(/^props_.*/, 'props').toUpperCase();
-      return '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;" class="sportsbook-row">'
-        + '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + game + '</div>'
-        + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + time + '</div></div>'
-        + '<div><div style="font-family:var(--font-display);font-size:13px;font-weight:700;">' + pick + '</div>'
-        + '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:1px;">' + betType + ' · ' + odds + '</div></div>'
-        + '<div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">' + odds + '</div>'
-        + '<div>' + pickStatusBadge(p) + '</div>'
-        + '</div>';
-    }).join('');
-
     const leagueName = league.name || 'League';
     const sports = Array.isArray(league.sports) ? league.sports.join(' · ').toUpperCase() : (league.sports || '');
-    const summary = wins + 'W · ' + losses + 'L' + (pending > 0 ? ' · ' + pending + ' pending' : '');
+
+    // Group picks by week
+    const byWeek = {};
+    picks.forEach(p => {
+      const w = p.week || 0;
+      if (!byWeek[w]) byWeek[w] = [];
+      byWeek[w].push(p);
+    });
+    const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a);
+
+    const BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'other'];
+    const BET_TYPE_DISPLAY = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', other: 'Other' };
+
+    function weekLabel(weekNum, weekIndex) {
+      const year = new Date().getFullYear();
+      const jan4 = new Date(year, 0, 4);
+      const isoWeek1Monday = new Date(jan4);
+      isoWeek1Monday.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+      const weekStart = new Date(isoWeek1Monday);
+      weekStart.setDate(isoWeek1Monday.getDate() + (weekNum - 1) * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const leagueWeekNum = weeks.length - weekIndex;
+      return 'Week ' + leagueWeekNum + ' · ' + fmt(weekStart) + ' – ' + fmt(weekEnd);
+    }
+
+    const weekSections = weeks.map((weekNum, weekIndex) => {
+      const weekPicks = byWeek[weekNum];
+      const wins    = weekPicks.filter(p => p.result === 'win').length;
+      const losses  = weekPicks.filter(p => p.result === 'loss').length;
+      const pushes  = weekPicks.filter(p => p.result === 'push').length;
+      const pending = weekPicks.filter(p => !p.result || p.result === 'pending').length;
+      const isOpen  = weekNum === weeks[0];
+      const wLabel  = weekLabel(weekNum, weekIndex);
+      const domId   = 'mypicks-week-' + league.id + '-' + weekNum;
+
+      // Group by bet type
+      const byType = {};
+      weekPicks.forEach(p => {
+        const bt = (p.bet_type || '').startsWith('props') ? 'props'
+          : p.bet_type === 'spread' ? 'spread'
+          : p.bet_type === 'ml' ? 'ml'
+          : p.bet_type === 'ou' ? 'ou'
+          : 'other';
+        if (!byType[bt]) byType[bt] = [];
+        byType[bt].push(p);
+      });
+      Object.values(byType).forEach(arr => {
+        arr.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+      });
+
+      let rowsHtml = '';
+      BET_TYPE_ORDER.forEach(bt => {
+        const bpicks = byType[bt];
+        if (!bpicks || !bpicks.length) return;
+        rowsHtml += '<div style="padding:6px 20px 4px;background:var(--surface2);border-top:1px solid var(--border);">';
+        rowsHtml += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>';
+        rowsHtml += '</div>';
+        bpicks.forEach(p => {
+          const game = p.home_team ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
+          const time = p.commence_time ? fmtTime(p.commence_time) : 'TBD';
+          const betType = (p.bet_type || 'pick').replace(/^props.*/, 'props').toUpperCase();
+          rowsHtml += '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;" class="sportsbook-row">'
+            + '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>'
+            + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div></div>'
+            + '<div><div style="font-family:var(--font-display);font-size:13px;font-weight:700;">' + (p.selection || '—') + '</div>'
+            + '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:1px;">' + betType + ' · ' + (p.line || '—') + '</div></div>'
+            + '<div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">' + (p.line || '—') + '</div>'
+            + '<div>' + pickStatusBadge(p) + '</div>'
+            + '</div>';
+        });
+      });
+
+      let statsHtml = '';
+      if (wins)    statsHtml += '<span style="color:#2ecc71;font-family:var(--font-mono);font-size:12px;">' + wins + 'W</span>';
+      if (losses)  statsHtml += '<span style="color:#e74c3c;font-family:var(--font-mono);font-size:12px;">' + losses + 'L</span>';
+      if (pushes)  statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span>';
+      if (pending) statsHtml += '<span style="color:#f39c12;font-family:var(--font-mono);font-size:12px;">' + pending + ' pending</span>';
+
+      return '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">'
+        + '<div onclick="toggleMyPicksWeek(\'' + domId + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface2);user-select:none;">'
+        + '<div style="display:flex;align-items:center;gap:12px;">'
+        + '<span id="' + domId + '-chevron" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:' + (isOpen ? 'rotate(90deg)' : 'rotate(0deg)') + ';">▶</span>'
+        + '<span style="font-family:var(--font-display);font-size:14px;font-weight:800;">' + wLabel + '</span>'
+        + '<span style="font-size:12px;color:var(--muted);">' + weekPicks.length + ' picks</span>'
+        + '</div>'
+        + '<div style="display:flex;gap:12px;">' + statsHtml + '</div>'
+        + '</div>'
+        + '<div id="' + domId + '" style="display:' + (isOpen ? 'block' : 'none') + ';">'
+        + '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">'
+        + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Game</span>'
+        + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>'
+        + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>'
+        + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>'
+        + '</div>'
+        + rowsHtml
+        + '</div></div>';
+    }).join('');
 
     return '<div style="margin-bottom:36px;">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
       + '<div><div style="font-family:var(--font-display);font-size:24px;font-weight:900;letter-spacing:-0.3px;">' + leagueName + '</div>'
-      + '<div style="font-size:13px;color:var(--muted);">' + sports + ' · ' + summary + '</div></div>'
+      + '<div style="font-size:13px;color:var(--muted);">' + sports + '</div></div>'
       + '<button class="btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="openLeague(' + league.id + ')">View League →</button>'
       + '</div>'
-      + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">'
-      + '<div style="display:grid;grid-template-columns:1fr 160px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">'
-      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Game</span>'
-      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>'
-      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>'
-      + '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>'
-      + '</div>' + rows + '</div></div>';
+      + weekSections
+      + '</div>';
   }).join('');
 }
 
@@ -1811,6 +1876,15 @@ async function loadLeagueHistory() {
   } catch(err) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Could not load history</h3><p>' + err.message + '</p></div>';
   }
+}
+
+function toggleMyPicksWeek(domId) {
+  const body    = document.getElementById(domId);
+  const chevron = document.getElementById(domId + '-chevron');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
 }
 
 function toggleHistoryWeek(weekNum) {
