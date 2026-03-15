@@ -2027,7 +2027,7 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
 function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
   if (!leaguePicks[leagueId]) leaguePicks[leagueId] = {};
   const key = `${gameId}|${betId}`;
-  const limit = myLeagues.find(l => l.id == leagueId)?.picks_per_week || 5;
+  const limit = (currentLeague?.id == leagueId ? currentLeague : myLeagues.find(l => l.id == leagueId))?.picks_per_week || 5;
   const alreadyPicked = !!leaguePicks[leagueId][key];
   const pendingCount = Object.keys(leaguePicks[leagueId]).length;
   const submittedCount = submittedPickCounts[leagueId] || 0;
@@ -2040,7 +2040,7 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
   }
 
   if (!alreadyPicked) {
-    const limits = myLeagues.find(l => l.id == leagueId)?.pick_type_limits;
+    const limits = (currentLeague?.id == leagueId ? currentLeague : myLeagues.find(l => l.id == leagueId))?.pick_type_limits;
     if (limits && Object.keys(limits).some(k => k !== 'any' && limits[k] > 0)) {
       const pickType = betId.startsWith('spread') ? 'spread'
         : betId.startsWith('ml') ? 'ml'
@@ -2421,7 +2421,10 @@ async function saveLeagueSportsSettings() {
   currentLeague.visibility     = visibility;
 
   const idx = myLeagues.findIndex(l => parseInt(l.id) === parseInt(currentLeague.id));
-  if (idx !== -1) myLeagues[idx] = { ...myLeagues[idx], ...currentLeague };
+  if (idx !== -1) {
+    myLeagues[idx] = { ...myLeagues[idx], ...currentLeague };
+    myLeagues[idx].pick_type_limits = pick_type_limits;
+  }
 
   // ── Persist to backend ────────────────────────────────────────────────────
   console.log('[DEBUG save] Sending PATCH with odds_max:', odds_max, '| type:', typeof odds_max);
