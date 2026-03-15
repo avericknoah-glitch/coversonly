@@ -2111,6 +2111,7 @@ function refreshPropButtonStates(leagueId) {
   const byTypeSubmitted = submittedPickCounts[leagueId + '_byType'] || {};
 
   function isTypeLocked(betId) {
+    console.log('[DEBUG isTypeLocked]', betId, '| limits:', JSON.stringify(limits), '| byTypePending:', JSON.stringify(byTypePending), '| byTypeSubmitted:', JSON.stringify(byTypeSubmitted));
     if (!limits || !Object.keys(limits).some(k => k !== 'any' && limits[k] > 0)) return false;
     const pickType = betId.startsWith('spread') ? 'spread'
       : betId.startsWith('ml') ? 'ml'
@@ -2185,6 +2186,7 @@ async function renderMyLeaguePicks(leagueId) {
       byType[bt] = (byType[bt] || 0) + 1;
     });
     submittedPickCounts[leagueId + '_byType'] = byType;
+    console.log('[DEBUG byType]', leagueId, JSON.stringify(byType));
   } catch { /* offline */ }
 
   if (!pending.length && !submitted.length) {
