@@ -3175,7 +3175,6 @@ async function saveAccountSettings() {
   const newPassword     = document.getElementById('acct-new-password').value;
   const confirmPassword = document.getElementById('acct-confirm-password').value;
 
-  if (!currentPassword) return showToast('⚠️ Current password is required');
   if (newPassword && newPassword !== confirmPassword) {
     return showToast('⚠️ New passwords do not match');
   }
@@ -3188,7 +3187,7 @@ async function saveAccountSettings() {
     last_name:        document.getElementById('acct-last-name').value.trim(),
     username:         document.getElementById('acct-username').value.trim(),
     email:            document.getElementById('acct-email').value.trim(),
-    current_password: currentPassword,
+    ...(currentPassword ? { current_password: currentPassword } : {}),
   };
   if (newPassword) payload.new_password = newPassword;
 

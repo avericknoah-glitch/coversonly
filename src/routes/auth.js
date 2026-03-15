@@ -107,13 +107,14 @@ router.get('/me', requireAuth, async (req, res, next) => {
 });
 
 // ── PATCH /api/auth/profile ──────────────────────────────────────────────────
-// Update the current user's profile. current_password is always required.
+// Update the current user's profile. current_password only required when changing password.
 router.patch('/profile', requireAuth, async (req, res, next) => {
   try {
     const { first_name, last_name, username, email, current_password, new_password } = req.body;
 
-    if (!current_password) {
-      return res.status(400).json({ error: 'current_password is required' });
+    // current_password is only required when changing password
+    if (new_password && !current_password) {
+      return res.status(400).json({ error: 'Current password is required to set a new password' });
     }
 
     // Fetch stored hash
@@ -121,9 +122,12 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
     const user = rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const passwordOk = await bcrypt.compare(current_password, user.password_hash);
-    if (!passwordOk) {
-      return res.status(400).json({ error: 'Current password is incorrect' });
+    // If current_password provided, verify it
+    if (current_password) {
+      const passwordOk = await bcrypt.compare(current_password, user.password_hash);
+      if (!passwordOk) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+      }
     }
 
     // Check uniqueness of username/email against other users (separate checks for specific errors)
