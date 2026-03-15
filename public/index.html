@@ -1766,7 +1766,7 @@ async function renderLeaguePicks() {
   if (!leaguePicks[leagueId]) leaguePicks[leagueId] = {};
 
   // ── My current picks for this league ──────────────────────────────────────
-  renderMyLeaguePicks(leagueId);
+  await renderMyLeaguePicks(leagueId);
 
   // ── Available picks filtered by league rules ───────────────────────────────
   const container = document.getElementById('league-available-picks');
@@ -2205,15 +2205,42 @@ async function renderMyLeaguePicks(leagueId) {
   html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>';
   html += '</div>';
 
-  submitted.forEach(function(p) {
-    var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
-    var gameTime = p.commence_time ? fmtTime(p.commence_time) : '';
-    html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
-    html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>';
-    html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + (gameTime ? ' · ' + gameTime : '') + '</div></div>';
-    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—').replace(/^props_.*/, 'props') + '</div>';
-    html += '<div style="font-family:var(--font-mono);font-size:13px;">' + (p.line || '—') + '</div>';
-    html += '<div>' + badge(p) + '</div></div>';
+  // Group submitted picks by canonical bet type
+  const BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'other'];
+  const BET_TYPE_DISPLAY = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', other: 'Other' };
+  const submittedByType = {};
+  submitted.forEach(p => {
+    const bt = (p.bet_type || '').startsWith('props_') ? 'props'
+      : p.bet_type === 'spread' ? 'spread'
+      : p.bet_type === 'ml' ? 'ml'
+      : p.bet_type === 'ou' ? 'ou'
+      : 'other';
+    if (!submittedByType[bt]) submittedByType[bt] = [];
+    submittedByType[bt].push(p);
+  });
+
+  // Sort each type by commence_time descending (latest first)
+  Object.values(submittedByType).forEach(arr => {
+    arr.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
+  });
+
+  // Render grouped
+  BET_TYPE_ORDER.forEach(bt => {
+    const picks = submittedByType[bt];
+    if (!picks || !picks.length) return;
+    html += '<div style="padding:8px 20px 4px;background:var(--surface2);border-bottom:1px solid var(--border);">';
+    html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>';
+    html += '</div>';
+    picks.forEach(function(p) {
+      var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
+      var gameTime = p.commence_time ? fmtTime(p.commence_time) : '';
+      html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
+      html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>';
+      html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + (gameTime ? ' · ' + gameTime : '') + '</div></div>';
+      html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—').replace(/^props_.*/, 'props') + '</div>';
+      html += '<div style="font-family:var(--font-mono);font-size:13px;">' + (p.line || '—') + '</div>';
+      html += '<div>' + badge(p) + '</div></div>';
+    });
   });
 
   pending.forEach(function(p) {
