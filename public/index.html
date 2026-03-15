@@ -351,9 +351,9 @@
         <div class="section-title">Your Leagues</div>
         <div class="leagues-grid" id="leagues-grid"></div>
         <div id="dashboard-stats-section">
-          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:16px;margin-bottom:12px;">This Week</div>
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:16px;margin-bottom:12px;color:var(--accent);">This Week</div>
           <div id="this-week-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;margin-bottom:28px;"></div>
-          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:8px;margin-bottom:12px;">All-Time</div>
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.3px;margin-top:8px;margin-bottom:12px;color:var(--accent);">All-Time</div>
           <div id="all-time-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;"></div>
         </div>
       </div>
@@ -902,8 +902,8 @@ async function loadDashboardStats() {
     const p = parseInt(pushes) || 0;
     const total = w + l + p;
     const pct = total > 0 ? (((w + 0.5 * p) / total) * 100).toFixed(1) : '—';
-    return `<div class="league-stat" style="min-width:120px;flex:0 0 auto;padding:14px 16px;">
-      <div class="league-stat-val ${isTotal ? '' : 'stat-green'}" style="font-size:${isTotal ? '20px' : '24px'};">${w}<span style="color:var(--muted);font-size:16px;font-weight:700;margin:0 4px;">-</span><span class="stat-red" style="font-size:${isTotal ? '20px' : '24px'};">${l}</span></div>
+    return `<div class="league-stat" style="min-width:120px;flex:0 0 auto;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+      <div class="league-stat-val stat-green" style="font-size:${isTotal ? '20px' : '24px'};">${w}<span style="color:var(--muted);font-size:16px;font-weight:700;margin:0 4px;">-</span><span class="stat-red" style="font-size:${isTotal ? '20px' : '24px'};">${l}</span></div>
       <div class="league-stat-label" style="margin-top:6px;">${label}</div>
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px;">${pct !== '—' ? pct + '%' : '—'}</div>
     </div>`;
