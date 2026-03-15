@@ -350,12 +350,11 @@
         <div class="page-sub">Here are your active leagues. Click a league to view standings.</div>
         <div class="section-title">Your Leagues</div>
         <div class="leagues-grid" id="leagues-grid"></div>
-        <div class="section-title" style="margin-top:8px;">This Week</div>
-        <div class="quick-stats">
-          <div class="quick-stat-card"><div class="league-stat-val stat-green">7</div><div class="league-stat-label">Wins</div></div>
-          <div class="quick-stat-card"><div class="league-stat-val stat-red">5</div><div class="league-stat-label">Losses</div></div>
-          <div class="quick-stat-card"><div class="league-stat-val stat-yellow">58%</div><div class="league-stat-label">Hit Rate</div></div>
-          <div class="quick-stat-card"><div class="league-stat-val">#2</div><div class="league-stat-label">Best Rank</div></div>
+        <div id="dashboard-stats-section">
+          <div class="section-title" style="margin-top:8px;">This Week</div>
+          <div class="quick-stats" id="this-week-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;margin-bottom:28px;"></div>
+          <div class="section-title">All-Time</div>
+          <div class="quick-stats" id="all-time-stats" style="display:flex;flex-wrap:wrap;gap:12px;max-width:800px;"></div>
         </div>
       </div>
 
@@ -888,6 +887,62 @@ let activeBetTypes = new Set(['spread','ml','ou']);
 let liveGames     = [];   // normalised events from backend
 let myLeagues     = [];   // leagues from backend
 
+async function loadDashboardStats() {
+  const week = getISOWeek(new Date());
+  const thisWeekEl = document.getElementById('this-week-stats');
+  const allTimeEl  = document.getElementById('all-time-stats');
+  if (!thisWeekEl || !allTimeEl) return;
+
+  const BET_TYPE_LABELS = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Props', other: 'Other' };
+  const BET_TYPE_ORDER  = ['spread', 'ml', 'ou', 'props', 'other'];
+
+  function statCard(label, wins, losses, pushes, isTotal) {
+    const w = parseInt(wins) || 0;
+    const l = parseInt(losses) || 0;
+    const p = parseInt(pushes) || 0;
+    const total = w + l + p;
+    const pct = total > 0 ? (((w + 0.5 * p) / total) * 100).toFixed(1) : '—';
+    const titleStyle = isTotal ? 'font-size:13px;font-weight:800;letter-spacing:0.5px;' : 'font-size:11px;font-weight:700;letter-spacing:1px;';
+    return `<div class="quick-stat-card" style="min-width:110px;flex:0 0 auto;">
+      <div style="font-family:var(--font-display);${titleStyle}color:var(--muted);text-transform:uppercase;margin-bottom:8px;">${label}</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+        <span style="font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--green);">${w}</span>
+        <span style="font-family:var(--font-display);font-size:14px;color:var(--muted);">-</span>
+        <span style="font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--red);">${l}</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${pct !== '—' ? pct + '%' : '—'}</div>
+    </div>`;
+  }
+
+  function renderStats(el, rows) {
+    if (!rows || !rows.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No graded picks yet.</div>';
+      return;
+    }
+    const totalW = rows.reduce((a, r) => a + (parseInt(r.wins) || 0), 0);
+    const totalL = rows.reduce((a, r) => a + (parseInt(r.losses) || 0), 0);
+    const totalP = rows.reduce((a, r) => a + (parseInt(r.pushes) || 0), 0);
+    let html = statCard('Total', totalW, totalL, totalP, true);
+    BET_TYPE_ORDER.forEach(bt => {
+      const row = rows.find(r => r.type === bt);
+      if (!row) return;
+      html += statCard(BET_TYPE_LABELS[bt] || bt, row.wins, row.losses, row.pushes, false);
+    });
+    el.innerHTML = html;
+  }
+
+  try {
+    thisWeekEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">Loading…</div>';
+    allTimeEl.innerHTML  = '<div style="color:var(--muted);font-size:13px;">Loading…</div>';
+    const data = await api.get(`/leagues/stats/dashboard?week=${week}`);
+    renderStats(thisWeekEl, data.thisWeek);
+    renderStats(allTimeEl,  data.allTime);
+  } catch {
+    thisWeekEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">Could not load stats.</div>';
+    allTimeEl.innerHTML  = '';
+  }
+}
+
 async function bootApp() {
   document.getElementById('auth-screen').style.display = 'none';
   const app = document.getElementById('app');
@@ -905,6 +960,7 @@ async function bootApp() {
     loadGames(),
     loadLeagues(),
   ]);
+  loadDashboardStats();
 
   renderSportToggles('sports-toggles', true);
   renderSportToggles('modal-sports', false);

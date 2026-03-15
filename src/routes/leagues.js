@@ -21,17 +21,36 @@ const router = express.Router();
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const { rows } = await db.query(`
+      WITH member_stats AS (
+        SELECT lm.league_id,
+               lm.user_id,
+               SUM(CASE WHEN p.result = 'win'  THEN 1 ELSE 0 END) AS wins,
+               SUM(CASE WHEN p.result = 'loss' THEN 1 ELSE 0 END) AS losses,
+               SUM(CASE WHEN p.result = 'push' THEN 1 ELSE 0 END) AS pushes,
+               CASE
+                 WHEN SUM(CASE WHEN p.result IN ('win','loss','push') THEN 1 ELSE 0 END) = 0 THEN 0
+                 ELSE ROUND(
+                   (SUM(CASE WHEN p.result = 'win' THEN 1 ELSE 0 END) +
+                    0.5 * SUM(CASE WHEN p.result = 'push' THEN 1 ELSE 0 END))::numeric /
+                   NULLIF(SUM(CASE WHEN p.result IN ('win','loss','push') THEN 1 ELSE 0 END), 0) * 100, 1
+                 )
+               END AS win_pct
+        FROM league_members lm
+        LEFT JOIN picks p ON p.league_id = lm.league_id AND p.user_id = lm.user_id
+        GROUP BY lm.league_id, lm.user_id
+      ),
+      ranked AS (
+        SELECT league_id, user_id, wins, losses, pushes, win_pct,
+               RANK() OVER (PARTITION BY league_id ORDER BY wins DESC, win_pct DESC) AS rank
+        FROM member_stats
+      )
       SELECT l.*,
-             lm.role        AS member_role,
+             lm.role AS member_role,
              (SELECT COUNT(*) FROM league_members WHERE league_id = l.id) AS member_count,
-             -- User's own stats in this league
-             SUM(CASE WHEN p.result = 'win'  THEN 1 ELSE 0 END) AS wins,
-             SUM(CASE WHEN p.result = 'loss' THEN 1 ELSE 0 END) AS losses,
-             SUM(CASE WHEN p.result = 'push' THEN 1 ELSE 0 END) AS pushes
+             r.wins, r.losses, r.pushes, r.win_pct, r.rank
       FROM leagues l
       JOIN league_members lm ON lm.league_id = l.id AND lm.user_id = $1
-      LEFT JOIN picks p      ON p.league_id = l.id AND p.user_id = $1
-      GROUP BY l.id, lm.role
+      JOIN ranked r ON r.league_id = l.id AND r.user_id = $1
       ORDER BY l.created_at DESC
     `, [req.user.id]);
 
@@ -391,6 +410,48 @@ router.get('/:leagueId/members/:userId/picks', requireAuth, async (req, res, nex
     `, [userId, leagueId]);
 
     res.json({ picks });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── GET /api/stats/dashboard ─────────────────────────────────────────────────
+// Get current user's this-week and all-time stats broken down by bet type
+router.get('/stats/dashboard', requireAuth, async (req, res, next) => {
+  try {
+    const week = req.query.week ? parseInt(req.query.week) : null;
+
+    // All-time stats by bet type
+    const { rows: allTime } = await db.query(`
+      SELECT
+        CASE
+          WHEN bet_type LIKE 'props%' THEN 'props'
+          ELSE bet_type
+        END AS type,
+        SUM(CASE WHEN result = 'win'  THEN 1 ELSE 0 END) AS wins,
+        SUM(CASE WHEN result = 'loss' THEN 1 ELSE 0 END) AS losses,
+        SUM(CASE WHEN result = 'push' THEN 1 ELSE 0 END) AS pushes
+      FROM picks
+      WHERE user_id = $1 AND result IN ('win','loss','push')
+      GROUP BY type
+    `, [req.user.id]);
+
+    // This week stats by bet type
+    const { rows: thisWeek } = await db.query(`
+      SELECT
+        CASE
+          WHEN bet_type LIKE 'props%' THEN 'props'
+          ELSE bet_type
+        END AS type,
+        SUM(CASE WHEN result = 'win'  THEN 1 ELSE 0 END) AS wins,
+        SUM(CASE WHEN result = 'loss' THEN 1 ELSE 0 END) AS losses,
+        SUM(CASE WHEN result = 'push' THEN 1 ELSE 0 END) AS pushes
+      FROM picks
+      WHERE user_id = $1 AND week = $2 AND result IN ('win','loss','push')
+      GROUP BY type
+    `, [req.user.id, week]);
+
+    res.json({ allTime, thisWeek });
   } catch (err) {
     next(err);
   }
