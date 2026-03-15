@@ -1922,6 +1922,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
   // Use separate cache for league props to avoid collision with sportsbook cache
   if (leaguePropsCache[gameId]) {
     renderLeaguePropsButtons(gameId, leaguePropsCache[gameId], leagueId);
+    refreshPropButtonStates(leagueId);
     return;
   }
 
@@ -1945,6 +1946,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
   } catch {
     container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No props available.</div>';
   }
+  refreshPropButtonStates(leagueId);
 }
 
 function renderLeaguePropsButtons(gameId, data, leagueId) {
