@@ -2063,7 +2063,11 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
       const typeLimitsSum = Object.entries(limits).filter(([k]) => k !== 'any').reduce((a,[,v]) => a + v, 0);
       const anyUsed = Math.max(0, totalUsed - typeLimitsSum);
       const anyLeft = Math.max(0, anyLimit - anyUsed);
-      if (pendingOfType >= typeLimit && anyLeft <= 0) {
+      // Count already-submitted picks of this type this week
+      const submittedOfType = (submittedPickCounts[leagueId + '_byType'] || {})[pickType] || 0;
+      const adjustedTypeLimit = Math.max(0, typeLimit - submittedOfType);
+      const adjustedAnyLeft = Math.max(0, anyLeft - submittedOfType);
+      if (pendingOfType >= adjustedTypeLimit && adjustedAnyLeft <= 0) {
         const labelMap = { spread:'spreads', ml:'moneylines', ou:'over/unders', props:'props' };
         showToast(`⚠️ You've reached your ${labelMap[pickType] || 'pick'} limit for this league`);
         return;
@@ -2089,10 +2093,40 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
 
 function refreshPropButtonStates(leagueId) {
   const picks = leaguePicks[leagueId] || {};
-  const limit = myLeagues.find(l => l.id == leagueId)?.picks_per_week || 5;
+  const limit = (currentLeague?.id == leagueId ? currentLeague : myLeagues.find(l => l.id == leagueId))?.picks_per_week || 5;
   const pendingCount = Object.keys(picks).length;
   const submittedCount = submittedPickCounts[leagueId] || 0;
   const atLimit = (pendingCount + submittedCount) >= limit;
+
+  const limits = (currentLeague?.id == leagueId ? currentLeague : myLeagues.find(l => l.id == leagueId))?.pick_type_limits;
+  const byTypePending = {};
+  Object.values(picks).forEach(p => {
+    const bt = p.betId?.startsWith('spread') ? 'spread'
+      : p.betId?.startsWith('ml') ? 'ml'
+      : p.betId?.startsWith('ou') ? 'ou'
+      : p.betId?.startsWith('prop') ? 'props'
+      : 'other';
+    byTypePending[bt] = (byTypePending[bt] || 0) + 1;
+  });
+  const byTypeSubmitted = submittedPickCounts[leagueId + '_byType'] || {};
+
+  function isTypeLocked(betId) {
+    if (!limits || !Object.keys(limits).some(k => k !== 'any' && limits[k] > 0)) return false;
+    const pickType = betId.startsWith('spread') ? 'spread'
+      : betId.startsWith('ml') ? 'ml'
+      : betId.startsWith('ou') ? 'ou'
+      : betId.startsWith('prop') ? 'props'
+      : 'any';
+    const typeLimit = limits[pickType] ?? 0;
+    const anyLimit = limits['any'] ?? 0;
+    const pendingOfType = byTypePending[pickType] || 0;
+    const submittedOfType = byTypeSubmitted[pickType] || 0;
+    const totalUsed = pendingCount + submittedCount;
+    const typeLimitsSum = Object.entries(limits).filter(([k]) => k !== 'any').reduce((a,[,v]) => a + v, 0);
+    const anyUsed = Math.max(0, totalUsed - typeLimitsSum);
+    const anyLeft = Math.max(0, anyLimit - anyUsed);
+    return (pendingOfType + submittedOfType) >= typeLimit && anyLeft <= 0;
+  }
 
   // Update prop buttons (inside league-props-* containers)
   // Keep clicks enabled so toggleLeaguePick can fire the toast — just dim unpickable buttons
@@ -2102,7 +2136,7 @@ function refreshPropButtonStates(leagueId) {
     if (!m) return;
     const picked = !!picks[`${m[1]}|${m[2]}`];
     const isOver = m[2].endsWith('-over');
-    const locked = atLimit && !picked;
+    const locked = (atLimit && !picked) || (!picked && isTypeLocked(m[2]));
     btn.style.pointerEvents = 'auto';
     btn.style.opacity = locked ? '0.35' : '1';
     btn.style.cursor = locked ? 'not-allowed' : 'pointer';
@@ -2117,7 +2151,7 @@ function refreshPropButtonStates(leagueId) {
     const betId  = btn.dataset.betid;
     if (!gameId || !betId) return;
     const picked = !!picks[`${gameId}|${betId}`];
-    const locked = atLimit && !picked;
+    const locked = (atLimit && !picked) || (!picked && isTypeLocked(betId));
     btn.style.pointerEvents = 'auto';
     btn.style.opacity = locked ? '0.35' : '1';
     btn.style.cursor = locked ? 'not-allowed' : 'pointer';
@@ -2140,6 +2174,17 @@ async function renderMyLeaguePicks(leagueId) {
     const data = await api.get('/picks/my?league_id=' + leagueId + '&week=' + currentISOWeek);
     submitted = data.picks || [];
     submittedPickCounts[leagueId] = submitted.length;
+    // Track submitted counts by bet type for per-type limit enforcement
+    const byType = {};
+    submitted.forEach(p => {
+      const bt = (p.bet_type || '').startsWith('props_') ? 'props'
+        : p.bet_type === 'spread' ? 'spread'
+        : p.bet_type === 'ml' ? 'ml'
+        : p.bet_type === 'ou' ? 'ou'
+        : 'other';
+      byType[bt] = (byType[bt] || 0) + 1;
+    });
+    submittedPickCounts[leagueId + '_byType'] = byType;
   } catch { /* offline */ }
 
   if (!pending.length && !submitted.length) {
