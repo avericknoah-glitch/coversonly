@@ -3193,7 +3193,9 @@ async function saveAccountSettings() {
   if (newPassword) payload.new_password = newPassword;
 
   try {
+    console.log('[DEBUG save] payload:', JSON.stringify(payload));
     const data = await api.patch('/auth/profile', payload);
+    console.log('[DEBUG save] response:', JSON.stringify(data));
     const u = data.user;
     // Merge into currentUser and refresh nav
     currentUser = userToLocal({ ...currentUser, ...u });
@@ -3202,6 +3204,7 @@ async function saveAccountSettings() {
     showToast('✅ Account updated');
     closeAccountSettings();
   } catch (err) {
+    console.log('[DEBUG save] error:', err?.message, err);
     showToast('❌ ' + (err?.message || 'Failed to save changes'));
   }
 }
