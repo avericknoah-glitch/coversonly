@@ -86,7 +86,7 @@
   .league-badge { padding: 4px 10px; border-radius: 4px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
   .badge-commissioner { background: rgba(0,83,76,0.15); color: var(--accent); border: 1px solid rgba(0,83,76,0.3); }
   .badge-member { background: rgba(61,158,255,0.12); color: var(--accent2); border: 1px solid rgba(61,158,255,0.25); }
-  .league-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .league-card-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .league-stat { text-align: center; padding: 10px 8px; background: var(--surface2); border-radius: 8px; }
   .league-stat-val { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
   .league-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
@@ -374,7 +374,7 @@
           <button class="tab-btn" id="lt-tab-history" onclick="showLeagueTab('history',this)">History</button>
           <button class="tab-btn" id="lt-tab-member" onclick="showLeagueTab('member',this)" style="display:none">Member Picks</button>
         </div>
-        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>G</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
+        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
         <div id="lt-picks" style="display:none">
           <!-- My current picks for this league -->
           <div style="margin-bottom:32px;">
@@ -843,7 +843,7 @@ async function loadMyPicks() {
         const btWins   = bpicks.filter(p => p.result === 'win').length;
         const btLosses = bpicks.filter(p => p.result === 'loss').length;
         const btPushes = bpicks.filter(p => p.result === 'push').length;
-        const btRecord = btWins + '-' + btLosses + (btPushes > 0 ? '-' + btPushes : '');
+        const btRecord = btWins + '-' + btLosses + '-' + btPushes;
         rowsHtml += '<div style="padding:6px 20px 4px;background:var(--surface2);border-top:1px solid var(--border);">';
         rowsHtml += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>'
           + '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:8px;">(' + btRecord + ')</span>';
@@ -866,7 +866,7 @@ async function loadMyPicks() {
       let statsHtml = '';
       if (wins)    statsHtml += '<span style="color:#2ecc71;font-family:var(--font-mono);font-size:12px;">' + wins + 'W</span>';
       if (losses)  statsHtml += '<span style="color:#e74c3c;font-family:var(--font-mono);font-size:12px;">' + losses + 'L</span>';
-      if (pushes)  statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span>';
+      statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span>';
       if (pending) statsHtml += '<span style="color:#f39c12;font-family:var(--font-mono);font-size:12px;">' + pending + ' pending</span>';
 
       return '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">'
@@ -973,8 +973,9 @@ async function loadDashboardStats() {
     const p = parseInt(pushes) || 0;
     const total = w + l + p;
     const pct = total > 0 ? (((w + 0.5 * p) / total) * 100).toFixed(1) : '—';
+    const pushSuffix = p > 0 ? `<span style="color:var(--muted);font-size:16px;font-weight:700;margin:0 4px;">-</span><span style="color:var(--muted);font-size:${isTotal ? '20px' : '24px'};">${p}</span>` : '';
     return `<div class="league-stat" style="min-width:120px;flex:0 0 auto;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
-      <div class="league-stat-val stat-green" style="font-size:${isTotal ? '20px' : '24px'};">${w}<span style="color:var(--muted);font-size:16px;font-weight:700;margin:0 4px;">-</span><span class="stat-red" style="font-size:${isTotal ? '20px' : '24px'};">${l}</span></div>
+      <div class="league-stat-val stat-green" style="font-size:${isTotal ? '20px' : '24px'};">${w}<span style="color:var(--muted);font-size:16px;font-weight:700;margin:0 4px;">-</span><span class="stat-red" style="font-size:${isTotal ? '20px' : '24px'};">${l}</span>${pushSuffix}</div>
       <div class="league-stat-label" style="margin-top:6px;">${label}</div>
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px;">${pct !== '—' ? pct + '%' : '—'}</div>
     </div>`;
@@ -1187,6 +1188,7 @@ async function loadMemberPicks(userId, leagueId, username, wins, losses, pushes,
         <div class="member-stats-row">
           <div class="member-stat"><div class="member-stat-val stat-green">${wins}</div><div class="member-stat-label">Wins</div></div>
           <div class="member-stat"><div class="member-stat-val stat-red">${losses}</div><div class="member-stat-label">Losses</div></div>
+          <div class="member-stat"><div class="member-stat-val" style="color:var(--muted)">${pushes}</div><div class="member-stat-label">Pushes</div></div>
           <div class="member-stat"><div class="member-stat-val stat-yellow">${pct}%</div><div class="member-stat-label">Win %</div></div>
           <div class="member-stat"><div class="member-stat-val">#${rank}</div><div class="member-stat-label">Rank</div></div>
         </div>
@@ -1411,7 +1413,7 @@ function renderMemberPicks(picks) {
       var btWins   = bpicks.filter(p => p.result === 'win').length;
       var btLosses = bpicks.filter(p => p.result === 'loss').length;
       var btPushes = bpicks.filter(p => p.result === 'push').length;
-      var btRecord = btWins + '-' + btLosses + (btPushes > 0 ? '-' + btPushes : '');
+      var btRecord = btWins + '-' + btLosses + '-' + btPushes;
       html += '<div style="padding:6px 16px 4px;background:var(--surface2);border-top:1px solid var(--border);">';
       html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + MP_BET_TYPE_DISPLAY[bt] + '</span>'
         + '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:8px;">(' + btRecord + ')</span>';
@@ -1877,7 +1879,7 @@ async function loadLeagueHistory() {
           const btWins   = bpicks.filter(p => p.result === 'win').length;
           const btLosses = bpicks.filter(p => p.result === 'loss').length;
           const btPushes = bpicks.filter(p => p.result === 'push').length;
-          const btRecord = btWins + '-' + btLosses + (btPushes > 0 ? '-' + btPushes : '');
+          const btRecord = btWins + '-' + btLosses + '-' + btPushes;
           rowsHtml += '<div style="padding:6px 16px 4px;background:var(--surface2);border-top:1px solid var(--border);">';
           rowsHtml += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>'
             + '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:8px;">(' + btRecord + ')</span>';
@@ -1888,7 +1890,7 @@ async function loadLeagueHistory() {
         let statsHtml = '';
         if (wins)    statsHtml += '<span style="color:#2ecc71;font-family:var(--font-mono);font-size:12px;">' + wins + 'W</span> ';
         if (losses)  statsHtml += '<span style="color:#e74c3c;font-family:var(--font-mono);font-size:12px;">' + losses + 'L</span> ';
-        if (pushes)  statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span> ';
+        statsHtml += '<span style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">' + pushes + 'P</span> ';
         if (pending) statsHtml += '<span style="color:#f39c12;font-family:var(--font-mono);font-size:12px;">' + pending + ' pending</span>';
 
         html += '<div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
@@ -2411,7 +2413,7 @@ async function renderMyLeaguePicks(leagueId) {
     const btWins   = picks.filter(p => p.result === 'win').length;
     const btLosses = picks.filter(p => p.result === 'loss').length;
     const btPushes = picks.filter(p => p.result === 'push').length;
-    const btRecord = btWins + '-' + btLosses + (btPushes > 0 ? '-' + btPushes : '');
+    const btRecord = btWins + '-' + btLosses + '-' + btPushes;
     html += '<div style="padding:8px 20px 4px;background:var(--surface2);border-bottom:1px solid var(--border);">';
     html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>'
       + '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:8px;">(' + btRecord + ')</span>';
@@ -2728,6 +2730,7 @@ function renderLeaguesGrid() {
     const isCommish = l.my_role === 'commissioner' || l.isCommissioner;
     const wins   = l.wins ?? l.w ?? 0;
     const losses = l.losses ?? l.l ?? 0;
+    const pushes = l.pushes ?? 0;
     return `
     <div class="league-card" onclick="openLeague(${l.id})">
       <div class="league-card-header">
@@ -2741,6 +2744,7 @@ function renderLeaguesGrid() {
         <div class="league-stat"><div class="league-stat-val stat-yellow">${rank !== '—' ? '#' + rank : '—'}</div><div class="league-stat-label">Rank</div></div>
         <div class="league-stat"><div class="league-stat-val stat-green">${wins}</div><div class="league-stat-label">Wins</div></div>
         <div class="league-stat"><div class="league-stat-val stat-red">${losses}</div><div class="league-stat-label">Losses</div></div>
+        <div class="league-stat"><div class="league-stat-val" style="color:var(--muted)">${pushes}</div><div class="league-stat-label">Pushes</div></div>
       </div>
     </div>`;
   }).join('') + `
@@ -2817,7 +2821,7 @@ function renderStandings(standings) {
         </div>
         <div class="standing-num stat-green">${wins}</div>
         <div class="standing-num stat-red">${losses}</div>
-        <div class="standing-num" style="color:var(--muted)">${wins + losses}</div>
+        <div class="standing-num" style="color:var(--muted)">${pushes}</div>
         <div class="standing-pct">${pct}%</div>
         <div><span class="trend-badge ${streakCls}">${streakLbl}</span></div>
       </div>`;
