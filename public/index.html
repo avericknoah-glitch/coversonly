@@ -3018,10 +3018,14 @@ async function loadSportsbook() {
     sbGames = SAMPLE_GAMES_FALLBACK;
   }
 
-  const oneWeekFromNow = new Date();
-  oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-  oneWeekFromNow.setHours(23, 59, 59, 999);
-  sbGames = sbGames.filter(g => !g.commence_time || new Date(g.commence_time) <= oneWeekFromNow);
+  const now2 = new Date();
+  // Find next Sunday (end of next week on Sun-Sun schedule)
+  const dayOfWeek = now2.getDay(); // 0=Sun, 1=Mon...
+  const daysUntilEndOfNextSunday = (7 - dayOfWeek) + 7; // days until the Sunday after next
+  const cutoff = new Date(now2);
+  cutoff.setDate(now2.getDate() + daysUntilEndOfNextSunday);
+  cutoff.setHours(23, 59, 59, 999);
+  sbGames = sbGames.filter(g => !g.commence_time || new Date(g.commence_time) <= cutoff);
 
   loading.style.display = 'none';
 
