@@ -5,6 +5,17 @@ const { requireAuth, requireCommissioner } = require('../middleware/auth');
 
 const router = express.Router();
 
+(async function migrate() {
+  try {
+    await db.query(`
+      ALTER TABLE leagues
+      ADD COLUMN IF NOT EXISTS pick_type_limits JSONB DEFAULT NULL
+    `);
+  } catch(e) {
+    console.warn('[migrate] pick_type_limits column:', e.message);
+  }
+})();
+
 // ── GET /api/leagues ─────────────────────────────────────────────────────────
 // Get all leagues the current user belongs to
 router.get('/', requireAuth, async (req, res, next) => {
@@ -83,6 +94,7 @@ router.post('/', requireAuth, async (req, res, next) => {
       picks_per_week = 5,
       max_members   = 20,
       pick_deadline  = 'first_game',
+      pick_type_limits = null,
     } = req.body;
 
     if (!name) return res.status(400).json({ error: 'League name is required' });
@@ -90,11 +102,11 @@ router.post('/', requireAuth, async (req, res, next) => {
     const { rows } = await client.query(`
       INSERT INTO leagues (
         name, visibility, sports, bet_types, picks_per_week,
-        max_members, pick_deadline, commissioner_id
+        max_members, pick_deadline, commissioner_id, pick_type_limits
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
-    `, [name, visibility, sports, bet_types, picks_per_week, max_members, pick_deadline, req.user.id]);
+    `, [name, visibility, sports, bet_types, picks_per_week, max_members, pick_deadline, req.user.id, pick_type_limits ? JSON.stringify(pick_type_limits) : null]);
 
     const league = rows[0];
 
@@ -180,7 +192,7 @@ router.get('/:leagueId', requireAuth, async (req, res, next) => {
 router.patch('/:leagueId', requireAuth, requireCommissioner, async (req, res, next) => {
   try {
     const { leagueId } = req.params;
-    const allowed = ['name', 'visibility', 'sports', 'bet_types', 'picks_per_week', 'max_members', 'pick_deadline', 'odds_max'];
+    const allowed = ['name', 'visibility', 'sports', 'bet_types', 'picks_per_week', 'max_members', 'pick_deadline', 'odds_max', 'pick_type_limits'];
 
     const updates = Object.fromEntries(
       Object.entries(req.body).filter(([k]) => allowed.includes(k))

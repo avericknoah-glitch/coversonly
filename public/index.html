@@ -451,6 +451,12 @@
               <div class="sports-grid" id="sports-toggles" style="margin-bottom:28px;"></div>
               <div class="section-title">Bet Types</div>
               <div class="bet-types-grid" id="bet-type-toggles"></div>
+              <div id="s-pick-limits-section" style="margin-top:24px;margin-bottom:8px;">
+                <div class="section-title" style="margin-bottom:8px;">Pick Type Limits</div>
+                <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Set how many picks of each type members can make per week. Must add up to the Picks Per Week total from General settings.</div>
+                <div id="s-pick-limits-inputs" style="display:flex;flex-direction:column;gap:10px;max-width:400px;"></div>
+                <div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px;" id="s-pick-limits-total"></div>
+              </div>
               <div style="margin-top:24px;">
                 <div class="section-title" style="margin-bottom:12px;">Odds Limit</div>
                 <div style="max-width:220px;margin-bottom:12px;">
@@ -1025,6 +1031,9 @@ async function loadLeagueDetail(leagueId) {
     console.log('[DEBUG loadLeagueDetail] raw data.league:', JSON.stringify(data.league));
     console.log('[DEBUG loadLeagueDetail] odds_max from backend:', data.league?.odds_max, '| type:', typeof data.league?.odds_max);
     currentLeague = data.league;
+    if (!currentLeague.pick_type_limits) {
+      currentLeague.pick_type_limits = { any: currentLeague.picks_per_week || 5 };
+    }
     renderStandings(data.standings);
     document.getElementById('league-page-name').textContent     = data.league.name;
     document.getElementById('league-page-members').textContent  = data.standings.length;
@@ -1364,6 +1373,7 @@ function showPage(id) {
         if (leagueBetTypes.includes(el.dataset.id)) el.classList.add('active');
         else el.classList.remove('active');
       });
+      renderPickLimitsUI();
       // Pre-populate General tab fields
       const nameEl2 = document.getElementById('s-name');
       if (nameEl2) nameEl2.value = currentLeague.name || '';
@@ -2029,6 +2039,38 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
     return;
   }
 
+  if (!alreadyPicked) {
+    const limits = myLeagues.find(l => l.id == leagueId)?.pick_type_limits;
+    if (limits && Object.keys(limits).some(k => k !== 'any' && limits[k] > 0)) {
+      const pickType = betId.startsWith('spread') ? 'spread'
+        : betId.startsWith('ml') ? 'ml'
+        : betId.startsWith('ou') ? 'ou'
+        : betId.startsWith('prop') ? 'props'
+        : 'any';
+      const typeLimit = limits[pickType] ?? 0;
+      const anyLimit  = limits['any']    ?? 0;
+      const allPending = leaguePicks[leagueId] || {};
+      const pendingOfType = Object.values(allPending).filter(p =>
+        pickType === 'spread' ? p.betId?.startsWith('spread')
+        : pickType === 'ml'     ? p.betId?.startsWith('ml')
+        : pickType === 'ou'     ? p.betId?.startsWith('ou')
+        : pickType === 'props'  ? p.betId?.startsWith('prop')
+        : false
+      ).length;
+      const totalPending = Object.keys(allPending).length;
+      const totalSubmitted = submittedPickCounts[leagueId] || 0;
+      const totalUsed = totalPending + totalSubmitted;
+      const typeLimitsSum = Object.entries(limits).filter(([k]) => k !== 'any').reduce((a,[,v]) => a + v, 0);
+      const anyUsed = Math.max(0, totalUsed - typeLimitsSum);
+      const anyLeft = Math.max(0, anyLimit - anyUsed);
+      if (pendingOfType >= typeLimit && anyLeft <= 0) {
+        const labelMap = { spread:'spreads', ml:'moneylines', ou:'over/unders', props:'props' };
+        showToast(`⚠️ You've reached your ${labelMap[pickType] || 'pick'} limit for this league`);
+        return;
+      }
+    }
+  }
+
   if (alreadyPicked) {
     delete leaguePicks[leagueId][key];
   } else {
@@ -2272,6 +2314,67 @@ function showSettingsSection(id, el) {
       updateOddsPreview();
       maxEl.oninput = updateOddsPreview;
     }
+    renderPickLimitsUI();
+  }
+}
+
+function renderPickLimitsUI() {
+  const container = document.getElementById('s-pick-limits-inputs');
+  const totalEl   = document.getElementById('s-pick-limits-total');
+  if (!container || !currentLeague) return;
+
+  const ppw = parseInt(document.getElementById('s-picks-per-week')?.value) || currentLeague.picks_per_week || 5;
+
+  const activeBetTypeEls = document.querySelectorAll('#bet-type-toggles .bet-type-toggle.active');
+  const activeTypes = [...activeBetTypeEls].map(el => el.dataset.id).filter(Boolean);
+
+  const existing = currentLeague.pick_type_limits || { any: ppw };
+
+  const BET_TYPE_LABELS = {
+    spread: 'Point Spread',
+    ml: 'Moneyline',
+    ou: 'Over / Under',
+    props: 'Player Props',
+  };
+
+  const rows = [...activeTypes, 'any'].map(typeId => {
+    const label = typeId === 'any' ? 'Any Type (flexible)' : (BET_TYPE_LABELS[typeId] || typeId);
+    const val = existing[typeId] ?? (typeId === 'any' ? ppw : 0);
+    return `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <label style="font-family:var(--font-display);font-size:13px;font-weight:700;width:160px;flex-shrink:0;">${label}</label>
+        <input type="number" min="0" max="${ppw}" value="${val}"
+          data-limit-type="${typeId}"
+          id="s-limit-${typeId}"
+          oninput="updatePickLimitsTotal()"
+          style="width:80px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-mono);">
+      </div>`;
+  }).join('');
+
+  container.innerHTML = rows;
+  updatePickLimitsTotal();
+}
+
+function updatePickLimitsTotal() {
+  const ppw = parseInt(document.getElementById('s-picks-per-week')?.value) || currentLeague?.picks_per_week || 5;
+  const inputs = document.querySelectorAll('[data-limit-type]');
+  let total = 0;
+  inputs.forEach(inp => { total += parseInt(inp.value) || 0; });
+  const totalEl = document.getElementById('s-pick-limits-total');
+  if (!totalEl) return;
+  const diff = total - ppw;
+  if (diff === 0) {
+    totalEl.textContent = `✅ Total: ${total} / ${ppw} — perfect`;
+    totalEl.style.color = 'var(--green)';
+    totalEl.style.borderColor = 'var(--green)';
+  } else if (diff > 0) {
+    totalEl.textContent = `⚠️ Total: ${total} / ${ppw} — ${diff} too many`;
+    totalEl.style.color = '#e74c3c';
+    totalEl.style.borderColor = '#e74c3c';
+  } else {
+    totalEl.textContent = `⚠️ Total: ${total} / ${ppw} — ${Math.abs(diff)} remaining`;
+    totalEl.style.color = '#f39c12';
+    totalEl.style.borderColor = '#f39c12';
   }
 }
 
@@ -2285,6 +2388,19 @@ async function saveLeagueSportsSettings() {
   const betTypeEls = document.querySelectorAll('#bet-type-toggles .bet-type-toggle.active');
   const bet_types  = [...betTypeEls].map(el => el.dataset.id);
 
+  const ppwForLimits = parseInt(document.getElementById('s-picks-per-week')?.value) || 5;
+  const limitInputs = document.querySelectorAll('[data-limit-type]');
+  let limitsTotal = 0;
+  const pick_type_limits = {};
+  limitInputs.forEach(inp => {
+    const v = parseInt(inp.value) || 0;
+    pick_type_limits[inp.dataset.limitType] = v;
+    limitsTotal += v;
+  });
+  if (limitsTotal !== ppwForLimits) {
+    return showToast(`⚠️ Pick limits must add up to ${ppwForLimits} (currently ${limitsTotal})`);
+  }
+
   const rawOddsMax = document.getElementById('s-odds-max')?.value;
   const odds_max = (rawOddsMax !== '' && rawOddsMax !== null && rawOddsMax !== undefined && !isNaN(parseInt(rawOddsMax))) ? parseInt(rawOddsMax) : -500;
   const picks_per_week = parseInt(document.getElementById('s-picks-per-week')?.value) || 5;
@@ -2297,6 +2413,7 @@ async function saveLeagueSportsSettings() {
   // ── Update in-memory state ────────────────────────────────────────────────
   if (sports.length)    currentLeague.sports    = sports;
   if (bet_types.length) currentLeague.bet_types = bet_types;
+  currentLeague.pick_type_limits = pick_type_limits;
   currentLeague.odds_max       = odds_max;
   currentLeague.picks_per_week = picks_per_week;
   currentLeague.max_members    = max_members;
@@ -2310,7 +2427,7 @@ async function saveLeagueSportsSettings() {
   console.log('[DEBUG save] Sending PATCH with odds_max:', odds_max, '| type:', typeof odds_max);
   try {
     const patchResult = await api.patch(`/leagues/${currentLeague.id}`, {
-      name, visibility, max_members, picks_per_week, odds_max,
+      name, visibility, max_members, picks_per_week, odds_max, pick_type_limits,
       sports: currentLeague.sports,
       bet_types: currentLeague.bet_types,
     });
@@ -2391,6 +2508,9 @@ function openLeague(id) {
     console.log('[DEBUG openLeague] ⚠️ FALLBACK path — league not in myLeagues, using LEAGUES_FALLBACK');
     // Fallback — render with sample standings
     currentLeague = league;
+    if (!currentLeague.pick_type_limits) {
+      currentLeague.pick_type_limits = { any: currentLeague.picks_per_week || 5 };
+    }
     document.getElementById('league-page-name').textContent    = league.name;
     document.getElementById('league-page-members').textContent = league.member_count || 8;
     document.getElementById('league-page-sports').textContent  = '🏈 ' + (Array.isArray(league.sports) ? league.sports.join(' · ').toUpperCase() : league.sports || '');
@@ -2948,7 +3068,7 @@ function renderBetTypeToggles() {
   const container = document.getElementById('bet-type-toggles');
   if (!container) return;
   container.innerHTML = BET_TYPES.map(b => `
-    <div class="bet-type-toggle ${activeBetTypes.has(b.id)?'active':''}" data-id="${b.id}" onclick="this.classList.toggle('active')">
+    <div class="bet-type-toggle ${activeBetTypes.has(b.id)?'active':''}" data-id="${b.id}" onclick="this.classList.toggle('active'); renderPickLimitsUI();">
       <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
       <div class="toggle-switch"></div>
     </div>`).join('');
