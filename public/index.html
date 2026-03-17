@@ -2494,7 +2494,13 @@ async function submitLeaguePicks(leagueId) {
         // Encode picked_side from betId — avoids fuzzy text matching at grading time
         // betId examples: 'spread-home', 'spread-away', 'ml-home', 'ml-away', 'ou-over', 'ou-under'
         const betIdParts = p.betId.split('-');
-        const pickedSide = betIdParts[betIdParts.length - 1]; // 'home','away','over','under'
+        // For prop bets the last part is the stat line (e.g. '5.5'), direction is second-to-last
+        // For spread/ml/ou the last part is 'home','away','over','under'
+        const lastPart = betIdParts[betIdParts.length - 1];
+        const secondLast = betIdParts[betIdParts.length - 2];
+        const pickedSide = p.betId.startsWith('prop')
+          ? (secondLast === 'over' || secondLast === 'under' ? secondLast : lastPart)
+          : lastPart;
 
         let line_data = null;
         if (bt === 'props') {
