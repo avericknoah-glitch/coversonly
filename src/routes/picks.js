@@ -75,6 +75,33 @@ router.get('/admin/props-debug', async (req, res, next) => {
   }
 });
 
+// ── POST /api/picks/admin/patch-props-linedata ────────────────────────────────
+// Temporary no-auth endpoint to patch broken line_data on stuck prop picks
+router.post('/admin/patch-props-linedata', async (req, res, next) => {
+  try {
+    const patches = [
+      { id: 125, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
+      { id: 126, line_data: { market: 'player_assists', point: 7.5, direction: 'over', picked_side: 'over' } },
+      { id: 127, line_data: { market: 'player_assists', point: 4.5, direction: 'over', picked_side: 'over' } },
+      { id: 128, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
+      { id: 129, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
+    ];
+
+    const results = [];
+    for (const patch of patches) {
+      const { rowCount } = await db.query(
+        'UPDATE picks SET line_data = $1 WHERE id = $2',
+        [JSON.stringify(patch.line_data), patch.id]
+      );
+      results.push({ id: patch.id, updated: rowCount > 0 });
+    }
+
+    res.json({ patched: results });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── POST /api/picks ───────────────────────────────────────────────────────────
 // Submit picks for a league/week.
 // Body: { league_id, week, picks: [{ event_id, bet_type, selection, sport }] }
