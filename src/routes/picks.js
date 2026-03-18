@@ -52,56 +52,6 @@ router.get('/grade-debug', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// ── GET /api/picks/admin/props-debug ─────────────────────────────────────────
-// Temporary no-auth endpoint to debug pending prop picks on Railway
-router.get('/admin/props-debug', async (req, res, next) => {
-  try {
-    const { rows } = await db.query(`
-      SELECT p.id, p.selection, p.bet_type, p.result, p.event_id, p.sport,
-             p.line_data,
-             e.home_team, e.away_team, e.commence_time,
-             CASE WHEN e.external_id IS NOT NULL THEN true ELSE false END AS has_event_row
-      FROM picks p
-      LEFT JOIN events e ON e.external_id = p.event_id
-      WHERE p.result = 'pending'
-        AND p.bet_type LIKE 'props%'
-      ORDER BY p.created_at DESC
-      LIMIT 20
-    `);
-
-    res.json({ pending_props: rows });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// ── POST /api/picks/admin/patch-props-linedata ────────────────────────────────
-// Temporary no-auth endpoint to patch broken line_data on stuck prop picks
-router.post('/admin/patch-props-linedata', async (req, res, next) => {
-  try {
-    const patches = [
-      { id: 125, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
-      { id: 126, line_data: { market: 'player_assists', point: 7.5, direction: 'over', picked_side: 'over' } },
-      { id: 127, line_data: { market: 'player_assists', point: 4.5, direction: 'over', picked_side: 'over' } },
-      { id: 128, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
-      { id: 129, line_data: { market: 'player_assists', point: 3.5, direction: 'over', picked_side: 'over' } },
-    ];
-
-    const results = [];
-    for (const patch of patches) {
-      const { rowCount } = await db.query(
-        'UPDATE picks SET line_data = $1 WHERE id = $2',
-        [JSON.stringify(patch.line_data), patch.id]
-      );
-      results.push({ id: patch.id, updated: rowCount > 0 });
-    }
-
-    res.json({ patched: results });
-  } catch (err) {
-    next(err);
-  }
-});
-
 // ── POST /api/picks ───────────────────────────────────────────────────────────
 // Submit picks for a league/week.
 // Body: { league_id, week, picks: [{ event_id, bet_type, selection, sport }] }
