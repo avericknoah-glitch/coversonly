@@ -2503,7 +2503,7 @@ async function submitLeaguePicks(leagueId) {
           : lastPart;
 
         let line_data = null;
-        if (bt === 'props') {
+        if (bt.startsWith('props')) {
           const parts = p.betId.split('-'); // ['prop', 'player_points', 'Myles', 'Turner', 'over', '10.5']
           const market = parts[1]; // e.g. 'player_points'
           const dir = parts[parts.length - 2] === 'over' || parts[parts.length - 2] === 'under'
