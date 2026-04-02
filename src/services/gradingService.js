@@ -284,12 +284,19 @@ async function gradeAllPendingPicks() {
 
   logger.info(`[GradingService] Graded ${totalGraded} picks across ${sports.length} sports`);
 
-  // Grade NBA player props via Ball Don't Lie API
+  // Grade player props via Ball Don't Lie API
   try {
     const propsGraded = await propsGrading.gradeNBAPropPicks();
     totalGraded += propsGraded;
   } catch (err) {
-    logger.error('[GradingService] Props grading failed:', err.message);
+    logger.error('[GradingService] NBA props grading failed:', err.message);
+  }
+
+  try {
+    const mlbPropsGraded = await propsGrading.gradeMLBPropPicks();
+    totalGraded += mlbPropsGraded;
+  } catch (err) {
+    logger.error('[GradingService] MLB props grading failed:', err.message);
   }
 
   return totalGraded;

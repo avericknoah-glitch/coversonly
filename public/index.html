@@ -559,6 +559,12 @@
             <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Toggle which types of bets members can make. Disabled types won't appear on picks pages.</div>
             <div class="bet-types-grid" id="modal-bet-types"></div>
           </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:16px;">
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;">Pick Type Limits</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Set how many picks of each type per week. Must add up to your Picks Per Week total.</div>
+            <div id="modal-pick-limits-inputs" style="display:flex;flex-direction:column;gap:10px;max-width:400px;"></div>
+            <div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px;" id="modal-pick-limits-total"></div>
+          </div>
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:24px;">
             <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;">Odds Limit</div>
             <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Set the most favorable odds allowed. Picks better than this limit won't be shown to members.</div>
@@ -1290,13 +1296,14 @@ function normaliseEvent(ev) {
     : '—';
 
   const isNcaa = sportKey === 'basketball_ncaab' || sportKey === 'americanfootball_ncaaf';
+  const isMlb  = sportKey === 'baseball_mlb';
 
   return {
     id:             ev.id,
     sport:          sport,
     sport_key:      sportKey,
-    away:           isNcaa ? ev.away_team : abbreviate(ev.away_team),
-    home:           isNcaa ? ev.home_team : abbreviate(ev.home_team),
+    away:           (isNcaa || isMlb) ? ev.away_team : abbreviate(ev.away_team),
+    home:           (isNcaa || isMlb) ? ev.home_team : abbreviate(ev.home_team),
     away_abbr:      abbreviate(ev.away_team),
     home_abbr:      abbreviate(ev.home_team),
     away_team:      ev.away_team,
@@ -2116,7 +2123,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     const propMarkets = {
       basketball_nba:       'player_points,player_rebounds,player_assists,player_threes',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
-      baseball_mlb:         'batter_hits,batter_home_runs,pitcher_strikeouts',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,pitcher_strikeouts',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
@@ -2145,7 +2152,7 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
     player_points:'Points', player_rebounds:'Rebounds', player_assists:'Assists',
     player_threes:'3-Pointers', player_steals:'Steals', player_blocks:'Blocks',
     player_goals:'Goals', player_shots_on_goal:'Shots on Goal',
-    batter_hits:'Hits', batter_home_runs:'Home Runs', pitcher_strikeouts:'Strikeouts',
+    batter_hits:'Hits', batter_home_runs:'Home Runs', batter_rbis:'RBIs', pitcher_strikeouts:'Strikeouts (Pitcher)',
     player_pass_yds:'Pass Yards', player_rush_yds:'Rush Yards',
     player_reception_yds:'Rec Yards', player_anytime_td:'Anytime TD',
   };
@@ -3240,7 +3247,7 @@ function renderPropsDrawer(gameId, data) {
     player_threes: '3-Pointers', player_steals: 'Steals', player_blocks: 'Blocks',
     player_goals: 'Goals', player_shots_on_goal: 'Shots on Goal',
     batter_hits: 'Hits', batter_home_runs: 'Home Runs', batter_rbis: 'RBIs',
-    pitcher_strikeouts: 'Strikeouts', player_pass_yds: 'Pass Yards',
+    pitcher_strikeouts: 'Strikeouts (Pitcher)', player_pass_yds: 'Pass Yards',
     player_rush_yds: 'Rush Yards', player_reception_yds: 'Rec Yards',
     player_anytime_td: 'Anytime TD',
   };
@@ -3385,6 +3392,21 @@ function nextStep(step) {
     renderModalBetTypes();
   }
   if (step===4) {
+    const modalLimitInputs = document.querySelectorAll('[data-modal-limit-type]');
+    if (modalLimitInputs.length) {
+      const modal_ppw = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
+      let modalLimitsTotal = 0;
+      const modal_pick_type_limits = {};
+      modalLimitInputs.forEach(inp => {
+        const v = parseInt(inp.value) || 0;
+        modal_pick_type_limits[inp.dataset.modalLimitType] = v;
+        modalLimitsTotal += v;
+      });
+      if (modalLimitsTotal !== modal_ppw) {
+        return showToast(`⚠️ Pick limits must add up to ${modal_ppw} (currently ${modalLimitsTotal})`);
+      }
+      window._modalPickTypeLimits = modal_pick_type_limits;
+    }
     const code = 'SPR-'+Math.random().toString(36).slice(2,6).toUpperCase();
     document.getElementById('new-league-code').textContent = code;
   }
@@ -3398,7 +3420,7 @@ function renderModalBetTypes() {
   if (!container.dataset.initialized) {
     container.dataset.initialized = 'true';
     container.innerHTML = BET_TYPES.map(b => `
-      <div class="bet-type-toggle active" data-id="${b.id}" onclick="this.classList.toggle('active')">
+      <div class="bet-type-toggle active" data-id="${b.id}" onclick="this.classList.toggle('active'); renderModalPickLimitsUI()">
         <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
         <div class="toggle-switch"></div>
       </div>`).join('');
@@ -3419,6 +3441,57 @@ function renderModalBetTypes() {
   if (modalMaxEl) {
     modalMaxEl.oninput = updateModalOddsPreview;
     updateModalOddsPreview();
+  }
+  renderModalPickLimitsUI();
+}
+
+function renderModalPickLimitsUI() {
+  const container = document.getElementById('modal-pick-limits-inputs');
+  const totalEl   = document.getElementById('modal-pick-limits-total');
+  if (!container) return;
+
+  const ppw = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
+  const activeBetTypeEls = document.querySelectorAll('#modal-bet-types .bet-type-toggle.active');
+  const activeTypes = [...activeBetTypeEls].map(el => el.dataset.id).filter(Boolean);
+
+  const BET_TYPE_LABELS = { spread: 'Point Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props' };
+
+  const rows = [...activeTypes, 'any'].map(typeId => {
+    const label = typeId === 'any' ? 'Any Type (flexible)' : (BET_TYPE_LABELS[typeId] || typeId);
+    const val = typeId === 'any' ? ppw : 0;
+    return `<div style="display:flex;align-items:center;gap:12px;">
+      <label style="font-family:var(--font-display);font-size:13px;font-weight:700;width:160px;flex-shrink:0;">${label}</label>
+      <input type="number" min="0" max="${ppw}" value="${val}"
+        data-modal-limit-type="${typeId}"
+        oninput="updateModalPickLimitsTotal()"
+        style="width:80px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-mono);">
+    </div>`;
+  }).join('');
+
+  container.innerHTML = rows;
+  updateModalPickLimitsTotal();
+}
+
+function updateModalPickLimitsTotal() {
+  const ppw = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
+  const inputs = document.querySelectorAll('[data-modal-limit-type]');
+  let total = 0;
+  inputs.forEach(inp => { total += parseInt(inp.value) || 0; });
+  const totalEl = document.getElementById('modal-pick-limits-total');
+  if (!totalEl) return;
+  const diff = total - ppw;
+  if (diff === 0) {
+    totalEl.textContent = `✅ Total: ${total} / ${ppw} — perfect`;
+    totalEl.style.color = 'var(--green)';
+    totalEl.style.borderColor = 'var(--green)';
+  } else if (diff > 0) {
+    totalEl.textContent = `⚠️ Total: ${total} / ${ppw} — ${diff} too many`;
+    totalEl.style.color = '#e74c3c';
+    totalEl.style.borderColor = '#e74c3c';
+  } else {
+    totalEl.textContent = `⚠️ Total: ${total} / ${ppw} — ${Math.abs(diff)} remaining`;
+    totalEl.style.color = '#f39c12';
+    totalEl.style.borderColor = '#f39c12';
   }
 }
 
@@ -3453,16 +3526,17 @@ async function finishCreate() {
   const picks_per_week = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
   const rawModalOddsMax = document.getElementById('modal-odds-max')?.value;
   const odds_max = (rawModalOddsMax !== '' && rawModalOddsMax !== null && rawModalOddsMax !== undefined && !isNaN(parseInt(rawModalOddsMax))) ? parseInt(rawModalOddsMax) : -500;
+  const pick_type_limits = window._modalPickTypeLimits || null;
 
   try {
-    const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max });
+    const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
     myLeagues.push(data.league);
     closeModal();
     renderLeaguesGrid();
     showToast('🏆 League created!');
     setTimeout(() => openLeague(data.league.id), 400);
   } catch (err) {
-    const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, my_role: 'commissioner' };
+    const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, pick_type_limits, my_role: 'commissioner' };
     myLeagues.push(newLeague);
     closeModal();
     renderLeaguesGrid();

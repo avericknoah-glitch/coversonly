@@ -138,10 +138,12 @@ router.post('/', requireAuth, async (req, res, next) => {
     // Generate a unique invite code
     const inviteCode = generateInviteCode(league.id);
     await client.query(`UPDATE leagues SET invite_code = $1 WHERE id = $2`, [inviteCode, league.id]);
-    league.invite_code = inviteCode;
 
     await client.query('COMMIT');
-    res.status(201).json({ league });
+
+    // Re-fetch to get the complete row including pick_type_limits and invite_code
+    const { rows: finalRows } = await db.query('SELECT * FROM leagues WHERE id = $1', [league.id]);
+    res.status(201).json({ league: { ...finalRows[0], my_role: 'commissioner' } });
   } catch (err) {
     await client.query('ROLLBACK');
     next(err);

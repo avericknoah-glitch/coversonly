@@ -308,4 +308,186 @@ async function gradeNBAPropPicks() {
   return totalGraded;
 }
 
-module.exports = { gradeNBAPropPicks, gradePropPick, parsePlayerName };
+const MLB_BDL_BASE = 'https://api.balldontlie.io/mlb/v1';
+const MLB_MARKET_TO_STAT = {
+  batter_hits:        'hits',
+  batter_home_runs:   'hr',
+  batter_rbis:        'rbi',
+  batter_walks:       'bb',
+  batter_strikeouts:  'k',
+  pitcher_strikeouts: 'p_k',
+};
+
+async function findMLBGame(gameDate, homeTeam, awayTeam) {
+  const prev = new Date(gameDate + 'T12:00:00Z');
+  prev.setDate(prev.getDate() - 1);
+  const dates = [gameDate, prev.toISOString().split('T')[0]];
+
+  for (const date of dates) {
+    await delay(250);
+    try {
+      const res = await axios.get(`${MLB_BDL_BASE}/games`, {
+        headers: { Authorization: BDL_KEY },
+        params: { 'dates[]': date, per_page: 100 },
+        timeout: 10_000,
+      });
+      const games = res.data.data || [];
+      logger.info(`[MLBPropsGrading] BDL returned ${games.length} games for ${date}`);
+      const match = games.find(g => {
+        const home = (g.home_team?.display_name || g.home_team_name || '').toLowerCase();
+        const away = (g.away_team?.display_name || g.away_team_name || '').toLowerCase();
+        const homeWords = homeTeam.toLowerCase().split(' ').filter(w => w.length > 3);
+        const awayWords = awayTeam.toLowerCase().split(' ').filter(w => w.length > 3);
+        return homeWords.some(w => home.includes(w)) && awayWords.some(w => away.includes(w));
+      });
+      if (match) return match;
+    } catch (err) {
+      logger.error('[MLBPropsGrading] findMLBGame failed:', err.message);
+    }
+  }
+  return null;
+}
+
+async function fetchMLBGameStats(bdlGameId) {
+  await delay(250);
+  try {
+    const res = await axios.get(`${MLB_BDL_BASE}/stats`, {
+      headers: { Authorization: BDL_KEY },
+      params: { 'game_ids[]': bdlGameId, per_page: 100 },
+      timeout: 10_000,
+    });
+    return (res.data.data || []).map(s => ({
+      player_name: `${s.player.first_name} ${s.player.last_name}`.toLowerCase(),
+      hits:    s.hits    || 0,
+      hr:      s.hr      || 0,
+      rbi:     s.rbi     || 0,
+      bb:      s.bb      || 0,
+      k:       s.k       || 0,
+      p_k:     s.p_k     || 0,
+      ip:      s.ip      || null,
+      at_bats: s.at_bats || 0,
+    }));
+  } catch (err) {
+    logger.error('[MLBPropsGrading] fetchMLBGameStats failed:', err.message);
+    return [];
+  }
+}
+
+async function gradeMLBPropPicks() {
+  if (!BDL_KEY) {
+    logger.warn('[MLBPropsGrading] No BALLDONTLIE_API_KEY — skipping MLB props grading');
+    return 0;
+  }
+
+  const { rows: picks } = await db.query(`
+    SELECT p.id, p.selection, p.bet_type, p.line_data, p.event_id, p.sport,
+           e.commence_time, e.home_team, e.away_team
+    FROM picks p
+    LEFT JOIN events e ON e.external_id = p.event_id
+    WHERE p.result = 'pending'
+      AND p.bet_type LIKE 'props%'
+      AND p.sport IN ('baseball_mlb', 'mlb')
+  `);
+
+  if (!picks.length) {
+    logger.info('[MLBPropsGrading] No pending MLB prop picks');
+    return 0;
+  }
+
+  logger.info(`[MLBPropsGrading] Grading ${picks.length} pending MLB prop picks`);
+
+  const byEvent = {};
+  for (const pick of picks) {
+    if (!byEvent[pick.event_id]) byEvent[pick.event_id] = { picks: [], pick };
+    byEvent[pick.event_id].picks.push(pick);
+  }
+
+  let totalGraded = 0;
+
+  for (const [eventId, { picks: eventPicks, pick: samplePick }] of Object.entries(byEvent)) {
+    let gameDate, homeTeam, awayTeam;
+
+    if (samplePick.commence_time) {
+      gameDate = new Date(samplePick.commence_time).toISOString().split('T')[0];
+      homeTeam = samplePick.home_team;
+      awayTeam = samplePick.away_team;
+    }
+
+    if (!gameDate || !homeTeam || !awayTeam) {
+      logger.warn(`[MLBPropsGrading] No event data for event_id ${eventId} — skipping`);
+      continue;
+    }
+
+    logger.info(`[MLBPropsGrading] Looking up BDL MLB game: ${gameDate} ${awayTeam} @ ${homeTeam}`);
+
+    const bdlGame = await findMLBGame(gameDate, homeTeam, awayTeam);
+    if (!bdlGame) {
+      logger.warn(`[MLBPropsGrading] No BDL MLB game found for ${gameDate} ${awayTeam} @ ${homeTeam}`);
+      continue;
+    }
+
+    const statusRaw = bdlGame.status || '';
+    const isFinal = statusRaw.toLowerCase().includes('final') || statusRaw.toLowerCase().includes('status_final');
+    logger.info(`[MLBPropsGrading] Game status: "${statusRaw}" — isFinal: ${isFinal}`);
+    if (!isFinal) continue;
+
+    const playerStats = await fetchMLBGameStats(bdlGame.id);
+    logger.info(`[MLBPropsGrading] Fetched ${playerStats.length} player stat rows`);
+    if (!playerStats.length) continue;
+
+    for (const pick of eventPicks) {
+      const lineData = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : (pick.line_data || {});
+      const market = lineData.market;
+      const point = parseFloat(lineData.point);
+      const dir = (lineData.direction || lineData.picked_side || '').toLowerCase();
+
+      if (!market || isNaN(point) || !dir) {
+        logger.warn(`[MLBPropsGrading] Pick ${pick.id} missing line_data fields — skipping`);
+        continue;
+      }
+
+      const statField = MLB_MARKET_TO_STAT[market];
+      if (!statField) {
+        logger.warn(`[MLBPropsGrading] No MLB stat mapping for market: ${market}`);
+        continue;
+      }
+
+      const playerName = parsePlayerName(pick.selection);
+      const stats = playerStats.find(s => {
+        const bdlName = s.player_name;
+        const pickWords = playerName.split(' ').filter(w => w.length > 2);
+        return pickWords.every(w => bdlName.includes(w));
+      });
+
+      if (!stats) {
+        logger.warn(`[MLBPropsGrading] No MLB stats for player: "${playerName}"`);
+        continue;
+      }
+
+      const didPlay = statField === 'p_k'
+        ? (stats.ip !== null && stats.ip !== '0' && stats.ip !== 0)
+        : stats.at_bats > 0;
+
+      if (!didPlay) {
+        logger.info(`[MLBPropsGrading] Player did not play: "${playerName}"`);
+        continue;
+      }
+
+      const actualStat = stats[statField];
+      const pickedOver = dir === 'over';
+      let result;
+      if (actualStat === point) result = 'push';
+      else result = (pickedOver ? actualStat > point : actualStat < point) ? 'win' : 'loss';
+
+      logger.info(`[MLBPropsGrading] Pick ${pick.id} "${pick.selection}": actual=${actualStat} vs ${point} ${dir} → ${result}`);
+
+      await db.query('UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2', [result, pick.id]);
+      totalGraded++;
+    }
+  }
+
+  logger.info(`[MLBPropsGrading] Graded ${totalGraded} MLB prop picks`);
+  return totalGraded;
+}
+
+module.exports = { gradeNBAPropPicks, gradeMLBPropPicks, gradePropPick, parsePlayerName };
