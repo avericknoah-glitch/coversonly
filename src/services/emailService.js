@@ -6,7 +6,7 @@ async function sendPasswordResetEmail(toEmail, resetToken, username) {
 
   try {
     await resend.emails.send({
-      from: 'Covers Only <onboarding@resend.dev>',
+      from: 'Covers Only <noreply@covers-only.com>',
       to: toEmail,
       subject: 'Reset Your Covers Only Password',
       html: `
