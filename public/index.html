@@ -2317,9 +2317,23 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
       ).length;
       const totalPending = Object.keys(allPending).length;
       const totalSubmitted = submittedPickCounts[leagueId] || 0;
-      const totalUsed = totalPending + totalSubmitted;
-      const typeLimitsSum = Object.entries(limits).filter(([k]) => k !== 'any').reduce((a,[,v]) => a + v, 0);
-      const anyUsed = Math.max(0, totalUsed - typeLimitsSum);
+      // Calculate how many picks of each type are using "any" slots
+      const byTypeSubmitted = submittedPickCounts[leagueId + '_byType'] || {};
+      const byTypePending = {};
+      Object.values(leaguePicks[leagueId] || {}).forEach(p => {
+        const bt = p.betId?.startsWith('spread') ? 'spread'
+          : p.betId?.startsWith('ml') ? 'ml'
+          : p.betId?.startsWith('ou') ? 'ou'
+          : p.betId?.startsWith('prop') ? 'props'
+          : 'other';
+        byTypePending[bt] = (byTypePending[bt] || 0) + 1;
+      });
+      let anyUsed = 0;
+      Object.keys(limits).filter(k => k !== 'any').forEach(bt => {
+        const used = (byTypeSubmitted[bt] || 0) + (byTypePending[bt] || 0);
+        const dedicated = limits[bt] || 0;
+        if (used > dedicated) anyUsed += used - dedicated;
+      });
       const anyLeft = Math.max(0, anyLimit - anyUsed);
       // Count already-submitted picks of this type this week
       const submittedOfType = (submittedPickCounts[leagueId + '_byType'] || {})[pickType] || 0;
