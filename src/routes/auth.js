@@ -6,6 +6,19 @@ const { signToken, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+(async function migrateResetToken() {
+  try {
+    const db = require('../db');
+    await db.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS reset_token TEXT DEFAULT NULL,
+      ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ DEFAULT NULL
+    `);
+  } catch(e) {
+    console.warn('[migrate] reset_token columns:', e.message);
+  }
+})();
+
 // ── POST /api/auth/register ──────────────────────────────────────────────────
 router.post('/register', async (req, res, next) => {
   try {
@@ -184,6 +197,78 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
 // This endpoint exists so clients have a consistent API surface.
 router.post('/logout', requireAuth, (req, res) => {
   res.json({ message: 'Logged out successfully' });
+});
+
+// ── POST /api/auth/forgot-password ───────────────────────────────────────────
+// Request a password reset email
+router.post('/forgot-password', async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    // Find user
+    const { rows } = await db.query(
+      'SELECT id, username, email FROM users WHERE lower(email) = $1',
+      [email.toLowerCase()]
+    );
+
+    // Always return success to prevent email enumeration
+    if (!rows[0]) return res.json({ message: 'If that email exists, a reset link has been sent' });
+
+    const user = rows[0];
+
+    // Generate a secure token
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Store token in DB
+    await db.query(`
+      UPDATE users
+      SET reset_token = $1, reset_token_expires = $2
+      WHERE id = $3
+    `, [token, expiresAt, user.id]);
+
+    // Send email
+    const { sendPasswordResetEmail } = require('../services/emailService');
+    await sendPasswordResetEmail(user.email, token, user.username);
+
+    res.json({ message: 'If that email exists, a reset link has been sent' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── POST /api/auth/reset-password ────────────────────────────────────────────
+// Reset password using token
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'Token and password are required' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+
+    // Find user with valid token
+    const { rows } = await db.query(
+      'SELECT id, username FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()',
+      [token]
+    );
+
+    if (!rows[0]) return res.status(400).json({ error: 'Invalid or expired reset link' });
+
+    const user = rows[0];
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash(password, 12);
+
+    // Update password and clear token
+    await db.query(
+      'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+      [hash, user.id]
+    );
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

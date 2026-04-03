@@ -296,6 +296,9 @@
       <div class="auth-form-sub">Sign in to your Covers Only account</div>
       <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
       <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <div style="text-align:right;margin-top:-12px;margin-bottom:16px;">
+        <a href="#" onclick="showForgotPassword()" style="font-size:13px;color:var(--accent);text-decoration:none;">Forgot password?</a>
+      </div>
       <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In →</button>
     </div>
     <div id="register-form" style="display:none">
@@ -667,6 +670,44 @@
         <div style="font-size:12px;color:var(--muted);margin-top:6px;">Enter the code shared by your league commissioner</div>
       </div>
       <button class="btn-primary" id="join-submit-btn" onclick="submitJoinLeague()" style="width:100%;padding:14px;margin-top:8px;">Join League</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="forgot-password-modal" style="display:none;z-index:1100;" onclick="if(event.target===this)closeForgotPassword()">
+  <div class="modal-container" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Reset Password</div>
+      <button class="modal-close" onclick="closeForgotPassword()">✕</button>
+    </div>
+    <div style="padding:32px;">
+      <div id="forgot-password-content">
+        <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Enter your email address and we'll send you a link to reset your password.</p>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="forgot-email" placeholder="you@example.com">
+        </div>
+        <button class="btn-primary" id="forgot-submit-btn" onclick="submitForgotPassword()" style="width:100%;padding:14px;margin-top:8px;">Send Reset Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reset-password-modal" style="display:none;z-index:1100;">
+  <div class="modal-container" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Set New Password</div>
+    </div>
+    <div style="padding:32px;">
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="reset-new-password" placeholder="Min. 8 characters">
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" id="reset-confirm-password" placeholder="Confirm new password">
+      </div>
+      <button class="btn-primary" id="reset-submit-btn" onclick="submitResetPassword()" style="width:100%;padding:14px;margin-top:8px;">Set New Password</button>
     </div>
   </div>
 </div>
@@ -3695,11 +3736,65 @@ async function submitJoinLeague() {
   }
 }
 
+function showForgotPassword() {
+  document.getElementById('forgot-password-modal').style.display = 'flex';
+  document.getElementById('forgot-email').value = document.getElementById('login-email').value || '';
+}
+
+function closeForgotPassword() {
+  document.getElementById('forgot-password-modal').style.display = 'none';
+}
+
+async function submitForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) return showToast('⚠️ Enter your email address');
+  const btn = document.getElementById('forgot-submit-btn');
+  btn.textContent = 'Sending…'; btn.disabled = true;
+  try {
+    await api.post('/auth/forgot-password', { email });
+    document.getElementById('forgot-password-content').innerHTML = `
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">📧</div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:8px;">Check your email</div>
+        <div style="color:var(--muted);font-size:14px;">If that email exists in our system, a reset link has been sent.</div>
+      </div>`;
+  } catch (err) {
+    showToast('❌ ' + (err.message || 'Something went wrong'));
+    btn.textContent = 'Send Reset Link'; btn.disabled = false;
+  }
+}
+
+async function submitResetPassword() {
+  const password = document.getElementById('reset-new-password').value;
+  const confirm  = document.getElementById('reset-confirm-password').value;
+  if (!password || password.length < 8) return showToast('⚠️ Password must be at least 8 characters');
+  if (password !== confirm) return showToast('⚠️ Passwords do not match');
+  const btn = document.getElementById('reset-submit-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  const token = window._resetToken;
+  try {
+    await api.post('/auth/reset-password', { token, password });
+    showToast('✅ Password reset! You can now log in.');
+    document.getElementById('reset-password-modal').style.display = 'none';
+    window._resetToken = null;
+    // Clear the token from the URL
+    window.history.replaceState({}, '', '/');
+  } catch (err) {
+    showToast('❌ ' + (err.message || 'Reset failed'));
+    btn.textContent = 'Set New Password'; btn.disabled = false;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // INIT — try auto-login from stored token, otherwise show auth screen
 // ─────────────────────────────────────────────────────────────────────────────
 (async function init() {
   const joinCode = new URLSearchParams(window.location.search).get('join');
+  const resetToken = new URLSearchParams(window.location.search).get('reset');
+  if (resetToken) {
+    window._resetToken = resetToken;
+    document.getElementById('reset-password-modal').style.display = 'flex';
+  }
   const loggedIn = await tryAutoLogin();
   if (loggedIn) {
     await bootApp();
