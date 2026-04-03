@@ -3629,7 +3629,7 @@ async function loadInviteCode() {
     const data = await api.get(`/leagues/${currentLeague.id}`);
     const code = data.league?.invite_code || '—';
     codeEl.textContent = code;
-    const base = 'https://coversonly-production.up.railway.app';
+    const base = 'https://covers-only.com';
     linkEl.textContent = `${base}?join=${code}`;
   } catch {
     codeEl.textContent = '—';

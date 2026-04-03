@@ -2,7 +2,7 @@ const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendPasswordResetEmail(toEmail, resetToken, username) {
-  const resetUrl = `https://coversonly-production.up.railway.app?reset=${resetToken}`;
+  const resetUrl = `https://covers-only.com?reset=${resetToken}`;
 
   try {
     await resend.emails.send({
