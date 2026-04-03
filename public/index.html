@@ -2324,7 +2324,7 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
       // Count already-submitted picks of this type this week
       const submittedOfType = (submittedPickCounts[leagueId + '_byType'] || {})[pickType] || 0;
       const adjustedTypeLimit = Math.max(0, typeLimit - submittedOfType);
-      const adjustedAnyLeft = Math.max(0, anyLeft - submittedOfType);
+      const adjustedAnyLeft = anyLeft; // anyLeft already accounts for all submitted picks via totalUsed
       if (pendingOfType >= adjustedTypeLimit && adjustedAnyLeft <= 0) {
         const labelMap = { spread:'spreads', ml:'moneylines', ou:'over/unders', props:'props' };
         showToast(`⚠️ You've reached your ${labelMap[pickType] || 'pick'} limit for this league`);
