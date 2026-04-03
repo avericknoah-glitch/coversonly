@@ -2205,7 +2205,16 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
   const game = liveGames.find(g => g.id === gameId);
   const gameStr = game ? `${game.away} @ ${game.home}` : gameId;
 
-  const sections = markets.map(market => {
+  const MLB_PITCHER_MARKETS = ['pitcher_strikeouts', 'pitcher_earned_runs', 'pitcher_outs'];
+  const sortedMarkets = [...markets].sort((a, b) => {
+    const aIsPitcher = MLB_PITCHER_MARKETS.includes(a.key);
+    const bIsPitcher = MLB_PITCHER_MARKETS.includes(b.key);
+    if (aIsPitcher && !bIsPitcher) return -1;
+    if (!aIsPitcher && bIsPitcher) return 1;
+    if (aIsPitcher && bIsPitcher) return MLB_PITCHER_MARKETS.indexOf(a.key) - MLB_PITCHER_MARKETS.indexOf(b.key);
+    return 0;
+  });
+  const sections = sortedMarkets.map(market => {
     const byPlayer = {};
     (market.outcomes || []).forEach(o => {
       const player = o.description || o.name;
@@ -3297,7 +3306,16 @@ function renderPropsDrawer(gameId, data) {
     player_anytime_td: 'Anytime TD',
   };
 
-  const sections = markets.map(market => {
+  const MLB_PITCHER_MARKETS = ['pitcher_strikeouts', 'pitcher_earned_runs', 'pitcher_outs'];
+  const sortedMarkets = [...markets].sort((a, b) => {
+    const aIsPitcher = MLB_PITCHER_MARKETS.includes(a.key);
+    const bIsPitcher = MLB_PITCHER_MARKETS.includes(b.key);
+    if (aIsPitcher && !bIsPitcher) return -1;
+    if (!aIsPitcher && bIsPitcher) return 1;
+    if (aIsPitcher && bIsPitcher) return MLB_PITCHER_MARKETS.indexOf(a.key) - MLB_PITCHER_MARKETS.indexOf(b.key);
+    return 0;
+  });
+  const sections = sortedMarkets.map(market => {
     const byPlayer = {};
     (market.outcomes || []).forEach(o => {
       const player = o.description || o.name;
