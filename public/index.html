@@ -2257,14 +2257,29 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
     }).filter(Boolean).join('');
 
     if (!playerCards) return '';
+    const sectionId = 'lp-props-' + gameId + '-' + market.key;
     return `
-      <div style="margin-bottom:20px;">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:0.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">${marketNames[market.key] || market.key}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+      <div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div onclick="togglePropsSection('${sectionId}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:var(--surface2);user-select:none;">
+          <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--accent);">${marketNames[market.key] || market.key}</span>
+          <span id="${sectionId}-chevron" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+        </div>
+        <div id="${sectionId}" style="display:none;padding:12px;">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+        </div>
       </div>`;
   }).filter(Boolean).join('');
 
   container.innerHTML = sections || '<div style="color:var(--muted);font-size:13px;">No props within your odds range.</div>';
+}
+
+function togglePropsSection(id) {
+  const body    = document.getElementById(id);
+  const chevron = document.getElementById(id + '-chevron');
+  if (!body) return;
+  const isOpen = body.style.display === 'flex' || body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
 }
 
 function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
@@ -3340,10 +3355,16 @@ function renderPropsDrawer(gameId, data) {
         </div>`;
     }).join('');
 
+    const sectionId = 'sb-props-' + gameId + '-' + market.key;
     return `
-      <div style="margin-bottom:20px;">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:0.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">${marketNames[market.key] || market.key}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+      <div style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div onclick="togglePropsSection('${sectionId}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:var(--surface2);user-select:none;">
+          <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--accent);">${marketNames[market.key] || market.key}</span>
+          <span id="${sectionId}-chevron" style="font-size:12px;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+        </div>
+        <div id="${sectionId}" style="display:none;padding:12px;">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">${playerCards}</div>
+        </div>
       </div>`;
   }).join('');
 
