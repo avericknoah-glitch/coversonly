@@ -24,9 +24,10 @@ app.use(helmet({
 app.use(compression());
 
 // ── CORS ────────────────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000')
-  .split(',')
-  .map(s => s.trim());
+const allowedOrigins = (
+  process.env.ALLOWED_ORIGINS ||
+  'http://localhost:3000,https://coversonly-production.up.railway.app,https://covers-only.com,https://www.covers-only.com'
+).split(',').map(s => s.trim());
 
 app.use(cors({
   origin: (origin, cb) => {
