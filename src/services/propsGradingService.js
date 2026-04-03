@@ -310,12 +310,16 @@ async function gradeNBAPropPicks() {
 
 const MLB_BDL_BASE = 'https://api.balldontlie.io/mlb/v1';
 const MLB_MARKET_TO_STAT = {
-  batter_hits:        'hits',
-  batter_home_runs:   'hr',
-  batter_rbis:        'rbi',
-  batter_walks:       'bb',
-  batter_strikeouts:  'k',
-  pitcher_strikeouts: 'p_k',
+  batter_hits:          'hits',
+  batter_home_runs:     'hr',
+  batter_rbis:          'rbi',
+  batter_walks:         'bb',
+  batter_strikeouts:    'k',
+  batter_singles:       'hits',
+  batter_total_bases:   'rbi',
+  pitcher_strikeouts:   'p_k',
+  pitcher_earned_runs:  'er',
+  pitcher_outs:         'pitching_outs',
 };
 
 async function findMLBGame(gameDate, homeTeam, awayTeam) {
