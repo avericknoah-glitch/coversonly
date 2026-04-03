@@ -2172,11 +2172,11 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
     const data = await api.get(`/odds/events/${gameId}/props?sport=${apiSport}&markets=${propMarkets}`);
-    console.log('[DEBUG MLB props] apiSport:', apiSport, '| markets returned:', data.markets?.map(m => m.key));
     leaguePropsCache[gameId] = data;
     renderLeaguePropsButtons(gameId, data, leagueId);
   } catch {
     container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No props available.</div>';
+    delete leaguePropsCache[gameId];
   }
   refreshPropButtonStates(leagueId);
 }

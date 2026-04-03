@@ -47,20 +47,23 @@ router.get('/events/:eventId/props', requireAuth, async (req, res, next) => {
       }
     );
 
-    // Pick the first bookmaker that has props data
+    // Merge markets across all bookmakers — prefer the one with the most outcomes per market key
     const bookmakers = response.data?.bookmakers || [];
-    const bm = bookmakers[0];
+    if (!bookmakers.length) return res.json({ eventId, markets: [] });
 
-    if (!bm) {
-      return res.json({ eventId, markets: [] });
+    const marketMap = {};
+    for (const bm of bookmakers) {
+      for (const market of bm.markets || []) {
+        if (!marketMap[market.key] || market.outcomes.length > marketMap[market.key].outcomes.length) {
+          marketMap[market.key] = market;
+        }
+      }
     }
 
-    // Return markets in the shape the frontend expects:
-    // [ { key, outcomes: [ { description, name, price, point } ] } ]
-    const propMarkets = (bm.markets || []).map(m => ({
-      key:      m.key,
+    const propMarkets = Object.values(marketMap).map(m => ({
+      key: m.key,
       outcomes: (m.outcomes || []).map(o => ({
-        description: o.description || o.name,
+        description: o.description,
         name:        o.name,
         price:       o.price,
         point:       o.point,
