@@ -2069,15 +2069,18 @@ async function renderLeaguePicks() {
       const isNHL    = g.sport_key === 'icehockey_nhl';
       const spreadLabel = isMLB ? 'Run Line' : isNHL ? 'Puck Line' : 'Spread';
 
+      const awayLabel = g.sport_key === 'baseball_mlb' ? g.away_team : (g.away_abbr || g.away);
+      const homeLabel = g.sport_key === 'baseball_mlb' ? g.home_team : (g.home_abbr || g.home);
+
       if (allowedBetTypes.includes('spread') && g.awaySpread && g.awaySpread !== '—') {
         const awayOdds = g.awaySpreadOdds || '-110';
         const homeOdds = g.homeSpreadOdds || '-110';
-        bets.push({ id:'spread-away', label:`${g.away_abbr || g.away} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
-        bets.push({ id:'spread-home', label:`${g.home_abbr || g.home} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
+        bets.push({ id:'spread-away', label:`${awayLabel} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
+        bets.push({ id:'spread-home', label:`${homeLabel} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
       }
       if (allowedBetTypes.includes('ml')) {
-        if (g.awayML && g.awayML !== '—' && oddsOk(g.awayML)) bets.push({ id:'ml-away', label:`${g.away_abbr || g.away} ML`, sub:'Moneyline', odds:g.awayML });
-        if (g.homeML && g.homeML !== '—' && oddsOk(g.homeML)) bets.push({ id:'ml-home', label:`${g.home_abbr || g.home} ML`, sub:'Moneyline', odds:g.homeML });
+        if (g.awayML && g.awayML !== '—' && oddsOk(g.awayML)) bets.push({ id:'ml-away', label:`${awayLabel} ML`, sub:'Moneyline', odds:g.awayML });
+        if (g.homeML && g.homeML !== '—' && oddsOk(g.homeML)) bets.push({ id:'ml-home', label:`${homeLabel} ML`, sub:'Moneyline', odds:g.homeML });
       }
       if (allowedBetTypes.includes('ou') && g.ou && g.ou !== '—') {
         const ovOdds = g.overOdds || '-110';
@@ -2169,6 +2172,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
     const data = await api.get(`/odds/events/${gameId}/props?sport=${apiSport}&markets=${propMarkets}`);
+    console.log('[DEBUG MLB props] apiSport:', apiSport, '| markets returned:', data.markets?.map(m => m.key));
     leaguePropsCache[gameId] = data;
     renderLeaguePropsButtons(gameId, data, leagueId);
   } catch {
