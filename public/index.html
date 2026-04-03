@@ -3757,6 +3757,7 @@ async function submitForgotPassword() {
         <div style="font-size:48px;margin-bottom:16px;">📧</div>
         <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:8px;">Check your email</div>
         <div style="color:var(--muted);font-size:14px;">If that email exists in our system, a reset link has been sent.</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:12px;">Don't see it? Check your spam folder.</div>
       </div>`;
   } catch (err) {
     showToast('❌ ' + (err.message || 'Something went wrong'));
