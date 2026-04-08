@@ -385,6 +385,11 @@
               <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;">My League Picks</div>
               <button id="grade-btn-league" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
             </div>
+            <div id="pick-counter-bar" style="display:none;position:sticky;top:0;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:16px;">
+              <div style="font-family:var(--font-display);font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Pick Counter</div>
+              <div id="pick-counter-slots" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;"></div>
+              <div id="pick-counter-record" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);"></div>
+            </div>
             <div id="league-my-picks-content">
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);">
                 <div style="font-size:36px;margin-bottom:12px;">📋</div>
@@ -2273,6 +2278,83 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
   container.innerHTML = sections || '<div style="color:var(--muted);font-size:13px;">No props within your odds range.</div>';
 }
 
+function updatePickCounter(leagueId) {
+  const bar = document.getElementById('pick-counter-bar');
+  const slotsEl = document.getElementById('pick-counter-slots');
+  const recordEl = document.getElementById('pick-counter-record');
+  if (!bar || !slotsEl || !recordEl) return;
+
+  const pending = Object.values(leaguePicks[leagueId] || {});
+  const submitted = submittedPickCounts[leagueId] || 0;
+  const byType = submittedPickCounts[leagueId + '_byType'] || {};
+  const limits = currentLeague?.pick_type_limits;
+  const ppw = currentLeague?.picks_per_week || 5;
+  const hasTypeLimits = limits && Object.keys(limits).some(k => k !== 'any' && (limits[k] || 0) > 0);
+
+  const BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'any'];
+  const BET_TYPE_LABELS = { spread: 'Spread', ml: 'ML', ou: 'O/U', props: 'Props', any: 'Any' };
+
+  let slotsHtml = '';
+
+  if (hasTypeLimits) {
+    BET_TYPE_ORDER.forEach(type => {
+      const typeLimit = limits[type] || 0;
+      if (typeLimit <= 0) return;
+
+      let used = 0;
+      if (type === 'any') {
+        BET_TYPE_ORDER.filter(t => t !== 'any').forEach(t => {
+          const tLimit = limits[t] || 0;
+          const tSubmitted = byType[t] || 0;
+          const tPending = pending.filter(p => {
+            const bt = p.betId?.startsWith('prop') ? 'props'
+              : p.betId?.startsWith('spread') ? 'spread'
+              : p.betId?.startsWith('ml') ? 'ml'
+              : p.betId?.startsWith('ou') ? 'ou' : 'other';
+            return bt === t;
+          }).length;
+          const tTotal = tSubmitted + tPending;
+          if (tTotal > tLimit) used += tTotal - tLimit;
+        });
+      } else {
+        const tSubmitted = byType[type] || 0;
+        const tPending = pending.filter(p => {
+          const bt = p.betId?.startsWith('prop') ? 'props'
+            : p.betId?.startsWith('spread') ? 'spread'
+            : p.betId?.startsWith('ml') ? 'ml'
+            : p.betId?.startsWith('ou') ? 'ou' : 'other';
+          return bt === type;
+        }).length;
+        used = tSubmitted + tPending;
+      }
+
+      const isFull = used >= typeLimit;
+      const color = isFull ? '#e74c3c' : used > 0 ? 'var(--accent)' : 'var(--muted)';
+      slotsHtml += `<div style="font-family:var(--font-display);font-size:13px;font-weight:800;">
+        <span style="color:${color};">${BET_TYPE_LABELS[type]}</span>
+        <span style="color:var(--muted);font-weight:400;"> ${used}/${typeLimit}</span>
+      </div>`;
+    });
+  } else {
+    const totalUsed = submitted + pending.length;
+    const isFull = totalUsed >= ppw;
+    const color = isFull ? '#e74c3c' : totalUsed > 0 ? 'var(--accent)' : 'var(--muted)';
+    slotsHtml += `<div style="font-family:var(--font-display);font-size:13px;font-weight:800;">
+      <span style="color:${color};">Picks</span>
+      <span style="color:var(--muted);font-weight:400;"> ${totalUsed}/${ppw}</span>
+    </div>`;
+  }
+
+  slotsEl.innerHTML = slotsHtml;
+
+  const weekWins   = (submittedPickCounts[leagueId + '_results'] || {}).wins   || 0;
+  const weekLosses = (submittedPickCounts[leagueId + '_results'] || {}).losses || 0;
+  const weekPushes = (submittedPickCounts[leagueId + '_results'] || {}).pushes || 0;
+  recordEl.innerHTML = `This Week: <span style="color:#2ecc71;">${weekWins}W</span> <span style="color:#e74c3c;">${weekLosses}L</span> <span>${weekPushes}P</span>`;
+
+  bar.style.display = 'block';
+}
+
 function togglePropsSection(id) {
   const body    = document.getElementById(id);
   const chevron = document.getElementById(id + '-chevron');
@@ -2359,6 +2441,7 @@ function toggleLeaguePick(leagueId, gameId, betId, label, odds, betType, game) {
   }
   // Only re-render the picks header — don't rebuild props (which would collapse them)
   renderMyLeaguePicks(leagueId);
+  updatePickCounter(leagueId);
   // Re-highlight the clicked button without re-rendering the whole drawer
   refreshPropButtonStates(leagueId);
 }
@@ -2458,6 +2541,11 @@ async function renderMyLeaguePicks(leagueId) {
       byType[bt] = (byType[bt] || 0) + 1;
     });
     submittedPickCounts[leagueId + '_byType'] = byType;
+    submittedPickCounts[leagueId + '_results'] = {
+      wins:   submitted.filter(p => p.result === 'win').length,
+      losses: submitted.filter(p => p.result === 'loss').length,
+      pushes: submitted.filter(p => p.result === 'push').length,
+    };
   } catch(e) {
     console.error('Failed to fetch submitted picks:', e);
   }
@@ -2545,7 +2633,7 @@ async function renderMyLeaguePicks(leagueId) {
     ].join('');
 
     return `<div style="margin-bottom:24px;">
-      <div style="position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0 6px;border-bottom:2px solid var(--accent);margin-bottom:12px;">
+      <div style="padding:8px 0 6px;border-bottom:2px solid var(--accent);margin-bottom:12px;">
         <span style="font-family:var(--font-display);font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);">${typeLabel}</span>
         <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-left:10px;">${filled} / ${slotsTotal}</span>
       </div>
@@ -2590,6 +2678,7 @@ async function renderMyLeaguePicks(leagueId) {
 
   container.innerHTML = (html || '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No picks available.</div>') + lockBtn;
 
+  updatePickCounter(leagueId);
   refreshPropButtonStates(leagueId);
 }
 
