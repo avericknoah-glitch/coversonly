@@ -439,9 +439,13 @@ async function gradeMLBPropPicks() {
     logger.info(`[MLBPropsGrading] Fetched ${playerStats.length} player stat rows`);
     if (!playerStats.length) continue;
 
+    // Log all player names for debugging
+    logger.info(`[MLBPropsGrading] Players in game: ${playerStats.map(s => s.player_name).join(', ')}`);
+
     for (const pick of eventPicks) {
       const lineData = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : (pick.line_data || {});
       const market = lineData.market;
+      logger.info(`[MLBPropsGrading] Processing pick ${pick.id}: "${pick.selection}" market=${market}`);
       const point = parseFloat(lineData.point);
       const dir = (lineData.direction || lineData.picked_side || '').toLowerCase();
 
@@ -464,7 +468,7 @@ async function gradeMLBPropPicks() {
       });
 
       if (!stats) {
-        logger.warn(`[MLBPropsGrading] No MLB stats for player: "${playerName}"`);
+        logger.warn(`[MLBPropsGrading] No MLB stats for player: "${playerName}" — available: ${playerStats.map(s => s.player_name).slice(0,10).join(', ')}`);
         continue;
       }
 
