@@ -379,20 +379,20 @@
         </div>
         <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
         <div id="lt-picks" style="display:none">
+          <div id="pick-counter-bar" style="display:none;position:sticky;top:64px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <div>
+                <div style="font-family:var(--font-display);font-size:11px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Pick Counter</div>
+                <div id="pick-counter-slots" style="display:flex;flex-wrap:wrap;gap:20px;"></div>
+              </div>
+              <div id="pick-counter-record" style="text-align:right;"></div>
+            </div>
+          </div>
           <!-- My current picks for this league -->
           <div style="margin-bottom:32px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
               <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;">My League Picks</div>
               <button id="grade-btn-league" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
-            </div>
-            <div id="pick-counter-bar" style="display:none;position:sticky;top:64px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
-              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-                <div>
-                  <div style="font-family:var(--font-display);font-size:11px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Pick Counter</div>
-                  <div id="pick-counter-slots" style="display:flex;flex-wrap:wrap;gap:20px;"></div>
-                </div>
-                <div id="pick-counter-record" style="text-align:right;"></div>
-              </div>
             </div>
             <div id="league-my-picks-content">
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);">
