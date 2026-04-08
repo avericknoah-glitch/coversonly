@@ -316,7 +316,7 @@ const MLB_MARKET_TO_STAT = {
   batter_walks:         'bb',
   batter_strikeouts:    'k',
   batter_singles:       null,
-  batter_total_bases:   null,
+  batter_total_bases:   'total_bases_calc',
   pitcher_strikeouts:   'p_k',
   pitcher_earned_runs:  'er',
   pitcher_outs:         'pitching_outs',
@@ -368,8 +368,13 @@ async function fetchMLBGameStats(bdlGameId) {
       bb:      s.bb      || 0,
       k:       s.k       || 0,
       p_k:     s.p_k     || 0,
+      er:      s.er      || 0,
       ip:      s.ip      || null,
       at_bats: s.at_bats || 0,
+      doubles: s.doubles || 0,
+      triples: s.triples || 0,
+      total_bases_calc: (s.hits || 0) + (s.doubles || 0) + (2 * (s.triples || 0)) + (3 * (s.hr || 0)),
+      pitching_outs: s.ip ? Math.floor(s.ip) * 3 + Math.round((s.ip % 1) * 10) : 0,
     }));
   } catch (err) {
     logger.error('[MLBPropsGrading] fetchMLBGameStats failed:', err.message);
@@ -460,9 +465,10 @@ async function gradeMLBPropPicks() {
         continue;
       }
 
-      const playerName = parsePlayerName(pick.selection);
+      const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const playerName = normalizeStr(parsePlayerName(pick.selection));
       const stats = playerStats.find(s => {
-        const bdlName = s.player_name;
+        const bdlName = normalizeStr(s.player_name);
         const pickWords = playerName.split(' ').filter(w => w.length > 2);
         return pickWords.every(w => bdlName.includes(w));
       });
@@ -472,12 +478,15 @@ async function gradeMLBPropPicks() {
         continue;
       }
 
-      const didPlay = statField === 'p_k'
-        ? (stats.ip !== null && stats.ip !== '0' && stats.ip !== 0)
+      const isPitcherStat = ['p_k', 'er', 'pitching_outs'].includes(statField);
+      const didPlay = isPitcherStat
+        ? (stats.ip !== null && stats.ip !== undefined && stats.ip !== '0' && stats.ip !== 0)
+          || (stats.p_k > 0)
+          || (stats.er !== null && stats.er !== undefined)
         : stats.at_bats > 0;
 
       if (!didPlay) {
-        logger.info(`[MLBPropsGrading] Player did not play: "${playerName}"`);
+        logger.info(`[MLBPropsGrading] Player did not play: "${playerName}" — ip=${stats.ip} p_k=${stats.p_k} er=${stats.er} at_bats=${stats.at_bats}`);
         continue;
       }
 
