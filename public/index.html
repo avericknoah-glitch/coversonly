@@ -2437,16 +2437,17 @@ function refreshPropButtonStates(leagueId) {
 async function renderMyLeaguePicks(leagueId) {
   const container = document.getElementById('league-my-picks-content');
   if (!container) return;
+  container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px;">Loading picks...</div>';
 
-  const pending = Object.values(leaguePicks[leagueId] || {});
-
+  // Fetch submitted picks for this week
+  const weekNum = getISOWeek(new Date());
   let submitted = [];
   try {
-    const currentISOWeek = getISOWeek(new Date());
-    const data = await api.get('/picks/my?league_id=' + leagueId + '&week=' + currentISOWeek);
+    const data = await api.get(`/picks/my?league_id=${leagueId}&week=${weekNum}`);
     submitted = data.picks || [];
+
+    // Update submittedPickCounts
     submittedPickCounts[leagueId] = submitted.length;
-    // Track submitted counts by bet type for per-type limit enforcement
     const byType = {};
     submitted.forEach(p => {
       const bt = (p.bet_type || '').startsWith('props') ? 'props'
@@ -2457,88 +2458,139 @@ async function renderMyLeaguePicks(leagueId) {
       byType[bt] = (byType[bt] || 0) + 1;
     });
     submittedPickCounts[leagueId + '_byType'] = byType;
-  } catch { /* offline */ }
-
-  if (!pending.length && !submitted.length) {
-    container.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;">📋</div><div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">No picks yet</div><div style="font-size:13px;">Make your picks from the available bets below.</div></div>';
-    return;
+  } catch(e) {
+    console.error('Failed to fetch submitted picks:', e);
   }
 
-  function badge(pick) { return pickStatusBadge(pick); }
+  // Get pending picks
+  const pending = Object.values(leaguePicks[leagueId] || {});
 
-  const { monday: wrMon, sunday: wrSun } = getWeekRange();
-  const fmtWR = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  var html = '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;">My Picks · ' + fmtWR(wrMon) + ' – ' + fmtWR(wrSun) + '</div>';
-  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
-  html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);">';
-  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pick</span>';
-  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Type</span>';
-  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Odds</span>';
-  html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Status</span>';
-  html += '</div>';
+  const ppw = currentLeague?.picks_per_week || 5;
+  const limits = currentLeague?.pick_type_limits;
+  const hasTypeLimits = limits && Object.keys(limits).some(k => k !== 'any' && (limits[k] || 0) > 0);
 
-  // Group submitted picks by canonical bet type
-  const BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'other'];
-  const BET_TYPE_DISPLAY = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', other: 'Other' };
-  const submittedByType = {};
-  submitted.forEach(p => {
-    const bt = (p.bet_type || '').startsWith('props') ? 'props'
-      : p.bet_type === 'spread' ? 'spread'
-      : p.bet_type === 'ml' ? 'ml'
-      : p.bet_type === 'ou' ? 'ou'
-      : 'other';
-    if (!submittedByType[bt]) submittedByType[bt] = [];
-    submittedByType[bt].push(p);
-  });
+  const BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'any'];
+  const BET_TYPE_LABELS = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', any: 'Any Type' };
 
-  // Sort each type by commence_time descending (latest first)
-  Object.values(submittedByType).forEach(arr => {
-    arr.sort((a, b) => new Date(b.commence_time || 0) - new Date(a.commence_time || 0));
-  });
-
-  // Render grouped
-  BET_TYPE_ORDER.forEach(bt => {
-    const picks = submittedByType[bt];
-    if (!picks || !picks.length) return;
-    const btWins   = picks.filter(p => p.result === 'win').length;
-    const btLosses = picks.filter(p => p.result === 'loss').length;
-    const btPushes = picks.filter(p => p.result === 'push').length;
-    const btRecord = btWins + '-' + btLosses + '-' + btPushes;
-    html += '<div style="padding:8px 20px 4px;background:var(--surface2);border-bottom:1px solid var(--border);">';
-    html += '<span style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">' + BET_TYPE_DISPLAY[bt] + '</span>'
-      + '<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:8px;">(' + btRecord + ')</span>';
-    html += '</div>';
-    picks.forEach(function(p) {
-      var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : (p.game || '—');
-      var gameTime = p.commence_time ? fmtTime(p.commence_time) : '';
-      html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
-      html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + (p.selection || '—') + '</div>';
-      html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + game + (gameTime ? ' · ' + gameTime : '') + '</div></div>';
-      html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + (p.bet_type || '—').replace(/^props_.*/, 'props') + '</div>';
-      html += '<div style="font-family:var(--font-mono);font-size:13px;">' + (p.line || '—') + '</div>';
-      html += '<div>' + badge(p) + '</div></div>';
+  // Helper: get submitted picks of a type
+  function submittedOfType(type) {
+    return submitted.filter(p => {
+      const bt = (p.bet_type || '').startsWith('props') ? 'props'
+        : p.bet_type === 'spread' ? 'spread'
+        : p.bet_type === 'ml' ? 'ml'
+        : p.bet_type === 'ou' ? 'ou'
+        : 'other';
+      return type === 'any' ? true : bt === type;
     });
-  });
-
-  pending.forEach(function(p) {
-    var safeLabel = p.label.replace(/'/g, "\\'");
-    var safeGame  = p.game.replace(/'/g, "\\'");
-    var pendingGame = liveGames.find(g => g.id === p.gameId);
-    var pendingTime = pendingGame?.commence_time ? fmtTime(pendingGame.commence_time) : '';
-    html += '<div style="display:grid;grid-template-columns:1fr 90px 80px 80px;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center;">';
-    html += '<div><div style="font-family:var(--font-display);font-size:14px;font-weight:700;">' + p.label + '</div>';
-    html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + p.game + (pendingTime ? ' · ' + pendingTime : '') + '</div></div>';
-    html += '<div style="font-family:var(--font-display);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">' + p.betType + '</div>';
-    html += '<div style="font-family:var(--font-mono);font-size:13px;">' + p.odds + '</div>';
-    html += '<button onclick="toggleLeaguePick(' + leagueId + ',\'' + p.gameId + '\',\'' + p.betId + '\',\'' + safeLabel + '\',\'' + p.odds + '\',\'' + p.betType + '\',\'' + safeGame + '\')" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;color:#e74c3c;">&#x2715; Remove</button>';
-    html += '</div>';
-  });
-
-  html += '</div>';
-  if (pending.length) {
-    html += '<div style="margin-top:14px;text-align:right;"><button class="btn-primary" style="padding:11px 28px;" onclick="submitLeaguePicks(' + leagueId + ')">Lock In Picks &#x2713;</button></div>';
   }
-  container.innerHTML = html;
+
+  // Helper: get pending picks of a type
+  function pendingOfType(type) {
+    return pending.filter(p => {
+      const bt = p.betId?.startsWith('prop') ? 'props'
+        : p.betId?.startsWith('spread') ? 'spread'
+        : p.betId?.startsWith('ml') ? 'ml'
+        : p.betId?.startsWith('ou') ? 'ou'
+        : 'other';
+      return type === 'any' ? true : bt === type;
+    });
+  }
+
+  // Helper: render a submitted pick card
+  function submittedPickCard(p) {
+    const resultBadge = p.result === 'win' ? '<span style="background:#2ecc71;color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;font-family:var(--font-display);">WIN</span>'
+      : p.result === 'loss' ? '<span style="background:#e74c3c;color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;font-family:var(--font-display);">LOSS</span>'
+      : p.result === 'push' ? '<span style="background:var(--muted);color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;font-family:var(--font-display);">PUSH</span>'
+      : '<span style="background:var(--surface2);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--font-display);border:1px solid var(--border);">LOCKED</span>';
+    const gameStr = p.away_team && p.home_team ? `${p.away_team} @ ${p.home_team}` : '';
+    const timeStr = p.commence_time ? ' · ' + new Date(p.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:180px;flex:1;max-width:260px;">
+      <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;">${p.selection || '—'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${gameStr}${timeStr}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${p.line || '—'}</span>
+        ${resultBadge}
+      </div>
+    </div>`;
+  }
+
+  // Helper: render a pending pick card
+  function pendingPickCard(p) {
+    const gameStr = p.game || '';
+    return `<div style="background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:12px 14px;min-width:180px;flex:1;max-width:260px;position:relative;">
+      <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;">${p.label || '—'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${gameStr}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${p.odds || '—'}</span>
+        <button onclick="toggleLeaguePick(${leagueId}, '${p.gameId}', '${p.betId}', '${(p.label||'').replace(/'/g,"\\'")}', '${p.odds||''}', '${p.betType||''}', null)" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;font-weight:800;padding:0;">✕</button>
+      </div>
+    </div>`;
+  }
+
+  // Helper: render an empty slot card
+  function emptySlotCard() {
+    return `<div style="background:var(--surface2);border:2px dashed var(--border);border-radius:10px;padding:12px 14px;min-width:180px;flex:1;max-width:260px;min-height:80px;display:flex;align-items:center;justify-content:center;">
+      <span style="color:var(--border);font-size:24px;">+</span>
+    </div>`;
+  }
+
+  // Helper: render a section
+  function renderSection(typeKey, typeLabel, slotsTotal, submittedPicks, pendingPicks) {
+    const filled = submittedPicks.length + pendingPicks.length;
+    const empty = Math.max(0, slotsTotal - filled);
+    const cards = [
+      ...submittedPicks.map(p => submittedPickCard(p)),
+      ...pendingPicks.map(p => pendingPickCard(p)),
+      ...Array(empty).fill(null).map(() => emptySlotCard()),
+    ].join('');
+
+    return `<div style="margin-bottom:24px;">
+      <div style="position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0 6px;border-bottom:2px solid var(--accent);margin-bottom:12px;">
+        <span style="font-family:var(--font-display);font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);">${typeLabel}</span>
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-left:10px;">${filled} / ${slotsTotal}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">${cards}</div>
+    </div>`;
+  }
+
+  let html = '';
+
+  if (hasTypeLimits) {
+    // Render one section per type that has a limit > 0
+    let anySubmitted = [];
+    let anyPending = [];
+
+    BET_TYPE_ORDER.filter(t => t !== 'any').forEach(type => {
+      const typeLimit = limits[type] || 0;
+      if (typeLimit <= 0) return;
+      const typeSubs = submittedOfType(type);
+      const typePend = pendingOfType(type);
+      // Picks beyond typeLimit spill into any
+      anySubmitted = [...anySubmitted, ...typeSubs.slice(typeLimit)];
+      anyPending   = [...anyPending,   ...typePend.slice(Math.max(0, typeLimit - typeSubs.length))];
+      html += renderSection(type, BET_TYPE_LABELS[type], typeLimit, typeSubs.slice(0, typeLimit), typePend.slice(0, Math.max(0, typeLimit - typeSubs.length)));
+    });
+
+    const anyLimit = limits['any'] || 0;
+    if (anyLimit > 0) {
+      html += renderSection('any', BET_TYPE_LABELS['any'], anyLimit, anySubmitted.slice(0, anyLimit), anyPending.slice(0, Math.max(0, anyLimit - anySubmitted.length)));
+    }
+  } else {
+    // No type limits — flat section with ppw slots
+    html += renderSection('all', 'My Picks', ppw, submitted, pending);
+  }
+
+  // Lock In button
+  const lockBtn = pending.length > 0 ? `
+    <div style="margin-top:8px;">
+      <button class="btn-primary" onclick="submitLeaguePicks(${leagueId})" style="width:100%;padding:14px;font-size:16px;">
+        Lock In Picks ✓ (${pending.length})
+      </button>
+    </div>` : '';
+
+  container.innerHTML = (html || '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No picks available.</div>') + lockBtn;
+
+  refreshPropButtonStates(leagueId);
 }
 
 async function submitLeaguePicks(leagueId) {
