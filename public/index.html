@@ -385,7 +385,7 @@
               <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.3px;">My League Picks</div>
               <button id="grade-btn-league" onclick="gradeAndRefreshAll(this)" style="font-family:var(--font-display);font-size:11px;font-weight:700;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--accent);">↻ Grade Picks</button>
             </div>
-            <div id="pick-counter-bar" style="display:none;position:sticky;top:60px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+            <div id="pick-counter-bar" style="display:none;position:fixed;top:60px;left:0;right:0;z-index:1000;background:var(--surface);border-bottom:2px solid var(--border);border-radius:0;padding:16px 32px;margin-bottom:0;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
               <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                 <div>
                   <div style="font-family:var(--font-display);font-size:11px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Pick Counter</div>
@@ -394,6 +394,7 @@
                 <div id="pick-counter-record" style="text-align:right;"></div>
               </div>
             </div>
+            <div id="pick-counter-spacer" style="display:none;height:100px;"></div>
             <div id="league-my-picks-content">
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;color:var(--muted);">
                 <div style="font-size:36px;margin-bottom:12px;">📋</div>
@@ -2335,7 +2336,7 @@ function updatePickCounter(leagueId) {
       const isFull = used >= typeLimit;
       const color = isFull ? '#e74c3c' : used > 0 ? 'var(--accent)' : 'var(--muted)';
       slotsHtml += `<div style="text-align:center;">
-        <div style="font-family:var(--font-mono);font-size:22px;font-weight:900;color:${color};line-height:1;">${used}<span style="font-size:14px;color:var(--muted);">/${typeLimit}</span></div>
+        <div style="font-family:var(--font-mono);font-size:22px;font-weight:900;color:${color};line-height:1;">${used}<span style="font-size:22px;color:var(--muted);">/${typeLimit}</span></div>
         <div style="font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px;">${BET_TYPE_LABELS[type]}</div>
       </div>`;
     });
@@ -2344,7 +2345,7 @@ function updatePickCounter(leagueId) {
     const isFull = totalUsed >= ppw;
     const color = isFull ? '#e74c3c' : totalUsed > 0 ? 'var(--accent)' : 'var(--muted)';
     slotsHtml += `<div style="text-align:center;">
-      <div style="font-family:var(--font-mono);font-size:22px;font-weight:900;color:${color};line-height:1;">${totalUsed}<span style="font-size:14px;color:var(--muted);">/${ppw}</span></div>
+      <div style="font-family:var(--font-mono);font-size:22px;font-weight:900;color:${color};line-height:1;">${totalUsed}<span style="font-size:22px;color:var(--muted);">/${ppw}</span></div>
       <div style="font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px;">Picks</div>
     </div>`;
   }
@@ -2363,14 +2364,14 @@ function updatePickCounter(leagueId) {
   recordEl.innerHTML = `
     <div style="text-align:right;">
       <div style="font-family:var(--font-display);font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Records</div>
-      <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;margin-bottom:4px;">
-        <span style="color:var(--muted);font-size:11px;">THIS WEEK</span>
+      <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;margin-bottom:4px;">
+        <span style="color:var(--muted);font-size:13px;font-weight:800;">THIS WEEK</span>
         <span style="color:#2ecc71;margin-left:8px;">${weekWins}W</span>
         <span style="color:#e74c3c;margin-left:6px;">${weekLosses}L</span>
         <span style="color:var(--muted);margin-left:6px;">${weekPushes}P</span>
       </div>
-      <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;">
-        <span style="color:var(--muted);font-size:11px;">ALL-TIME</span>
+      <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;">
+        <span style="color:var(--muted);font-size:13px;font-weight:800;">ALL-TIME</span>
         <span style="color:#2ecc71;margin-left:8px;">${allWins}W</span>
         <span style="color:#e74c3c;margin-left:6px;">${allLosses}L</span>
         <span style="color:var(--muted);margin-left:6px;">${allPushes}P</span>
@@ -2378,6 +2379,8 @@ function updatePickCounter(leagueId) {
     </div>`;
 
   bar.style.display = 'block';
+  const spacer = document.getElementById('pick-counter-spacer');
+  if (spacer) spacer.style.display = 'block';
 }
 
 function togglePropsSection(id) {
