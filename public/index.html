@@ -612,7 +612,7 @@
           </div>
           <div style="display:flex;gap:10px;">
             <button class="btn-secondary" onclick="showPage('dashboard')">Skip</button>
-            <button class="btn-primary" onclick="finishCreate()" style="flex:1;padding:14px;">Go to My League →</button>
+            <button class="btn-primary" onclick="closeModal();if(window._newLeagueId)openLeague(window._newLeagueId);" style="flex:1;padding:14px;">Go to My League →</button>
           </div>
         </div>
       </div>
@@ -1087,6 +1087,7 @@ async function bootApp() {
   renderSportToggles('sports-toggles', true);
   renderSportToggles('modal-sports', false);
   renderBetTypeToggles();
+  showPage('dashboard');
 }
 
 function showAuthTab(tab, el) {
@@ -1173,6 +1174,7 @@ function doLogout() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   showToast('👋 Logged out');
+  showPage('dashboard');
 }
 
 
@@ -2091,8 +2093,8 @@ async function renderLeaguePicks() {
       if (allowedBetTypes.includes('spread') && g.awaySpread && g.awaySpread !== '—') {
         const awayOdds = g.awaySpreadOdds || '-110';
         const homeOdds = g.homeSpreadOdds || '-110';
-        bets.push({ id:'spread-away', label:`${awayLabel} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
-        bets.push({ id:'spread-home', label:`${homeLabel} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
+        if (oddsOk(awayOdds)) bets.push({ id:'spread-away', label:`${awayLabel} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
+        if (oddsOk(homeOdds)) bets.push({ id:'spread-home', label:`${homeLabel} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
       }
       if (allowedBetTypes.includes('ml')) {
         if (g.awayML && g.awayML !== '—' && oddsOk(g.awayML)) bets.push({ id:'ml-away', label:`${awayLabel} ML`, sub:'Moneyline', odds:g.awayML });
@@ -2101,8 +2103,8 @@ async function renderLeaguePicks() {
       if (allowedBetTypes.includes('ou') && g.ou && g.ou !== '—') {
         const ovOdds = g.overOdds || '-110';
         const unOdds = g.underOdds || '-110';
-        bets.push({ id:'ou-over',  label:`Over ${g.ou}`,  sub:'Total', odds:ovOdds });
-        bets.push({ id:'ou-under', label:`Under ${g.ou}`, sub:'Total', odds:unOdds });
+        if (oddsOk(ovOdds)) bets.push({ id:'ou-over',  label:`Over ${g.ou}`,  sub:'Total', odds:ovOdds });
+        if (oddsOk(unOdds)) bets.push({ id:'ou-under', label:`Under ${g.ou}`, sub:'Total', odds:unOdds });
       }
 
       const betButtons = bets.map(b => {
@@ -2817,7 +2819,7 @@ function showSettingsSection(id, el) {
   if (currentLeague) {
     // General tab
     const nameEl = document.getElementById('s-name');
-    if (nameEl && !nameEl.dataset.populated) nameEl.value = currentLeague.name || '';
+    if (nameEl) nameEl.value = currentLeague.name || '';
     const maxMembersEl = document.getElementById('s-max-members');
     if (maxMembersEl) maxMembersEl.value = currentLeague.max_members ?? 20;
     const ppwEl = document.getElementById('s-picks-per-week');
@@ -3801,11 +3803,11 @@ async function finishCreate() {
   try {
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
     myLeagues.push(data.league);
+    window._newLeagueId = data.league.id;
     document.getElementById('new-league-code').textContent = data.league.invite_code || '—';
-    closeModal();
     renderLeaguesGrid();
     showToast('🏆 League created!');
-    setTimeout(() => openLeague(data.league.id), 400);
+    setModalStep(4);
   } catch (err) {
     const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, pick_type_limits, my_role: 'commissioner' };
     myLeagues.push(newLeague);
