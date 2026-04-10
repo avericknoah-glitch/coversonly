@@ -3809,7 +3809,8 @@ async function finishCreate() {
     closeModal();
     setTimeout(() => openLeague(data.league.id), 400);
   } catch (err) {
-    showToast('❌ Failed to create league: ' + (err.message || 'unknown error'), 'error');
+    console.error('League creation failed:', err);
+    showToast('❌ Failed: ' + (err.message || JSON.stringify(err)), 'error');
   }
 }
 
