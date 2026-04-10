@@ -474,6 +474,7 @@
                   <div class="form-group" style="margin-bottom:0;">
                     <label>Maximum Odds (most favorable allowed)</label>
                     <input type="number" id="s-odds-max" step="10"
+                      oninput="this.value=this.value.replace(/[^0-9+\-]/g,'').replace(/(?!^)[+-]/g,'')"
                       style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;outline:none;">
                     <div style="font-size:11px;color:var(--muted);margin-top:5px;">e.g. -120 blocks picks more favorable than -120 (heavy favorites)</div>
                   </div>
@@ -584,6 +585,7 @@
               <div class="form-group" style="margin-bottom:0;">
                 <label>Maximum Odds (most favorable allowed)</label>
                 <input type="number" id="modal-odds-max" value="-120" step="10"
+                  oninput="this.value=this.value.replace(/[^0-9+\-]/g,'').replace(/(?!^)[+-]/g,'')"
                   style="width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;outline:none;">
                 <div style="font-size:11px;color:var(--muted);margin-top:5px;">e.g. -120 blocks picks more favorable than -120 (heavy favorites)</div>
               </div>
@@ -2029,7 +2031,9 @@ async function renderLeaguePicks() {
   function oddsOk(oddsStr) {
     if (!oddsStr || oddsStr === '—') return false;
     const v = parseInt(oddsStr);
-    return !isNaN(v) && v >= oddsMax;
+    if (isNaN(v)) return false;
+    if (oddsMax > 0) return v <= oddsMax;
+    return v >= oddsMax;
   }
 
   // Map every league sport id → the API sport_key it corresponds to
