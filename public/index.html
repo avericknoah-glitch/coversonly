@@ -2033,7 +2033,7 @@ async function renderLeaguePicks() {
     const v = parseInt(oddsStr);
     if (isNaN(v)) return false;
     if (oddsMax > 0) return v <= oddsMax;
-    return v >= oddsMax;
+    return !isNaN(v) && v <= oddsMax;
   }
 
   // Map every league sport id → the API sport_key it corresponds to
