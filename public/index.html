@@ -1579,6 +1579,14 @@ function showPage(id) {
         else el.classList.remove('active');
       });
       renderPickLimitsUI();
+      if (currentLeague?.pick_type_limits) {
+        document.querySelectorAll('[data-limit-type]').forEach(inp => {
+          const t = inp.dataset.limitType;
+          if (currentLeague.pick_type_limits[t] !== undefined) {
+            inp.value = currentLeague.pick_type_limits[t];
+          }
+        });
+      }
       // Pre-populate General tab fields
       const nameEl2 = document.getElementById('s-name');
       if (nameEl2) nameEl2.value = currentLeague.name || '';
