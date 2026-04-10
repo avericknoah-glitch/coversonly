@@ -613,8 +613,8 @@
             </div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" onclick="showPage('dashboard')">Skip</button>
-            <button class="btn-primary" onclick="finishCreate()" style="flex:1;padding:14px;">Go to My League →</button>
+            <button class="btn-secondary" onclick="closeModal(); showPage('dashboard');">Skip</button>
+            <button class="btn-primary" onclick="closeModal(); if(window._newLeagueId) setTimeout(()=>openLeague(window._newLeagueId),400);" style="flex:1;padding:14px;">Go to My League →</button>
           </div>
         </div>
       </div>
@@ -3804,16 +3804,13 @@ async function finishCreate() {
   try {
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
     myLeagues.push(data.league);
-    closeModal();
+    window._newLeagueId = data.league.id;
+    document.getElementById('new-league-code').textContent = data.league.invite_code || '—';
     renderLeaguesGrid();
     showToast('🏆 League created!');
-    setTimeout(() => openLeague(data.league.id), 400);
+    setModalStep(4);
   } catch (err) {
-    const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, pick_type_limits, my_role: 'commissioner' };
-    myLeagues.push(newLeague);
-    closeModal();
-    renderLeaguesGrid();
-    showToast('🏆 League created!');
+    showToast('❌ Failed to create league: ' + (err.message || 'unknown error'), 'error');
   }
 }
 
