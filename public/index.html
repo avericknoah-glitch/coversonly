@@ -611,7 +611,7 @@
             </div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" onclick="showPage('dashboard')">Skip</button>
+            <button class="btn-secondary" onclick="closeModal(); showPage('dashboard')">Skip</button>
             <button class="btn-primary" onclick="closeModal();if(window._newLeagueId)openLeague(window._newLeagueId);" style="flex:1;padding:14px;">Go to My League →</button>
           </div>
         </div>
@@ -1586,6 +1586,12 @@ function showPage(id) {
         else el.classList.remove('active');
       });
       renderPickLimitsUI();
+      if (currentLeague?.pick_type_limits) {
+        document.querySelectorAll('[data-limit-type]').forEach(inp => {
+          const t = inp.dataset.limitType;
+          if (currentLeague.pick_type_limits[t] !== undefined) inp.value = currentLeague.pick_type_limits[t];
+        });
+      }
       // Pre-populate General tab fields
       const nameEl2 = document.getElementById('s-name');
       if (nameEl2) nameEl2.value = currentLeague.name || '';
@@ -2036,6 +2042,7 @@ async function renderLeaguePicks() {
   function oddsOk(oddsStr) {
     if (!oddsStr || oddsStr === '—') return false;
     const v = parseInt(oddsStr);
+    if (oddsMax >= 0) return true;
     return !isNaN(v) && v >= oddsMax;
   }
 
@@ -2185,7 +2192,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     const propMarkets = {
       basketball_nba:       'player_points,player_rebounds,player_assists,player_threes',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
-      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_singles,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
@@ -2215,7 +2222,7 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
     player_points:'Points', player_rebounds:'Rebounds', player_assists:'Assists',
     player_threes:'3-Pointers', player_steals:'Steals', player_blocks:'Blocks',
     player_goals:'Goals', player_shots_on_goal:'Shots on Goal',
-    batter_hits:'Hits', batter_home_runs:'Home Runs', batter_rbis:'RBIs', batter_singles:'Singles', batter_total_bases:'Total Bases', batter_walks:'Walks', batter_strikeouts:'Batter Strikeouts', pitcher_strikeouts:'Strikeouts (Pitcher)', pitcher_outs:'Pitcher Outs', pitcher_earned_runs:'Pitcher Earned Runs',
+    batter_hits:'Hits', batter_home_runs:'Home Runs', batter_rbis:'RBIs', batter_total_bases:'Total Bases', batter_walks:'Walks', batter_strikeouts:'Batter Strikeouts', pitcher_strikeouts:'Strikeouts (Pitcher)', pitcher_outs:'Pitcher Outs', pitcher_earned_runs:'Pitcher Earned Runs',
     player_pass_yds:'Pass Yards', player_rush_yds:'Rush Yards',
     player_reception_yds:'Rec Yards', player_anytime_td:'Anytime TD',
   };
@@ -2931,8 +2938,7 @@ async function saveLeagueSportsSettings() {
     return showToast(`⚠️ Pick limits must add up to ${ppwForLimits} (currently ${limitsTotal})`);
   }
 
-  const rawOddsMax = document.getElementById('s-odds-max')?.value;
-  const odds_max = (rawOddsMax !== '' && rawOddsMax !== null && rawOddsMax !== undefined && !isNaN(parseInt(rawOddsMax))) ? parseInt(rawOddsMax) : -500;
+  const odds_max = normalizeOddsInput(document.getElementById('s-odds-max')?.value);
   const picks_per_week = parseInt(document.getElementById('s-picks-per-week')?.value) || 5;
   const max_members    = parseInt(document.getElementById('s-max-members')?.value)    || 20;
   const nameEl         = document.getElementById('s-name');
@@ -3478,7 +3484,7 @@ async function toggleProps(gameId, sportSlug) {
     const propMarkets = {
       basketball_nba:       'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
-      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_singles,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
@@ -3778,6 +3784,15 @@ function setModalStep(step) {
   });
 }
 
+function normalizeOddsInput(raw) {
+  if (raw === null || raw === undefined) return -500;
+  const s = String(raw).trim();
+  if (s === '' || s === '-') return -500;
+  const v = parseInt(s, 10);
+  if (isNaN(v)) return -500;
+  return v;
+}
+
 async function finishCreate() {
   const name       = document.getElementById('new-league-name').value || 'New League';
   const visibility = document.getElementById('new-visibility')?.value || 'private';
@@ -3796,8 +3811,7 @@ async function finishCreate() {
 
   // Collect picks per week and odds limits
   const picks_per_week = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
-  const rawModalOddsMax = document.getElementById('modal-odds-max')?.value;
-  const odds_max = (rawModalOddsMax !== '' && rawModalOddsMax !== null && rawModalOddsMax !== undefined && !isNaN(parseInt(rawModalOddsMax))) ? parseInt(rawModalOddsMax) : -500;
+  const odds_max = normalizeOddsInput(document.getElementById('modal-odds-max')?.value);
   const pick_type_limits = window._modalPickTypeLimits || null;
 
   try {
@@ -3809,11 +3823,7 @@ async function finishCreate() {
     showToast('🏆 League created!');
     setModalStep(4);
   } catch (err) {
-    const newLeague = { id: Date.now(), name, member_count: 1, wins: 0, losses: 0, sports, bet_types, odds_max, pick_type_limits, my_role: 'commissioner' };
-    myLeagues.push(newLeague);
-    closeModal();
-    renderLeaguesGrid();
-    showToast('🏆 League created!');
+    showToast('❌ Failed to create league: ' + (err.message || 'unknown error'), 'error');
   }
 }
 
