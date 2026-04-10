@@ -1086,6 +1086,7 @@ async function bootApp() {
   renderSportToggles('sports-toggles', true);
   renderSportToggles('modal-sports', false);
   renderBetTypeToggles();
+  showPage('dashboard');
 }
 
 function showAuthTab(tab, el) {
@@ -1172,6 +1173,7 @@ function doLogout() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   showToast('👋 Logged out');
+  showPage('dashboard');
 }
 
 
