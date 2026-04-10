@@ -596,7 +596,7 @@
           </div>
           <div style="display:flex;gap:10px;">
             <button class="btn-secondary" onclick="nextStep(2)">← Back</button>
-            <button class="btn-primary" onclick="nextStep(4)" style="flex:1;padding:14px;">Create League →</button>
+            <button class="btn-primary" onclick="finishCreate()" style="flex:1;padding:14px;">Create League →</button>
           </div>
         </div>
 
@@ -3802,19 +3802,14 @@ async function finishCreate() {
   const pick_type_limits = window._modalPickTypeLimits || null;
 
   try {
-    console.log('Attempting league creation...');
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
-    console.log('API response:', data);
     myLeagues.push(data.league);
-    console.log('myLeagues after push:', myLeagues.length);
+    window._newLeagueId = data.league.id;
+    document.getElementById('new-league-code').textContent = data.league.invite_code || '—';
     renderLeaguesGrid();
-    console.log('Grid rendered');
     showToast('🏆 League created!');
-    closeModal();
-    console.log('Modal closed');
-    setTimeout(() => openLeague(data.league.id), 400);
+    setModalStep(4);
   } catch (err) {
-    console.error('League creation failed:', err);
     showToast('❌ Failed: ' + (err.message || JSON.stringify(err)), 'error');
   }
 }
