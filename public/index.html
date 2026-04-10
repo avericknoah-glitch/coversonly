@@ -2084,21 +2084,21 @@ async function renderLeaguePicks() {
       const homeLabel = g.sport_key === 'baseball_mlb' ? g.home_team : (g.home_abbr || g.home);
 
       if (allowedBetTypes.includes('spread') && g.awaySpread && g.awaySpread !== '—') {
-        const awayOdds = g.awaySpreadOdds || '-110';
-        const homeOdds = g.homeSpreadOdds || '-110';
-        bets.push({ id:'spread-away', label:`${awayLabel} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
-        bets.push({ id:'spread-home', label:`${homeLabel} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
-      }
+          const awayOdds = g.awaySpreadOdds || '-110';
+          const homeOdds = g.homeSpreadOdds || '-110';
+          if (oddsOk(awayOdds)) bets.push({ id:'spread-away', label:`${awayLabel} ${g.awaySpread}`, sub:spreadLabel, odds:awayOdds });
+          if (oddsOk(homeOdds)) bets.push({ id:'spread-home', label:`${homeLabel} ${g.homeSpread}`, sub:spreadLabel, odds:homeOdds });
+        }
       if (allowedBetTypes.includes('ml')) {
         if (g.awayML && g.awayML !== '—' && oddsOk(g.awayML)) bets.push({ id:'ml-away', label:`${awayLabel} ML`, sub:'Moneyline', odds:g.awayML });
         if (g.homeML && g.homeML !== '—' && oddsOk(g.homeML)) bets.push({ id:'ml-home', label:`${homeLabel} ML`, sub:'Moneyline', odds:g.homeML });
       }
       if (allowedBetTypes.includes('ou') && g.ou && g.ou !== '—') {
-        const ovOdds = g.overOdds || '-110';
-        const unOdds = g.underOdds || '-110';
-        bets.push({ id:'ou-over',  label:`Over ${g.ou}`,  sub:'Total', odds:ovOdds });
-        bets.push({ id:'ou-under', label:`Under ${g.ou}`, sub:'Total', odds:unOdds });
-      }
+          const ovOdds = g.overOdds || '-110';
+          const unOdds = g.underOdds || '-110';
+          if (oddsOk(ovOdds)) bets.push({ id:'ou-over',  label:`Over ${g.ou}`,  sub:'Total', odds:ovOdds });
+          if (oddsOk(unOdds)) bets.push({ id:'ou-under', label:`Under ${g.ou}`, sub:'Total', odds:unOdds });
+        }
 
       const betButtons = bets.map(b => {
         const picked = isPicked(b.id);
