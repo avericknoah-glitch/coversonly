@@ -3804,11 +3804,10 @@ async function finishCreate() {
   try {
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
     myLeagues.push(data.league);
-    window._newLeagueId = data.league.id;
-    document.getElementById('new-league-code').textContent = data.league.invite_code || '—';
     renderLeaguesGrid();
     showToast('🏆 League created!');
-    setModalStep(4);
+    closeModal();
+    setTimeout(() => openLeague(data.league.id), 400);
   } catch (err) {
     showToast('❌ Failed to create league: ' + (err.message || 'unknown error'), 'error');
   }
