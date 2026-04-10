@@ -1083,7 +1083,6 @@ async function bootApp() {
     loadGames(),
     loadLeagues(),
   ]);
-  loadDashboardStats();
   renderSportToggles('sports-toggles', true);
   renderSportToggles('modal-sports', false);
   renderBetTypeToggles();
@@ -1220,13 +1219,7 @@ async function loadLeagueDetail(leagueId) {
     if (myPicksEl) myPicksEl.innerHTML = '';
     const availEl = document.getElementById('league-available-picks');
     if (availEl) availEl.innerHTML = '';
-    const memberTabBtn = document.getElementById('lt-tab-member');
-    if (memberTabBtn) memberTabBtn.style.display = 'none';
-    const memberPanel = document.getElementById('lt-member');
-    if (memberPanel) memberPanel.innerHTML = '';
     showPage('league');
-    const picksTabBtn = document.getElementById('lt-tab-picks');
-    if (picksTabBtn && picksTabBtn.classList.contains('active')) renderLeaguePicks();
   } catch (err) {
     showToast('❌ ' + err.message);
   }
@@ -3032,8 +3025,6 @@ function openLeague(id) {
   // If it's a real API league, fetch full detail
   if (myLeagues.find(l => parseInt(l.id) === id)) {
     showLoading('standings-body', 'Loading standings…');
-    showLeagueTab('standings', document.getElementById('lt-tab-standings'));
-    document.getElementById('lt-tab-member').style.display = 'none';
     loadLeagueDetail(id);
   } else {
     // Fallback — render with sample standings
@@ -3680,7 +3671,8 @@ function nextStep(step) {
       }
       window._modalPickTypeLimits = modal_pick_type_limits;
     }
-    document.getElementById('new-league-code').textContent = '—';
+    const code = 'SPR-'+Math.random().toString(36).slice(2,6).toUpperCase();
+    document.getElementById('new-league-code').textContent = code;
   }
   setModalStep(step);
 }
@@ -3688,13 +3680,15 @@ function nextStep(step) {
 function renderModalBetTypes() {
   const container = document.getElementById('modal-bet-types');
   if (!container) return;
-  // Always re-render so create modal resets each time
-  container.dataset.initialized = 'true';
-  container.innerHTML = BET_TYPES.map(b => `
-    <div class="bet-type-toggle active" data-id="${b.id}" onclick="this.classList.toggle('active'); renderModalPickLimitsUI()">
-      <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
-      <div class="toggle-switch"></div>
-    </div>`).join('');
+  // Init all active if none selected yet
+  if (!container.dataset.initialized) {
+    container.dataset.initialized = 'true';
+    container.innerHTML = BET_TYPES.map(b => `
+      <div class="bet-type-toggle active" data-id="${b.id}" onclick="this.classList.toggle('active'); renderModalPickLimitsUI()">
+        <div class="bet-type-info"><div class="bet-type-name">${b.name}</div><div class="bet-type-desc">${b.desc}</div></div>
+        <div class="toggle-switch"></div>
+      </div>`).join('');
+  }
   // Wire up odds limit preview
   const modalMaxEl = document.getElementById('modal-odds-max');
   const modalPreview = document.getElementById('odds-range-preview');
@@ -3801,7 +3795,6 @@ async function finishCreate() {
   try {
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
     myLeagues.push(data.league);
-    document.getElementById('new-league-code').textContent = data.league.invite_code || '—';
     closeModal();
     renderLeaguesGrid();
     showToast('🏆 League created!');
