@@ -315,7 +315,6 @@ const MLB_MARKET_TO_STAT = {
   batter_rbis:          'rbi',
   batter_walks:         'bb',
   batter_strikeouts:    'k',
-  batter_singles:       null,
   batter_total_bases:   'total_bases_calc',
   pitcher_strikeouts:   'p_k',
   pitcher_earned_runs:  'er',

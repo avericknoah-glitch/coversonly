@@ -2178,7 +2178,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     const propMarkets = {
       basketball_nba:       'player_points,player_rebounds,player_assists,player_threes',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
-      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_singles,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
@@ -2208,7 +2208,7 @@ function renderLeaguePropsButtons(gameId, data, leagueId) {
     player_points:'Points', player_rebounds:'Rebounds', player_assists:'Assists',
     player_threes:'3-Pointers', player_steals:'Steals', player_blocks:'Blocks',
     player_goals:'Goals', player_shots_on_goal:'Shots on Goal',
-    batter_hits:'Hits', batter_home_runs:'Home Runs', batter_rbis:'RBIs', batter_singles:'Singles', batter_total_bases:'Total Bases', batter_walks:'Walks', batter_strikeouts:'Batter Strikeouts', pitcher_strikeouts:'Strikeouts (Pitcher)', pitcher_outs:'Pitcher Outs', pitcher_earned_runs:'Pitcher Earned Runs',
+    batter_hits:'Hits', batter_home_runs:'Home Runs', batter_rbis:'RBIs', batter_total_bases:'Total Bases', batter_walks:'Walks', batter_strikeouts:'Batter Strikeouts', pitcher_strikeouts:'Strikeouts (Pitcher)', pitcher_outs:'Pitcher Outs', pitcher_earned_runs:'Pitcher Earned Runs',
     player_pass_yds:'Pass Yards', player_rush_yds:'Rush Yards',
     player_reception_yds:'Rec Yards', player_anytime_td:'Anytime TD',
   };
@@ -3469,7 +3469,7 @@ async function toggleProps(gameId, sportSlug) {
     const propMarkets = {
       basketball_nba:       'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
-      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_singles,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
+      baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
     }[apiSport] || 'player_points,player_rebounds,player_assists';
 
@@ -3497,7 +3497,7 @@ function renderPropsDrawer(gameId, data) {
     player_points: 'Points', player_rebounds: 'Rebounds', player_assists: 'Assists',
     player_threes: '3-Pointers', player_steals: 'Steals', player_blocks: 'Blocks',
     player_goals: 'Goals', player_shots_on_goal: 'Shots on Goal',
-    batter_hits: 'Hits', batter_home_runs: 'Home Runs', batter_rbis: 'RBIs', batter_singles: 'Singles', batter_total_bases: 'Total Bases', batter_walks: 'Walks', batter_strikeouts: 'Batter Strikeouts',
+    batter_hits: 'Hits', batter_home_runs: 'Home Runs', batter_rbis: 'RBIs', batter_total_bases: 'Total Bases', batter_walks: 'Walks', batter_strikeouts: 'Batter Strikeouts',
     pitcher_strikeouts: 'Strikeouts (Pitcher)', pitcher_outs: 'Pitcher Outs', pitcher_earned_runs: 'Pitcher Earned Runs', player_pass_yds: 'Pass Yards',
     player_rush_yds: 'Rush Yards', player_reception_yds: 'Rec Yards',
     player_anytime_td: 'Anytime TD',
