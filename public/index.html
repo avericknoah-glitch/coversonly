@@ -1578,15 +1578,6 @@ function showPage(id) {
         if (leagueBetTypes.includes(el.dataset.id)) el.classList.add('active');
         else el.classList.remove('active');
       });
-      renderPickLimitsUI();
-      if (currentLeague?.pick_type_limits) {
-        document.querySelectorAll('[data-limit-type]').forEach(inp => {
-          const t = inp.dataset.limitType;
-          if (currentLeague.pick_type_limits[t] !== undefined) {
-            inp.value = currentLeague.pick_type_limits[t];
-          }
-        });
-      }
       // Pre-populate General tab fields
       const nameEl2 = document.getElementById('s-name');
       if (nameEl2) nameEl2.value = currentLeague.name || '';
@@ -1594,6 +1585,7 @@ function showPage(id) {
       if (maxMembersEl) maxMembersEl.value = currentLeague.max_members ?? 12;
       const ppwEl = document.getElementById('s-picks-per-week');
       if (ppwEl) ppwEl.value = currentLeague.picks_per_week ?? 5;
+      renderPickLimitsUI();
       const visEl2 = document.getElementById('s-visibility');
       if (visEl2) visEl2.value = currentLeague.visibility || 'private';
       // Pre-populate Sports & Bets tab fields
