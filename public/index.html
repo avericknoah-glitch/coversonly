@@ -333,6 +333,46 @@
   .tab-bar { gap: 0; }
   .tab-btn { padding: 8px 10px; font-size: 11px; letter-spacing: 0.3px; }
 
+  /* ── THIS WEEK PICK ROWS ─────────────────────────────────────────────── */
+  #lt-picks div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 50px 70px !important;
+  }
+  #lt-picks div[style*="grid-template-columns"] > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* ── HISTORY PICK ROWS ───────────────────────────────────────────────── */
+  #lt-history div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 50px 70px !important;
+  }
+  #lt-history div[style*="grid-template-columns"] > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* ── MEMBER PICKS ROWS ───────────────────────────────────────────────── */
+  #lt-member div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 50px 70px !important;
+  }
+  #lt-member div[style*="grid-template-columns"] > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* ── MY PICKS PAGE ROWS ──────────────────────────────────────────────── */
+  #picks-page-content div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 50px 70px !important;
+  }
+  #picks-page-content div[style*="grid-template-columns"] > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* ── SPORTSBOOK TABLE ────────────────────────────────────────────────── */
+  .sb-game-row { font-size: 12px; }
+  .sb-matchup { font-size: 12px; }
+
+  /* ── MEMBER HEADER STATS ─────────────────────────────────────────────── */
+  .member-stats-row { gap: 12px; flex-wrap: wrap; }
+  .member-stat-val { font-size: 20px; }
+
 }
 </style>
 </head>
