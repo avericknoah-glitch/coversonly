@@ -415,6 +415,22 @@
   #this-week-stats .league-stat-val,
   #all-time-stats .league-stat-val { font-size: 16px !important; }
 
+  /* ── PROP CARDS TWO PER ROW ──────────────────────────────────────────── */
+  #league-props-drawer div[style*="width:160px"],
+  #league-props-drawer div[style*="flex:0 0 160px"],
+  div[id^="league-props-"] div[style*="width:160px"],
+  div[id^="league-props-"] div[style*="flex:0 0 160px"],
+  div[id^="props-"] div[style*="width:160px"],
+  div[id^="props-"] div[style*="flex:0 0 160px"] {
+    width: calc(50% - 5px) !important;
+    flex: 0 0 calc(50% - 5px) !important;
+  }
+
+  /* ── STAT CARD NUMBER SIZE FIX ───────────────────────────────────────── */
+  .league-stat-val { font-size: 16px !important; }
+  .league-stat-val span { font-size: 16px !important; }
+  .league-stat-val .stat-green,
+  .league-stat-val .stat-red { font-size: 16px !important; }
 
 }
 </style>
