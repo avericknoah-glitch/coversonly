@@ -2040,7 +2040,7 @@ async function loadLeagueHistory() {
       var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
       var time = fmtTime(p.commence_time);
       var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
-      var fs = p.final_score;
+      var fs = p.final_score ? (typeof p.final_score === 'string' ? JSON.parse(p.final_score) : p.final_score) : null;
       var isProps = (p.bet_type || '').startsWith('props');
       var resultStr = (fs && !isProps)
         ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?')
@@ -2830,7 +2830,7 @@ async function renderMyLeaguePicks(leagueId) {
       : '<span style="background:var(--surface2);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--font-display);border:1px solid var(--border);">LOCKED</span>';
     const gameStr = p.away_team && p.home_team ? `${p.away_team} @ ${p.home_team}` : '';
     const timeStr = p.commence_time ? ' · ' + new Date(p.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
-    const fs = p.final_score;
+    const fs = p.final_score ? (typeof p.final_score === 'string' ? JSON.parse(p.final_score) : p.final_score) : null;
     const isProps = (p.bet_type || '').startsWith('props');
     const resultLine = (fs && !isProps)
       ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">
