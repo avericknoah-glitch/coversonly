@@ -3014,10 +3014,10 @@ async function submitLeaguePicks(leagueId) {
             const m = p.label.match(/([\d.]+)/);
             return m ? parseFloat(m[1]) : null;
           })();
-          line_data = { market, direction: dir, point, picked_side: dir };
+          line_data = { market, direction: dir, point, picked_side: dir, odds: p.odds };
         } else {
           // For spread/ml/ou, store picked_side so grading doesn't need fuzzy matching
-          line_data = { picked_side: pickedSide };
+          line_data = { picked_side: pickedSide, odds: p.odds };
         }
 
         return {
