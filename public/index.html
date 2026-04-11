@@ -248,6 +248,50 @@
   .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text); }
   .modal-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
   .modal-close:hover { color: var(--text); background: var(--surface2); }
+
+@media (max-width: 768px) {
+
+  /* ── AUTH SCREEN ─────────────────────────────────────────────────────── */
+  #auth-screen { flex-direction: column; }
+  .auth-left { display: none; }
+  .auth-right {
+    width: 100%;
+    padding: 40px 24px;
+    border-left: none;
+    min-height: 100vh;
+    justify-content: center;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────────────────────── */
+  nav {
+    padding: 0 16px;
+    gap: 0;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    height: auto;
+    min-height: 56px;
+    flex-direction: row;
+  }
+  .nav-logo { font-size: 18px; flex-shrink: 0; }
+  .nav-links { flex: 0 0 auto; gap: 0; }
+  .nav-link { padding: 6px 8px; font-size: 11px; letter-spacing: 0.3px; }
+  .nav-right { gap: 8px; }
+  .nav-right .btn-secondary { display: none; }
+  .nav-username { display: none; }
+  .nav-avatar { width: 30px; height: 30px; font-size: 12px; }
+
+  /* ── PAGES ───────────────────────────────────────────────────────────── */
+  .page { padding: 16px; }
+  .page-title { font-size: 28px; }
+
+  /* ── LEAGUE CARDS ────────────────────────────────────────────────────── */
+  .leagues-grid { grid-template-columns: 1fr; }
+  .league-card { padding: 16px; }
+
+  /* ── MOBILE ACTIONS ──────────────────────────────────────────────────── */
+  #mobile-actions { display: flex !important; }
+
+}
 </style>
 </head>
 <body>
@@ -332,6 +376,11 @@
       </div>
     </div>
   </nav>
+
+<div id="mobile-actions" style="display:none; position:fixed; bottom:80px; right:16px; z-index:150; flex-direction:column; gap:8px; align-items:flex-end;">
+  <button class="btn-secondary" onclick="openJoinLeague()" style="font-size:12px;padding:8px 14px;">Join League</button>
+  <button class="btn-secondary" onclick="openCreateLeague()" style="font-size:12px;padding:8px 14px;">+ Create League</button>
+</div>
 
   <div class="app-shell" style="flex:1;display:flex;justify-content:center;">
     <div style="width:100%;max-width:1200px;">
