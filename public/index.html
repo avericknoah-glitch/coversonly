@@ -303,6 +303,36 @@
   .standings-table { font-size: 13px; }
   .standing-streak { display: none; }
 
+  /* ── LEAGUE HEADER ───────────────────────────────────────────────────── */
+  .league-header-banner { padding: 16px; gap: 12px; flex-direction: column; align-items: flex-start; }
+  .league-header-name { font-size: 28px; letter-spacing: -0.5px; }
+  .league-header-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; width: 100%; }
+  .league-header-actions button { flex: 1; font-size: 12px; padding: 8px 10px; }
+
+  /* ── STANDINGS ───────────────────────────────────────────────────────── */
+  .standings-row { grid-template-columns: 32px 1fr 44px 44px 44px 60px; padding: 10px 12px; }
+  .standings-row > div:last-child { display: none; }
+  .standing-rank { font-size: 14px; }
+  .standing-num { font-size: 12px; }
+  .standing-pct { font-size: 12px; }
+  .standings-header { display: none; }
+
+  /* ── PICK COUNTER ────────────────────────────────────────────────────── */
+  #pick-counter-bar { padding: 12px 14px !important; border-radius: 10px !important; top: 56px !important; }
+  #pick-counter-slots { gap: 10px !important; }
+  #pick-counter-record { text-align: left !important; width: 100%; }
+
+  /* ── PICK SLOT CARDS ─────────────────────────────────────────────────── */
+  #league-my-picks-content div[style*="min-width:180px"] {
+    min-width: 140px !important;
+    max-width: calc(50% - 6px) !important;
+    flex: 0 0 calc(50% - 6px) !important;
+  }
+
+  /* ── TAB BAR ─────────────────────────────────────────────────────────── */
+  .tab-bar { gap: 0; }
+  .tab-btn { padding: 8px 10px; font-size: 11px; letter-spacing: 0.3px; }
+
 }
 </style>
 </head>
