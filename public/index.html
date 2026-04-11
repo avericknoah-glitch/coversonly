@@ -2040,9 +2040,16 @@ async function loadLeagueHistory() {
       var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
       var time = fmtTime(p.commence_time);
       var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
+      var fs = p.final_score;
+      var isProps = (p.bet_type || '').startsWith('props');
+      var resultStr = (fs && !isProps)
+        ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?')
+        : '';
       var row = '<div style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
       row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
-      row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div></div>';
+      row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div>';
+      row += resultStr ? '<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;">' + resultStr + '</div>' : '';
+      row += '</div>';
       row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props_.*/, 'props').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
       row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
       if (isCommish) {
@@ -2823,9 +2830,17 @@ async function renderMyLeaguePicks(leagueId) {
       : '<span style="background:var(--surface2);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--font-display);border:1px solid var(--border);">LOCKED</span>';
     const gameStr = p.away_team && p.home_team ? `${p.away_team} @ ${p.home_team}` : '';
     const timeStr = p.commence_time ? ' · ' + new Date(p.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    const fs = p.final_score;
+    const isProps = (p.bet_type || '').startsWith('props');
+    const resultLine = (fs && !isProps)
+      ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">
+      ${p.away_team ? p.away_team.split(' ').pop() : '?'} ${fs.away ?? '?'} · ${p.home_team ? p.home_team.split(' ').pop() : '?'} ${fs.home ?? '?'}
+    </div>`
+      : '';
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:180px;flex:1;max-width:260px;">
       <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;">${p.selection || '—'}</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${gameStr}${timeStr}</div>
+      ${resultLine}
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${p.line || '—'}</span>
         ${resultBadge}

@@ -201,7 +201,7 @@ router.get('/my', requireAuth, async (req, res, next) => {
     const { league_id, week, sport } = req.query;
     let sql = `
       SELECT p.*,
-             e.home_team, e.away_team, e.commence_time
+             e.home_team, e.away_team, e.commence_time, e.final_score
       FROM picks p
       LEFT JOIN events e ON e.external_id = p.event_id
       WHERE p.user_id = $1
@@ -238,7 +238,7 @@ router.get('/league/:leagueId', requireAuth, async (req, res, next) => {
     let sql = `
       SELECT p.*,
              u.username, u.first_name, u.last_name,
-             e.home_team, e.away_team, e.commence_time
+             e.home_team, e.away_team, e.commence_time, e.final_score
       FROM picks p
       JOIN users u  ON u.id = p.user_id
       LEFT JOIN events e ON e.external_id = p.event_id
