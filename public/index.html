@@ -373,6 +373,50 @@
   .member-stats-row { gap: 12px; flex-wrap: wrap; }
   .member-stat-val { font-size: 20px; }
 
+  /* ── SPORTSBOOK TABLE → CARD LAYOUT ─────────────────────────────────── */
+  .sb-game-row {
+    grid-template-columns: 1fr 80px 80px !important;
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+  .sb-game-row > div:nth-child(4) { display: none !important; }
+  .sb-game-row > div:nth-child(5) { display: none !important; }
+  .sb-game-row > div:first-child div:first-child { font-size: 13px !important; }
+  .sb-game-row > div:first-child div:last-child { font-size: 10px !important; }
+
+  /* Hide sportsbook header row on mobile */
+  .sb-game-wrapper:first-child > div[style*="grid-template-columns"] { display: none; }
+  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] {
+    grid-template-columns: 1fr 90px 90px !important;
+    padding: 8px 12px !important;
+  }
+  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] > span:nth-child(4),
+  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] > span:nth-child(5) {
+    display: none !important;
+  }
+
+  /* ── STANDINGS ALIGNMENT ─────────────────────────────────────────────── */
+  .standings-row {
+    grid-template-columns: 28px 1fr 38px 38px 38px 56px !important;
+    padding: 8px 10px !important;
+    gap: 0 !important;
+  }
+  .standing-user { gap: 6px !important; }
+  .standing-avatar { width: 28px !important; height: 28px !important; font-size: 11px !important; flex-shrink: 0; }
+  .standing-name { font-size: 12px !important; }
+  .standing-name span { display: none !important; }
+  .standing-num { font-size: 12px !important; }
+  .standing-pct { font-size: 11px !important; }
+
+  /* ── MY PICKS STAT CARDS ─────────────────────────────────────────────── */
+  #this-week-stats .league-stat,
+  #all-time-stats .league-stat { min-width: 100px !important; padding: 10px 12px !important; }
+  #this-week-stats .league-stat-val,
+  #all-time-stats .league-stat-val { font-size: 16px !important; }
+
+  /* ── LOGOUT BUTTON ───────────────────────────────────────────────────── */
+  .nav-logout { display: block !important; }
+
 }
 </style>
 </head>
