@@ -963,6 +963,25 @@ const api = {
   del(path)         { return this.request('DELETE', path); },
 };
 
+function extractOdds(pick) {
+  if (!pick.line_data) return '—';
+  const ld = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : pick.line_data;
+  const bt = (pick.bet_type || '').toLowerCase();
+  const side = ld.picked_side;
+  try {
+    if (bt === 'spread') {
+      return side === 'home' ? (ld.spread?.home?.odds || '—') : (ld.spread?.away?.odds || '—');
+    } else if (bt === 'ml') {
+      return side === 'home' ? (ld.moneyline?.home?.odds || ld.h2h?.home?.odds || '—') : (ld.moneyline?.away?.odds || ld.h2h?.away?.odds || '—');
+    } else if (bt === 'ou') {
+      return side === 'over' ? (ld.totals?.over?.odds || '—') : (ld.totals?.under?.odds || '—');
+    } else if (bt.startsWith('props')) {
+      return ld.odds || '—';
+    }
+  } catch(e) {}
+  return '—';
+}
+
 // ── Shared pick status badge — used on all pages ─────────────────────────────
 function pickStatusBadge(pick, styleType) {
   const r = (pick.result || '').toLowerCase();
@@ -1936,7 +1955,7 @@ async function loadThisWeek() {
         html += '<div><div style="font-family:var(--font-display);font-size:13px;font-weight:700;">' + (p.selection || '—') + '</div>';
         html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + '</div></div>';
         html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + time + '</div>';
-        html += '<div style="font-family:var(--font-mono);font-size:12px;">' + (p.line || '—') + '</div>';
+        html += '<div style="font-family:var(--font-mono);font-size:12px;">' + extractOdds(p) + '</div>';
         if (needsManual) {
           html += '<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">';
           html += '<div>' + thisWeekStatusBadge(p) + '</div>';
@@ -2050,7 +2069,7 @@ async function loadLeagueHistory() {
       row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div>';
       row += resultStr ? '<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;">' + resultStr + '</div>' : '';
       row += '</div>';
-      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props_.*/, 'props').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
+      row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props_.*/, 'props').toUpperCase() + ' · ' + extractOdds(p) + '</div>';
       row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
       if (isCommish) {
         row += '<div style="display:flex;flex-direction:column;gap:2px;">';
@@ -2842,7 +2861,7 @@ async function renderMyLeaguePicks(leagueId) {
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${gameStr}${timeStr}</div>
       ${resultLine}
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${p.line || '—'}</span>
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${extractOdds(p)}</span>
         ${resultBadge}
       </div>
     </div>`;
