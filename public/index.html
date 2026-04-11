@@ -4045,7 +4045,18 @@ async function finishCreate() {
   const picks_per_week = parseInt(document.getElementById('new-picks-per-week')?.value) || 5;
   const rawModalOddsMax = document.getElementById('modal-odds-max')?.value;
   const odds_max = (rawModalOddsMax !== '' && rawModalOddsMax !== null && rawModalOddsMax !== undefined && !isNaN(parseInt(rawModalOddsMax))) ? parseInt(rawModalOddsMax) : -500;
-  const pick_type_limits = window._modalPickTypeLimits || null;
+  const modalLimitInputs = document.querySelectorAll('[data-modal-limit-type]');
+  let pick_type_limits = window._modalPickTypeLimits || null;
+  if (modalLimitInputs.length) {
+    const collected = {};
+    let total = 0;
+    modalLimitInputs.forEach(inp => {
+      const v = parseInt(inp.value) || 0;
+      collected[inp.dataset.modalLimitType] = v;
+      total += v;
+    });
+    if (total > 0) pick_type_limits = collected;
+  }
 
   try {
     const data = await api.post('/leagues', { name, visibility, sports, bet_types, picks_per_week, odds_max, pick_type_limits });
