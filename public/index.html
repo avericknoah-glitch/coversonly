@@ -965,22 +965,14 @@ const api = {
 
 function extractOdds(pick) {
   if (!pick.line_data) return '';
-  const ld = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : pick.line_data;
-  const bt = (pick.bet_type || '').toLowerCase();
-  const side = ld.picked_side;
   try {
-    if (bt === 'spread') {
-      const odds = side === 'home' ? ld.spread?.home?.odds : ld.spread?.away?.odds;
-      return odds || '';
-    } else if (bt === 'ml') {
-      const odds = side === 'home' ? (ld.moneyline?.home?.odds || ld.h2h?.home?.odds) : (ld.moneyline?.away?.odds || ld.h2h?.away?.odds);
-      return odds || '';
-    } else if (bt === 'ou') {
-      const odds = side === 'over' ? ld.totals?.over?.odds : ld.totals?.under?.odds;
-      return odds || '';
-    } else if (bt.startsWith('props')) {
-      return ld.odds || '';
-    }
+    const ld = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : pick.line_data;
+    if (ld.odds) return ld.odds;
+    const bt = (pick.bet_type || '').toLowerCase();
+    const side = ld.picked_side;
+    if (bt === 'spread') return side === 'home' ? (ld.spread?.home?.odds || '') : (ld.spread?.away?.odds || '');
+    if (bt === 'ml') return side === 'home' ? (ld.moneyline?.home?.odds || ld.h2h?.home?.odds || '') : (ld.moneyline?.away?.odds || ld.h2h?.away?.odds || '');
+    if (bt === 'ou') return side === 'over' ? (ld.totals?.over?.odds || '') : (ld.totals?.under?.odds || '');
   } catch(e) {}
   return '';
 }
