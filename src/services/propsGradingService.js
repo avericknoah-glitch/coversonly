@@ -267,9 +267,12 @@ async function gradeNBAPropPicks() {
 
     // Check game is complete
     const statusRaw = bdlGame.status || bdlGame.period_detail || '';
-    const isFinal = statusRaw.toLowerCase().includes('final')
-      || statusRaw === 'post'
-      || statusRaw === 'complete';
+    const statusLower = statusRaw.toLowerCase();
+    const isFinal = statusLower === 'final'
+      || statusLower === 'post'
+      || statusLower === 'complete'
+      || statusLower === 'status_final'
+      || (statusLower.includes('final') && !statusLower.includes('halftime'));
     logger.info(`[PropsGrading] Game status: "${statusRaw}" — isFinal: ${isFinal} — game id: ${bdlGame.id}`);
     if (!isFinal) {
       logger.info(`[PropsGrading] Game not final yet, skipping`);
@@ -448,7 +451,10 @@ async function gradeMLBPropPicks() {
     }
 
     const statusRaw = bdlGame.status || '';
-    const isFinal = statusRaw.toLowerCase().includes('final') || statusRaw.toLowerCase().includes('status_final');
+    const statusLower = statusRaw.toLowerCase();
+    const isFinal = statusLower === 'final'
+      || statusLower === 'status_final'
+      || (statusLower.includes('final') && !statusLower.includes('halftime'));
     logger.info(`[MLBPropsGrading] Game status: "${statusRaw}" — isFinal: ${isFinal}`);
     if (!isFinal) continue;
 
