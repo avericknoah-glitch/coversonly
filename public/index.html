@@ -2831,6 +2831,7 @@ async function renderMyLeaguePicks(leagueId) {
     const gameStr = p.away_team && p.home_team ? `${p.away_team} @ ${p.home_team}` : '';
     const timeStr = p.commence_time ? ' · ' + new Date(p.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
     const fs = p.final_score ? (typeof p.final_score === 'string' ? JSON.parse(p.final_score) : p.final_score) : null;
+    console.log('pick final_score:', p.result, p.final_score, fs);
     const isProps = (p.bet_type || '').startsWith('props');
     const resultLine = (fs && !isProps)
       ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">
