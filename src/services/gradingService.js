@@ -268,6 +268,9 @@ async function gradeAllPendingPicks() {
       const score = scores.find(s => s.id === pick.event_id);
       if (!score) continue;
 
+      const homeScore = parseFloat(score.scores?.find(s => s.name === score.home_team)?.score);
+      const awayScore = parseFloat(score.scores?.find(s => s.name === score.away_team)?.score);
+
       logger.info(`[Grade] Pick ${pick.id}: type=${pick.bet_type} sel="${pick.selection}" side=${pick.line_data?.picked_side || '(fuzzy)'} home=${score.home_team} away=${score.away_team} scores=${JSON.stringify(score.scores)}`);
 
       const result = gradePick(pick, score);
@@ -277,6 +280,11 @@ async function gradeAllPendingPicks() {
       await db.query(`
         UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2
       `, [result, pick.id]);
+
+      await db.query(`
+        UPDATE events SET final_score = $1, completed = true
+        WHERE external_id = $2 AND final_score IS NULL
+      `, [JSON.stringify({ home: homeScore, away: awayScore }), pick.event_id]);
 
       totalGraded++;
     }
