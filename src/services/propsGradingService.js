@@ -164,9 +164,10 @@ function gradePropPick(pick, playerStats) {
     return 'pending';
   }
 
-  const playerName = parsePlayerName(pick.selection);
+  const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const playerName = normalizeStr(parsePlayerName(pick.selection));
   const stats = playerStats.find(s => {
-    const bdlName = s.player_name;
+    const bdlName = normalizeStr(s.player_name);
     const pickWords = playerName.split(' ').filter(w => w.length > 2);
     return pickWords.every(w => bdlName.includes(w));
   });
