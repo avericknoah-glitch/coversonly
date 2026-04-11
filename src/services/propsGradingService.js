@@ -164,7 +164,7 @@ function gradePropPick(pick, playerStats) {
     return 'pending';
   }
 
-  const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\./g, '').toLowerCase();
   const playerName = normalizeStr(parsePlayerName(pick.selection));
   const stats = playerStats.find(s => {
     const bdlName = normalizeStr(s.player_name);
@@ -465,7 +465,7 @@ async function gradeMLBPropPicks() {
         continue;
       }
 
-      const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\./g, '').toLowerCase();
       const playerName = normalizeStr(parsePlayerName(pick.selection));
       const stats = playerStats.find(s => {
         const bdlName = normalizeStr(s.player_name);
