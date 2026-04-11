@@ -289,7 +289,19 @@
   .league-card { padding: 16px; }
 
   /* ── MOBILE ACTIONS ──────────────────────────────────────────────────── */
-  #mobile-actions { display: flex !important; }
+  #mobile-actions { display: flex !important; position: static; bottom: auto; right: auto; flex-direction: row; }
+
+  /* ── LEAGUE HEADER BUTTONS ───────────────────────────────────────────── */
+  .league-header-actions { flex-wrap: wrap; gap: 6px; }
+  .league-header-actions button { font-size: 11px; padding: 6px 10px; }
+
+  /* ── SPORTSBOOK TABLE ────────────────────────────────────────────────── */
+  .sb-table { font-size: 12px; }
+  .sb-table .sb-col-total { display: none; }
+
+  /* ── STANDINGS TABLE ─────────────────────────────────────────────────── */
+  .standings-table { font-size: 13px; }
+  .standing-streak { display: none; }
 
 }
 </style>
@@ -377,9 +389,9 @@
     </div>
   </nav>
 
-<div id="mobile-actions" style="display:none; position:fixed; bottom:80px; right:16px; z-index:150; flex-direction:column; gap:8px; align-items:flex-end;">
-  <button class="btn-secondary" onclick="openJoinLeague()" style="font-size:12px;padding:8px 14px;">Join League</button>
-  <button class="btn-secondary" onclick="openCreateLeague()" style="font-size:12px;padding:8px 14px;">+ Create League</button>
+<div id="mobile-actions" style="display:none; background:var(--surface); border-bottom:1px solid var(--border); padding:8px 16px; gap:8px; justify-content:flex-end;">
+  <button class="btn-secondary" onclick="openJoinLeague()" style="font-size:12px;padding:7px 12px;">Join League</button>
+  <button class="btn-secondary" onclick="openCreateLeague()" style="font-size:12px;padding:7px 12px;">+ Create League</button>
 </div>
 
   <div class="app-shell" style="flex:1;display:flex;justify-content:center;">
