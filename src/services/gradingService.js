@@ -40,7 +40,7 @@ async function fetchScores(sportKey) {
   logger.info(`[GradingService] Fetching scores for ${key}`);
   try {
     const response = await axios.get(`${BASE_URL}/sports/${key}/scores`, {
-      params: { apiKey: API_KEY, daysFrom: 3 },
+      params: { apiKey: API_KEY, daysFrom: 7 },
       timeout: 10_000,
     });
     const completed = response.data.filter(g => g.completed);
