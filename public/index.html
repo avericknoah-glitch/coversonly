@@ -422,11 +422,16 @@
   .settings-nav-item.active { border-bottom-color: var(--accent) !important; background: rgba(0,83,76,0.04); }
   .settings-panel { padding: 20px 16px !important; }
 
+  /* ── SETTINGS TAB NAV ────────────────────────────────────────────────── */
+  .settings-nav { overflow-x: auto; flex-wrap: nowrap !important; }
+  .settings-nav-item { flex: 0 0 auto !important; white-space: nowrap; font-size: 12px !important; padding: 10px 14px !important; }
+
   /* ── SPORT TOGGLES ───────────────────────────────────────────────────── */
-  .sports-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important; }
-  .sport-toggle { padding: 10px 10px !important; gap: 6px !important; }
-  .sport-toggle-name { font-size: 12px !important; }
-  .sport-toggle-icon { font-size: 16px !important; }
+  .sports-grid { grid-template-columns: repeat(3, 1fr) !important; max-width: 100% !important; }
+  .sport-toggle { padding: 8px 8px !important; gap: 6px !important; }
+  .sport-toggle-name { font-size: 11px !important; }
+  .sport-toggle-icon { font-size: 14px !important; }
+  .sport-toggle-check { width: 14px !important; height: 14px !important; }
 
   /* ── PROP CARDS TWO PER ROW ──────────────────────────────────────────── */
   #league-props-drawer div[style*="width:160px"],
