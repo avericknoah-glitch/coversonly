@@ -1832,11 +1832,17 @@ function showPage(id) {
     }
     // Read-only view for non-commissioners
     const isCommish = currentLeague && ['commissioner','co_commissioner'].includes(currentLeague.my_role);
-    document.querySelectorAll('.settings-panel input, .settings-panel select').forEach(el => {
+    document.querySelectorAll('.settings-panel input, .settings-panel select, .settings-panel textarea').forEach(el => {
       el.disabled = !isCommish;
+      el.style.pointerEvents = isCommish ? '' : 'none';
+      el.style.opacity = isCommish ? '' : '0.6';
     });
-    document.querySelectorAll('.settings-panel .btn-primary').forEach(el => {
+    document.querySelectorAll('.settings-panel .btn-primary, .settings-panel .btn-accent2').forEach(el => {
       el.style.display = isCommish ? '' : 'none';
+    });
+    document.querySelectorAll('.settings-panel .sport-toggle, .settings-panel .bet-type-toggle').forEach(el => {
+      el.style.pointerEvents = isCommish ? '' : 'none';
+      el.style.opacity = isCommish ? '' : '0.6';
     });
   }
 }
