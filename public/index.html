@@ -3038,6 +3038,8 @@ function openLeague(id) {
   // If it's a real API league, fetch full detail
   if (myLeagues.find(l => parseInt(l.id) === id)) {
     showLoading('standings-body', 'Loading standings…');
+    showLeagueTab('standings', document.getElementById('lt-tab-standings'));
+    document.getElementById('lt-tab-member').style.display = 'none';
     loadLeagueDetail(id);
   } else {
     // Fallback — render with sample standings
