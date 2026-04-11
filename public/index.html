@@ -1785,6 +1785,9 @@ const LEAGUES_FALLBACK = [];
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGES
 function showPage(id) {
+  if (typeof history !== 'undefined' && history.pushState) {
+    history.pushState({ page: id }, '', window.location.pathname);
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -4323,6 +4326,25 @@ async function submitResetPassword() {
   }
   // Auth screen is visible by default from HTML — nothing to do if not logged in
 })();
+
+window.addEventListener('popstate', function(event) {
+  if (!currentUser) return;
+  const page = event.state?.page;
+  if (!page) {
+    showPage('dashboard');
+    return;
+  }
+  // Handle special pages that need extra context
+  if (page === 'league' && currentLeague) {
+    showPage('league');
+  } else if (page === 'settings' && currentLeague) {
+    showPage('settings');
+  } else if (['dashboard','sportsbook','picks','create'].includes(page)) {
+    showPage(page);
+  } else {
+    showPage('dashboard');
+  }
+});
 </script>
 </body>
 </html>
