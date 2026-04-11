@@ -1223,6 +1223,10 @@ async function loadLeagueDetail(leagueId) {
     if (myPicksEl) myPicksEl.innerHTML = '';
     const availEl = document.getElementById('league-available-picks');
     if (availEl) availEl.innerHTML = '';
+    const memberTabBtn = document.getElementById('lt-tab-member');
+    if (memberTabBtn) memberTabBtn.style.display = 'none';
+    const memberPanel = document.getElementById('lt-member');
+    if (memberPanel) memberPanel.innerHTML = '';
     showPage('league');
   } catch (err) {
     showToast('❌ ' + err.message);
