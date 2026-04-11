@@ -311,7 +311,10 @@
 
   /* ── STANDINGS ───────────────────────────────────────────────────────── */
   .standings-row { grid-template-columns: 32px 1fr 44px 44px 44px 60px; padding: 10px 12px; }
-  .standings-row > div:last-child { display: none; }
+  .standings-row > div:last-child { display: none !important; }
+  .standings-header { display: grid !important; grid-template-columns: 28px 1fr 38px 38px 38px 56px !important; padding: 8px 10px !important; }
+  .standings-header span:nth-child(4) { display: none !important; }
+  .standings-header span { font-size: 10px !important; }
   .standing-rank { font-size: 14px; }
   .standing-num { font-size: 12px; }
   .standing-pct { font-size: 12px; }
@@ -375,23 +378,21 @@
 
   /* ── SPORTSBOOK TABLE → CARD LAYOUT ─────────────────────────────────── */
   .sb-game-row {
-    grid-template-columns: 1fr 80px 80px !important;
+    grid-template-columns: 1fr 80px 80px 32px !important;
     padding: 10px 12px !important;
     font-size: 12px !important;
   }
-  .sb-game-row > div:nth-child(4) { display: none !important; }
-  .sb-game-row > div:nth-child(5) { display: none !important; }
+  .sb-game-row > div:nth-child(3) { display: none !important; }
   .sb-game-row > div:first-child div:first-child { font-size: 13px !important; }
   .sb-game-row > div:first-child div:last-child { font-size: 10px !important; }
 
   /* Hide sportsbook header row on mobile */
   .sb-game-wrapper:first-child > div[style*="grid-template-columns"] { display: none; }
   div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] {
-    grid-template-columns: 1fr 90px 90px !important;
+    grid-template-columns: 1fr 80px 80px 32px !important;
     padding: 8px 12px !important;
   }
-  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] > span:nth-child(4),
-  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] > span:nth-child(5) {
+  div[style*="grid-template-columns:1fr 120px 120px 120px 32px"] > span:nth-child(3) {
     display: none !important;
   }
 
@@ -414,8 +415,6 @@
   #this-week-stats .league-stat-val,
   #all-time-stats .league-stat-val { font-size: 16px !important; }
 
-  /* ── LOGOUT BUTTON ───────────────────────────────────────────────────── */
-  .nav-logout { display: block !important; }
 
 }
 </style>
@@ -500,7 +499,6 @@
         <div class="nav-avatar" id="nav-avatar">?</div>
         <span class="nav-username" id="nav-username">user</span>
       </div>
-      <button class="nav-logout btn-secondary" onclick="doLogout()" style="display:none;font-size:11px;padding:6px 10px;">Log Out</button>
     </div>
   </nav>
 
@@ -840,6 +838,7 @@
         <input type="password" id="acct-confirm-password" placeholder="Confirm new password">
       </div>
       <button class="btn-primary" onclick="saveAccountSettings()" style="width:100%;padding:14px;margin-top:4px;">Save Changes</button>
+      <button onclick="doLogout()" style="width:100%;padding:12px;margin-top:4px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;">Log Out</button>
     </div>
   </div>
 </div>
