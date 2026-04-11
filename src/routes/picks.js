@@ -15,6 +15,57 @@ router.post('/grade', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post('/backfill-scores', requireAuth, async (req, res, next) => {
+  try {
+    const gradingService = require('../services/gradingService');
+
+    // Get all unique event_ids that have graded picks but no final_score in events
+    const { rows: events } = await db.query(`
+      SELECT DISTINCT p.event_id, p.sport
+      FROM picks p
+      LEFT JOIN events e ON e.external_id = p.event_id
+      WHERE p.result IN ('win', 'loss', 'push')
+        AND (e.final_score IS NULL OR e.completed = false)
+        AND e.external_id IS NOT NULL
+    `);
+
+    if (!events.length) return res.json({ message: 'No events to backfill', count: 0 });
+
+    let updated = 0;
+    const SLUG_TO_KEY = {
+      nba:'basketball_nba', mlb:'baseball_mlb', nfl:'americanfootball_nfl',
+      ncaafb:'americanfootball_ncaaf', ncaamb:'basketball_ncaab',
+      basketball_nba:'basketball_nba', baseball_mlb:'baseball_mlb',
+      americanfootball_nfl:'americanfootball_nfl',
+    };
+
+    // Group by sport to minimize API calls
+    const bySport = {};
+    events.forEach(e => {
+      const sport = SLUG_TO_KEY[e.sport] || e.sport;
+      if (!bySport[sport]) bySport[sport] = [];
+      bySport[sport].push(e.event_id);
+    });
+
+    for (const [sport, eventIds] of Object.entries(bySport)) {
+      const scores = await gradingService.fetchScores(sport);
+      for (const score of scores) {
+        if (!eventIds.includes(score.id)) continue;
+        const homeScore = parseFloat(score.scores?.find(s => s.name === score.home_team)?.score);
+        const awayScore = parseFloat(score.scores?.find(s => s.name === score.away_team)?.score);
+        if (isNaN(homeScore) || isNaN(awayScore)) continue;
+        await db.query(`
+          UPDATE events SET final_score = $1, completed = true
+          WHERE external_id = $2
+        `, [JSON.stringify({ home: homeScore, away: awayScore }), score.id]);
+        updated++;
+      }
+    }
+
+    res.json({ message: `Backfilled ${updated} events`, count: updated });
+  } catch (err) { next(err); }
+});
+
 // ── GET /api/picks/grade-debug ────────────────────────────────────────────────
 router.get('/grade-debug', requireAuth, async (req, res, next) => {
   try {
