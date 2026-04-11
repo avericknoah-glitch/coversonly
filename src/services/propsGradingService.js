@@ -297,9 +297,21 @@ async function gradeNBAPropPicks() {
       logger.info(`[PropsGrading] Pick ${pick.id} "${pick.selection}": ${result}`);
       if (result === 'pending') continue;
 
+      const lineData = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : (pick.line_data || {});
+      const statField = MARKET_TO_STAT[lineData.market];
+      const playerName = parsePlayerName(pick.selection);
+      const matchedStats = playerStats.find(s => {
+        const normalizeStr = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\./g, '').toLowerCase();
+        const bdlName = normalizeStr(s.player_name);
+        const pickWords = normalizeStr(playerName).split(' ').filter(w => w.length > 2);
+        return pickWords.every(w => bdlName.includes(w));
+      });
+      const actualStat = (matchedStats && statField) ? matchedStats[statField] : null;
+      const updatedLineData = { ...lineData, graded_stat: actualStat };
+
       await db.query(
-        `UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2`,
-        [result, pick.id]
+        `UPDATE picks SET result = $1, graded_at = NOW(), line_data = $3 WHERE id = $2`,
+        [result, pick.id, JSON.stringify(updatedLineData)]
       );
       totalGraded++;
     }
@@ -498,7 +510,9 @@ async function gradeMLBPropPicks() {
 
       logger.info(`[MLBPropsGrading] Pick ${pick.id} "${pick.selection}": actual=${actualStat} vs ${point} ${dir} → ${result}`);
 
-      await db.query('UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2', [result, pick.id]);
+      const existingLineData = typeof pick.line_data === 'string' ? JSON.parse(pick.line_data) : (pick.line_data || {});
+      const updatedLineData = { ...existingLineData, graded_stat: actualStat };
+      await db.query('UPDATE picks SET result = $1, graded_at = NOW(), line_data = $3 WHERE id = $2', [result, pick.id, JSON.stringify(updatedLineData)]);
       totalGraded++;
     }
   }

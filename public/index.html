@@ -2074,9 +2074,20 @@ async function loadLeagueHistory() {
       var cols = isCommish ? '1fr 140px 60px 110px' : '1fr 140px 60px 70px';
       var fs = p.final_score ? (typeof p.final_score === 'string' ? JSON.parse(p.final_score) : p.final_score) : null;
       var isProps = (p.bet_type || '').startsWith('props');
-      var resultStr = (fs && !isProps)
-        ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?')
-        : '';
+      var ld = p.line_data ? (typeof p.line_data === 'string' ? JSON.parse(p.line_data) : p.line_data) : null;
+      var gradedStat = ld ? ld.graded_stat : null;
+      var market = ld ? (ld.market || '') : '';
+      var STAT_LABELS = {
+        player_points: 'pts', player_rebounds: 'reb', player_assists: 'ast',
+        player_threes: '3pm', player_steals: 'stl', player_blocks: 'blk',
+        player_turnovers: 'to', pitcher_strikeouts: 'K', pitcher_earned_runs: 'ER',
+        pitcher_outs: 'outs', batter_hits: 'H', batter_home_runs: 'HR',
+        batter_rbis: 'RBI', batter_walks: 'BB', batter_total_bases: 'TB',
+      };
+      var statLabel = STAT_LABELS[market] || market;
+      var resultStr = isProps
+        ? (gradedStat !== null && gradedStat !== undefined ? gradedStat + ' ' + statLabel : '')
+        : (fs ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?') : '');
       var row = '<div style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
       row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
       row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div>';
@@ -2864,11 +2875,24 @@ async function renderMyLeaguePicks(leagueId) {
     const timeStr = p.commence_time ? ' · ' + new Date(p.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
     const fs = p.final_score ? (typeof p.final_score === 'string' ? JSON.parse(p.final_score) : p.final_score) : null;
     const isProps = (p.bet_type || '').startsWith('props');
-    const resultLine = (fs && !isProps)
-      ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">
-      ${p.away_team ? p.away_team.split(' ').pop() : '?'} ${fs.away ?? '?'} · ${p.home_team ? p.home_team.split(' ').pop() : '?'} ${fs.home ?? '?'}
-    </div>`
-      : '';
+    const ld = p.line_data ? (typeof p.line_data === 'string' ? JSON.parse(p.line_data) : p.line_data) : null;
+    const gradedStat = ld?.graded_stat;
+    const market = ld?.market || '';
+    const STAT_LABELS = {
+      player_points: 'pts', player_rebounds: 'reb', player_assists: 'ast',
+      player_threes: '3pm', player_steals: 'stl', player_blocks: 'blk',
+      player_turnovers: 'to', pitcher_strikeouts: 'K', pitcher_earned_runs: 'ER',
+      pitcher_outs: 'outs', batter_hits: 'H', batter_home_runs: 'HR',
+      batter_rbis: 'RBI', batter_walks: 'BB', batter_total_bases: 'TB',
+    };
+    const statLabel = STAT_LABELS[market] || market;
+    const resultLine = isProps
+      ? (gradedStat !== null && gradedStat !== undefined
+          ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">${gradedStat} ${statLabel}</div>`
+          : '')
+      : (fs
+          ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;">${p.away_team ? p.away_team.split(' ').pop() : '?'} ${fs.away ?? '?'} · ${p.home_team ? p.home_team.split(' ').pop() : '?'} ${fs.home ?? '?'}</div>`
+          : '');
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:180px;flex:1;max-width:260px;">
       <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;">${p.selection || '—'}</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${gameStr}${timeStr}</div>
