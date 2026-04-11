@@ -415,6 +415,13 @@
   #this-week-stats .league-stat-val,
   #all-time-stats .league-stat-val { font-size: 16px !important; }
 
+  /* ── SETTINGS PAGE ───────────────────────────────────────────────────── */
+  .settings-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .settings-nav { display: flex; flex-wrap: wrap; gap: 0; }
+  .settings-nav-item { flex: 1 0 auto; text-align: center; border-left: none !important; border-bottom: 2px solid transparent !important; padding: 10px 12px; font-size: 12px; }
+  .settings-nav-item.active { border-bottom-color: var(--accent) !important; background: rgba(0,83,76,0.04); }
+  .settings-panel { padding: 20px 16px !important; }
+
   /* ── PROP CARDS TWO PER ROW ──────────────────────────────────────────── */
   #league-props-drawer div[style*="width:160px"],
   #league-props-drawer div[style*="flex:0 0 160px"],
