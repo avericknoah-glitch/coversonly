@@ -1926,6 +1926,31 @@ async function manualGrade(pickId, result, btn) {
         await renderMyLeaguePicks(currentLeague.id);
       }
     }
+
+      // Refresh This Week tab if visible
+      try {
+        var ltPicks = document.getElementById('lt-picks');
+        if (ltPicks && ltPicks.style.display !== 'none') loadThisWeek();
+      } catch(e) {}
+
+      // Refresh My Picks page if visible
+      try {
+        if (document.getElementById('page-picks')?.classList.contains('active')) {
+          loadMyPicks();
+        }
+      } catch(e) {}
+
+      // Refresh member picks panel if visible
+      try {
+        var ltMember = document.getElementById('lt-member');
+        if (ltMember && ltMember.style.display !== 'none') {
+          const memberTabBtn = document.getElementById('lt-tab-member');
+          if (memberTabBtn && memberTabBtn._userId && currentLeague) {
+            loadMemberPicks(memberTabBtn._userId, currentLeague.id, memberTabBtn.textContent, 0, 0, 0, 0, 0);
+          }
+        }
+      } catch(e) {}
+
   } catch(err) {
     showToast('❌ Failed: ' + (err.message || 'unknown'));
     btns.forEach(function(b) { b.disabled = false; });
