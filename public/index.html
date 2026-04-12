@@ -1010,8 +1010,7 @@ function pickStatusBadge(pick, styleType) {
   if      (r === 'win')              { s='WIN';     c='#2ecc71';       bg='rgba(46,204,113,0.12)'; }
   else if (r === 'loss')             { s='LOSS';    c='#e74c3c';       bg='rgba(231,76,60,0.12)';  }
   else if (r === 'push')             { s='PUSH';    c='var(--muted)';  bg='var(--surface2)';       }
-  else if (gameOver)                 { s='PENDING'; c='var(--muted)';  bg='var(--surface2)';       }
-  else if (gt && now >= gt)          { s='LIVE';    c='#f39c12';       bg='rgba(243,156,18,0.12)'; }
+  else if (gt && now >= gt)          { s='PENDING'; c='var(--muted)';  bg='var(--surface2)';       }
   else                               { s='LOCKED';  c='var(--accent)'; bg='rgba(0,83,76,0.1)';    }
   if (styleType === 'class') {
     const cls = r === 'win' ? 'result-win' : r === 'loss' ? 'result-loss' : r === 'push' ? 'result-push' : 'result-pending';
