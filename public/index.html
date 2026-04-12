@@ -715,7 +715,7 @@
               </div>
               <div class="settings-field" style="margin-top:20px;"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="showToast('📧 Invite sent!')">Send Invite</button>
-              <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+              <div id="danger-zone-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:none;">
                 <div style="font-family:var(--font-display);font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#e74c3c;margin-bottom:8px;">Danger Zone</div>
                 <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Permanently delete this league and all picks. This cannot be undone.</div>
                 <button onclick="deleteLeague()" style="background:none;border:2px solid #e74c3c;color:#e74c3c;font-family:var(--font-display);font-size:13px;font-weight:800;padding:10px 24px;border-radius:8px;cursor:pointer;letter-spacing:0.5px;">Delete League</button>
@@ -1856,6 +1856,8 @@ function showPage(id) {
       el.style.pointerEvents = isCommish ? '' : 'none';
       el.style.opacity = isCommish ? '' : '0.6';
     });
+    const dangerZone = document.getElementById('danger-zone-section');
+    if (dangerZone) dangerZone.style.display = isCommish ? 'block' : 'none';
   }
 }
 
