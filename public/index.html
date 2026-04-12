@@ -2509,7 +2509,7 @@ async function loadLeagueProps(gameId, sportSlug, leagueId) {
     };
     const apiSport = sportKeyMap[sportSlug] || sportSlug;
     const propMarkets = {
-      basketball_nba:       'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks',
+      basketball_nba: 'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks,player_points_alternate,player_rebounds_alternate,player_assists_alternate,player_threes_alternate,player_steals_alternate,player_blocks_alternate',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
       baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
@@ -3827,7 +3827,7 @@ async function toggleProps(gameId, sportSlug) {
 
     // Pick prop markets based on sport
     const propMarkets = {
-      basketball_nba:       'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks',
+      basketball_nba: 'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks,player_points_alternate,player_rebounds_alternate,player_assists_alternate,player_threes_alternate,player_steals_alternate,player_blocks_alternate',
       basketball_ncaab:     'player_points,player_rebounds,player_assists',
       baseball_mlb:         'batter_hits,batter_home_runs,batter_rbis,batter_total_bases,batter_walks,batter_strikeouts,pitcher_strikeouts,pitcher_outs,pitcher_earned_runs',
       americanfootball_nfl: 'player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td',
