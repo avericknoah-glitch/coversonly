@@ -1908,13 +1908,23 @@ async function manualGrade(pickId, result, btn) {
     var label = result === 'pending' ? 'reset to PENDING' : ('marked as ' + result.toUpperCase());
     showToast('✅ Pick ' + label);
     btns.forEach(function(b) { b.disabled = false; });
+
+    // Update just the badge in the row without reloading
+    var row = btn.closest('[data-pick-id]');
+    if (row) {
+      var badgeEl = row.querySelector('.pick-status-badge');
+      if (badgeEl) {
+        var fakePick = { result: result, commence_time: null };
+        badgeEl.outerHTML = pickStatusBadge(fakePick);
+      }
+    }
+
+    // Also refresh My League Picks slot cards if visible
     if (currentLeague) {
-      var histTab = document.getElementById('lt-history');
       var picksTab = document.getElementById('lt-picks');
-      var thisWeekTab = document.getElementById('lt-standings');
-      if (histTab && histTab.style.display !== 'none') loadLeagueHistory();
-      else if (picksTab && picksTab.style.display !== 'none') await renderMyLeaguePicks(currentLeague.id);
-      else loadLeagueHistory();
+      if (picksTab && picksTab.style.display !== 'none') {
+        await renderMyLeaguePicks(currentLeague.id);
+      }
     }
   } catch(err) {
     showToast('❌ Failed: ' + (err.message || 'unknown'));
@@ -2126,7 +2136,7 @@ async function loadLeagueHistory() {
       var resultStr = isProps
         ? (gradedStat !== null && gradedStat !== undefined ? gradedStat + ' ' + statLabel : '')
         : (fs ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?') : '');
-      var row = '<div style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
+      var row = '<div data-pick-id="' + p.id + '" style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
       row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
       row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div>';
       row += resultStr ? '<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;">' + resultStr + '</div>' : '';
@@ -2135,7 +2145,7 @@ async function loadLeagueHistory() {
       row += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
       if (isCommish) {
         row += '<div style="display:flex;flex-direction:column;gap:2px;">';
-        row += '<div>' + pickStatusBadge(p) + '</div>';
+        row += '<div><span class="pick-status-badge">' + pickStatusBadge(p) + '</span></div>';
         row += '<div style="display:flex;gap:2px;">';
         row += '<button onclick="manualGrade(' + p.id + ',\'win\',this)" title="Win" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid #2ecc71;background:rgba(46,204,113,0.1);color:#2ecc71;cursor:pointer;">W</button>';
         row += '<button onclick="manualGrade(' + p.id + ',\'loss\',this)" title="Loss" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid #e74c3c;background:rgba(231,76,60,0.1);color:#e74c3c;cursor:pointer;">L</button>';
@@ -2143,7 +2153,7 @@ async function loadLeagueHistory() {
         row += '<button onclick="manualGrade(' + p.id + ',\'pending\',this)" title="Reset" style="font-family:var(--font-display);font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;">↺</button>';
         row += '</div></div>';
       } else {
-        row += '<div>' + pickStatusBadge(p) + '</div>';
+        row += '<div><span class="pick-status-badge">' + pickStatusBadge(p) + '</span></div>';
       }
       row += '</div>';
       return row;
