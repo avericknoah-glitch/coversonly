@@ -1810,6 +1810,14 @@ function showPage(id) {
   if (id === 'sportsbook') loadSportsbook();
   if (id === 'picks') loadMyPicks();
   if (id === 'settings') {
+    // Always reset to General tab when opening settings
+    document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+    const firstNavItem = document.querySelector('.settings-nav-item');
+    if (firstNavItem) firstNavItem.classList.add('active');
+    ['general','sports','commissioner'].forEach(s => {
+      const el = document.getElementById('ss-'+s);
+      if (el) el.style.display = s === 'general' ? 'block' : 'none';
+    });
     renderSportToggles('sports-toggles', false);
     renderBetTypeToggles();
     if (currentLeague) {
@@ -3120,7 +3128,7 @@ function showSettingsSection(id, el) {
   if (currentLeague) {
     // General tab
     const nameEl = document.getElementById('s-name');
-    if (nameEl && !nameEl.dataset.populated) nameEl.value = currentLeague.name || '';
+    if (nameEl) nameEl.value = currentLeague.name || '';
     const maxMembersEl = document.getElementById('s-max-members');
     if (maxMembersEl) maxMembersEl.value = currentLeague.max_members ?? 20;
     const ppwEl = document.getElementById('s-picks-per-week');
