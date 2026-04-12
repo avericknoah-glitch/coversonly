@@ -1313,6 +1313,7 @@ async function bootApp() {
   renderSportToggles('modal-sports', false);
   renderBetTypeToggles();
   showPage('dashboard');
+  window._appReady = true;
 }
 
 function showAuthTab(tab, el) {
@@ -1785,8 +1786,10 @@ const LEAGUES_FALLBACK = [];
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGES
 function showPage(id) {
-  if (typeof history !== 'undefined' && history.pushState) {
-    history.pushState({ page: id }, '', window.location.pathname);
+  if (typeof history !== 'undefined' && history.pushState && window._appReady) {
+    if (history.state?.page !== id) {
+      history.pushState({ page: id }, '', window.location.pathname);
+    }
   }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
