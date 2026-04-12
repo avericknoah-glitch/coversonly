@@ -1445,6 +1445,11 @@ async function loadLeagueDetail(leagueId) {
       currentLeague.pick_type_limits = { any: currentLeague.picks_per_week || 5 };
     }
     currentLeague._standings = data.standings;
+    const commishTabEl = document.getElementById('commissioner-tab');
+    if (commishTabEl) {
+      const isCommish = currentLeague && ['commissioner','co_commissioner'].includes(currentLeague.my_role);
+      commishTabEl.style.display = isCommish ? '' : 'none';
+    }
     renderStandings(data.standings);
     document.getElementById('league-page-name').textContent     = data.league.name;
     document.getElementById('league-page-members').textContent  = data.standings.length;
@@ -3097,6 +3102,14 @@ async function submitLeaguePicks(leagueId) {
 }
 
 function showSettingsSection(id, el) {
+  const isCommish = currentLeague && ['commissioner','co_commissioner'].includes(currentLeague.my_role);
+  const commishTab = document.getElementById('commissioner-tab');
+  if (commishTab) commishTab.style.display = isCommish ? '' : 'none';
+  if (id === 'commissioner' && !isCommish) {
+    id = 'general';
+    document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelector('.settings-nav-item').classList.add('active');
+  }
   document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   ['general','sports','commissioner'].forEach(s => {
