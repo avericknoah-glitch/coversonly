@@ -1919,37 +1919,32 @@ async function manualGrade(pickId, result, btn) {
       }
     }
 
-    // Also refresh My League Picks slot cards if visible
+    // Refresh all data-dependent displays silently
     if (currentLeague) {
-      var picksTab = document.getElementById('lt-picks');
-      if (picksTab && picksTab.style.display !== 'none') {
-        await renderMyLeaguePicks(currentLeague.id);
-      }
-    }
+      try {
+        // Reload full league data so standings and all counters are fresh
+        const leagueData = await api.get('/leagues/' + currentLeague.id);
+        if (leagueData.standings) {
+          currentLeague._standings = leagueData.standings;
+          renderStandings(leagueData.standings);
+        }
+      } catch(e) {}
 
-      // Refresh This Week tab if visible
+      try { await renderMyLeaguePicks(currentLeague.id); } catch(e) {}
+      try { loadDashboardStats(); } catch(e) {}
+      try { updatePickCounter(currentLeague.id); } catch(e) {}
+
       try {
         var ltPicks = document.getElementById('lt-picks');
-        if (ltPicks && ltPicks.style.display !== 'none') loadThisWeek();
+        if (ltPicks && ltPicks.style.display !== 'none') await loadThisWeek();
       } catch(e) {}
 
-      // Refresh My Picks page if visible
       try {
         if (document.getElementById('page-picks')?.classList.contains('active')) {
-          loadMyPicks();
+          await loadMyPicks();
         }
       } catch(e) {}
-
-      // Refresh member picks panel if visible
-      try {
-        var ltMember = document.getElementById('lt-member');
-        if (ltMember && ltMember.style.display !== 'none') {
-          const memberTabBtn = document.getElementById('lt-tab-member');
-          if (memberTabBtn && memberTabBtn._userId && currentLeague) {
-            loadMemberPicks(memberTabBtn._userId, currentLeague.id, memberTabBtn.textContent, 0, 0, 0, 0, 0);
-          }
-        }
-      } catch(e) {}
+    }
 
   } catch(err) {
     showToast('❌ Failed: ' + (err.message || 'unknown'));
