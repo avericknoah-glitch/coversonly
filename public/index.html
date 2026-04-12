@@ -1907,10 +1907,24 @@ async function manualGrade(pickId, result, btn) {
     await api.post('/picks/manual-grade', { pick_id: pickId, result: result });
     var label = result === 'pending' ? 'reset to PENDING' : ('marked as ' + result.toUpperCase());
     showToast('✅ Pick ' + label);
-    // Refresh whichever tab is currently visible
-    var histTab = document.getElementById('lt-history');
-    if (histTab && histTab.style.display !== 'none') loadLeagueHistory();
-    if (currentLeague) renderMyLeaguePicks(currentLeague.id);
+
+    // Find the row containing this pick and update just the status badge in place
+    var row = btn.closest('div[style*="grid-template-columns"]') || btn.closest('.pick-row');
+    if (row) {
+      // Update the result badge in place
+      var badgeContainer = btn.parentElement.previousElementSibling || btn.parentElement;
+      var fakePick = { result: result };
+      var newBadge = pickStatusBadge(fakePick);
+      // Re-enable buttons and update badge without full reload
+      btns.forEach(function(b) { b.disabled = false; });
+      // Update pick card if in My League Picks tab
+      if (currentLeague) {
+        await renderMyLeaguePicks(currentLeague.id);
+      }
+    } else {
+      btns.forEach(function(b) { b.disabled = false; });
+      if (currentLeague) await renderMyLeaguePicks(currentLeague.id);
+    }
   } catch(err) {
     showToast('❌ Failed: ' + (err.message || 'unknown'));
     btns.forEach(function(b) { b.disabled = false; });
@@ -3521,11 +3535,10 @@ async function gradeAndRefreshAll(btn) {
   }
   // Step 2: refresh views (errors here are silent — don't mask grade success)
   try {
-    if (document.getElementById('page-picks')?.classList.contains('active')) {
-      await loadMyPicks();
-    }
     if (currentLeague) {
       await renderMyLeaguePicks(currentLeague.id);
+      var histTab = document.getElementById('lt-history');
+      if (histTab && histTab.style.display !== 'none') loadLeagueHistory();
     }
   } catch(e) { console.warn('Refresh after grade failed:', e); }
   btn.textContent = orig;
