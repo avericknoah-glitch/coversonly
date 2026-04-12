@@ -392,10 +392,21 @@ router.post('/manual-grade', requireAuth, async (req, res, next) => {
       return res.status(403).json({ error: 'Only the league commissioner can manually grade picks' });
     }
 
-    await db.query(
-      'UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2',
-      [result, pick_id]
-    );
+    if (result === 'pending') {
+        // Clear graded_stat from line_data when resetting to pending
+        const { rows: pickData } = await db.query('SELECT line_data FROM picks WHERE id = $1', [pick_id]);
+        const lineData = pickData[0]?.line_data ? (typeof pickData[0].line_data === 'string' ? JSON.parse(pickData[0].line_data) : pickData[0].line_data) : {};
+        delete lineData.graded_stat;
+        await db.query(
+          'UPDATE picks SET result = $1, graded_at = NULL, line_data = $2 WHERE id = $3',
+          [result, JSON.stringify(lineData), pick_id]
+        );
+      } else {
+        await db.query(
+          'UPDATE picks SET result = $1, graded_at = NOW() WHERE id = $2',
+          [result, pick_id]
+        );
+      }
 
     res.json({ ok: true, pick_id, result });
   } catch (err) {
