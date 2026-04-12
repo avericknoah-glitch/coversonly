@@ -1912,10 +1912,11 @@ async function manualGrade(pickId, result, btn) {
     // Update just the badge in the row without reloading
     var row = btn.closest('[data-pick-id]');
     if (row) {
-      var badgeEl = row.querySelector('.pick-status-badge');
-      if (badgeEl) {
-        var fakePick = { result: result, commence_time: null };
-        badgeEl.outerHTML = pickStatusBadge(fakePick);
+      var badgeSpan = row.querySelector('.pick-status-badge');
+      if (badgeSpan) {
+        var commenceTime = row.dataset.commenceTime || null;
+        var fakePick = { result: result, commence_time: commenceTime };
+        badgeSpan.outerHTML = '<span class="pick-status-badge">' + pickStatusBadge(fakePick) + '</span>';
       }
     }
 
@@ -2136,7 +2137,7 @@ async function loadLeagueHistory() {
       var resultStr = isProps
         ? (gradedStat !== null && gradedStat !== undefined ? gradedStat + ' ' + statLabel : '')
         : (fs ? (p.away_team ? p.away_team.split(' ').pop() : '?') + ' ' + (fs.away ?? '?') + ' · ' + (p.home_team ? p.home_team.split(' ').pop() : '?') + ' ' + (fs.home ?? '?') : '');
-      var row = '<div data-pick-id="' + p.id + '" style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
+      var row = '<div data-pick-id="' + p.id + '" data-commence-time="' + (p.commence_time || '') + '" style="display:grid;grid-template-columns:' + cols + ';padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
       row += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
       row += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + game + ' · ' + time + '</div>';
       row += resultStr ? '<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;">' + resultStr + '</div>' : '';
