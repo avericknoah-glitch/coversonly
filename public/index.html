@@ -541,6 +541,10 @@
   <button class="btn-secondary" onclick="openCreateLeague()" style="font-size:12px;padding:7px 12px;">+ Create League</button>
 </div>
 
+<div id="floating-lock-btn" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;width:calc(100% - 48px);max-width:480px;">
+  <button class="btn-primary" style="width:100%;padding:16px;font-size:16px;border-radius:12px;box-shadow:0 8px 32px rgba(0,83,76,0.35);">Lock In Picks ✓</button>
+</div>
+
   <div class="app-shell" style="flex:1;display:flex;justify-content:center;">
     <div style="width:100%;max-width:1200px;">
 
@@ -3046,15 +3050,19 @@ async function renderMyLeaguePicks(leagueId) {
     html += renderSection('all', 'My Picks', ppw, submitted, pending);
   }
 
-  // Lock In button
-  const lockBtn = pending.length > 0 ? `
-    <div style="margin-top:8px;">
-      <button class="btn-primary" onclick="submitLeaguePicks(${leagueId})" style="width:100%;padding:14px;font-size:16px;">
-        Lock In Picks ✓ (${pending.length})
-      </button>
-    </div>` : '';
+  container.innerHTML = (html || '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No picks available.</div>');
 
-  container.innerHTML = (html || '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No picks available.</div>') + lockBtn;
+  // Update floating lock in button
+  const floatingBtn = document.getElementById('floating-lock-btn');
+  if (floatingBtn) {
+    if (pending.length > 0) {
+      floatingBtn.style.display = 'block';
+      floatingBtn.querySelector('button').textContent = `Lock In Picks ✓ (${pending.length})`;
+      floatingBtn.querySelector('button').onclick = () => submitLeaguePicks(leagueId);
+    } else {
+      floatingBtn.style.display = 'none';
+    }
+  }
 
   updatePickCounter(leagueId);
   refreshPropButtonStates(leagueId);
