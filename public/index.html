@@ -649,8 +649,7 @@
           <div class="settings-nav">
             <div class="settings-nav-item active" onclick="showSettingsSection('general',this)">General</div>
             <div class="settings-nav-item" onclick="showSettingsSection('sports',this)">Sports & Bets</div>
-            <div class="settings-nav-item" onclick="showSettingsSection('members',this)">Members</div>
-            <div class="settings-nav-item" onclick="showSettingsSection('invite',this)">Invite</div>
+            <div class="settings-nav-item" id="commissioner-tab" onclick="showSettingsSection('commissioner',this)">Commissioner</div>
           </div>
           <div class="settings-panel">
             <div id="ss-general">
@@ -691,31 +690,31 @@
               </div>
               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="saveLeagueSportsSettings()">Save Changes</button>
             </div>
-            <div id="ss-members" style="display:none">
-              <div class="settings-section-title">Manage Members</div>
-              <div class="settings-section-sub">View and manage membership and permissions</div>
+            <div id="ss-commissioner" style="display:none">
+              <div class="settings-section-title">Members</div>
+              <div class="settings-section-sub">View and manage league membership</div>
               <div class="members-list" id="members-list"></div>
-            </div>
-            <div id="ss-invite" style="display:none">
-              <div class="settings-section-title">Invite Members</div>
-              <div class="settings-section-sub">Share your code or link to invite people</div>
-              <div class="invite-banner">
-                <div>
-                  <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">League Code</div>
-                  <div class="invite-code" id="settings-invite-code">—</div>
+              <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+                <div class="settings-section-title">Invite Members</div>
+                <div class="settings-section-sub" style="margin-top:4px;">Share your code or link to invite people</div>
+                <div class="invite-banner">
+                  <div>
+                    <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">League Code</div>
+                    <div class="invite-code" id="settings-invite-code">—</div>
+                  </div>
+                  <button class="btn-accent2" onclick="copyInviteCode()">Copy Code</button>
                 </div>
-                <button class="btn-accent2" onclick="copyInviteCode()">Copy Code</button>
-              </div>
-              <div style="margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;">
-                <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Shareable Link</div>
-                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                  <div id="settings-invite-link" style="font-size:13px;color:var(--muted);word-break:break-all;flex:1;">—</div>
-                  <button class="btn-accent2" onclick="copyInviteLink()" style="white-space:nowrap;">Copy Link</button>
+                <div style="margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                  <div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Shareable Link</div>
+                  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <div id="settings-invite-link" style="font-size:13px;color:var(--muted);word-break:break-all;flex:1;">—</div>
+                    <button class="btn-accent2" onclick="copyInviteLink()" style="white-space:nowrap;">Copy Link</button>
+                  </div>
                 </div>
+                <div class="settings-field" style="margin-top:20px;"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
+                <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="showToast('📧 Invite sent!')">Send Invite</button>
               </div>
-              <div class="settings-field" style="margin-top:20px;"><label>Invite by Email</label><input type="email" placeholder="friend@example.com"></div>
-              <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="showToast('📧 Invite sent!')">Send Invite</button>
-              <div id="danger-zone-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:none;">
+              <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
                 <div style="font-family:var(--font-display);font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#e74c3c;margin-bottom:8px;">Danger Zone</div>
                 <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Permanently delete this league and all picks. This cannot be undone.</div>
                 <button onclick="deleteLeague()" style="background:none;border:2px solid #e74c3c;color:#e74c3c;font-family:var(--font-display);font-size:13px;font-weight:800;padding:10px 24px;border-radius:8px;cursor:pointer;letter-spacing:0.5px;">Delete League</button>
@@ -1445,6 +1444,7 @@ async function loadLeagueDetail(leagueId) {
     if (!currentLeague.pick_type_limits) {
       currentLeague.pick_type_limits = { any: currentLeague.picks_per_week || 5 };
     }
+    currentLeague._standings = data.standings;
     renderStandings(data.standings);
     document.getElementById('league-page-name').textContent     = data.league.name;
     document.getElementById('league-page-members').textContent  = data.standings.length;
@@ -1856,8 +1856,8 @@ function showPage(id) {
       el.style.pointerEvents = isCommish ? '' : 'none';
       el.style.opacity = isCommish ? '' : '0.6';
     });
-    const dangerZone = document.getElementById('danger-zone-section');
-    if (dangerZone) dangerZone.style.display = isCommish ? 'block' : 'none';
+    const commishTab = document.getElementById('commissioner-tab');
+    if (commishTab) commishTab.style.display = isCommish ? '' : 'none';
   }
 }
 
@@ -3099,10 +3099,10 @@ async function submitLeaguePicks(leagueId) {
 function showSettingsSection(id, el) {
   document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
-  ['general','sports','members','invite'].forEach(s => {
+  ['general','sports','commissioner'].forEach(s => {
     document.getElementById('ss-'+s).style.display = s===id?'block':'none';
   });
-  if (id === 'invite' && currentLeague) loadInviteCode();
+  if (id === 'commissioner' && currentLeague) { loadInviteCode(); renderMembersList(); }
   // Populate ALL settings fields from currentLeague every time settings opens
   if (currentLeague) {
     // General tab
@@ -3916,20 +3916,22 @@ function renderBetTypeToggles() {
 function renderMembersList() {
   const list = document.getElementById('members-list');
   if (!list) return;
-  const members = [
-    {name: currentUser?currentUser.name:'You', role:'commissioner', color:0},
-    {name:'GrindstoneGary', role:'co-commissioner', color:1},
-    {name:'BetKing_Mike', role:'member', color:3},
-    {name:'TheLineMover', role:'member', color:4},
-    {name:'FadeThePub', role:'member', color:5},
-  ];
-  list.innerHTML = members.map(m => {
-    const color = AVATAR_COLORS[m.color % AVATAR_COLORS.length];
-    const roleLbl = m.role==='commissioner'?'⭐ Commissioner':m.role==='co-commissioner'?'Co-Commissioner':'Member';
+  const standings = currentLeague?._standings || [];
+  if (!standings.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:16px 0;">No members found.</div>';
+    return;
+  }
+  list.innerHTML = standings.map((m, i) => {
+    const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    const name = m.username || m.name || 'Member';
+    const role = m.role || m.member_role || 'member';
+    const roleLbl = role === 'commissioner' ? '⭐ Commissioner' : role === 'co_commissioner' ? 'Co-Commissioner' : 'Member';
+    const roleClass = role === 'commissioner' ? 'rolecommissioner' : role === 'co_commissioner' ? 'rolecocommissioner' : 'rolemember';
+    const record = `${m.wins ?? 0}-${m.losses ?? 0}${(m.pushes ?? 0) > 0 ? '-' + m.pushes : ''}`;
     return `<div class="member-item">
-      <div class="member-item-avatar" style="background:${color}22;color:${color}">${m.name.slice(0,2).toUpperCase()}</div>
-      <div class="member-item-name">${m.name}</div>
-      <div class="member-item-role role-${m.role.replace('-','')}">${roleLbl}</div>
+      <div class="member-item-avatar" style="background:${color}22;color:${color}">${name.slice(0,2).toUpperCase()}</div>
+      <div class="member-item-name">${name}<span style="font-size:11px;color:var(--muted);margin-left:8px;">${record}</span></div>
+      <div class="member-item-role role-${roleClass}">${roleLbl}</div>
     </div>`;
   }).join('');
 }
