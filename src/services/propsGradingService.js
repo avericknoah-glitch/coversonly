@@ -498,13 +498,10 @@ async function gradeMLBPropPicks() {
 
       const isPitcherStat = ['p_k', 'er', 'pitching_outs'].includes(statField);
       const didPlay = isPitcherStat
-        ? (stats.ip !== null && stats.ip !== undefined && stats.ip !== '0' && stats.ip !== 0)
-          || (stats.p_k > 0)
-          || (stats.er !== null && stats.er !== undefined)
-        : stats.at_bats > 0;
-
+        ? (stats.pitching_outs > 0 || stats.p_k > 0 || stats.er > 0 || (stats.ip !== null && parseFloat(stats.ip) > 0))
+        : (stats.at_bats + stats.bb) > 0;
       if (!didPlay) {
-        logger.info(`[MLBPropsGrading] Player did not play: "${playerName}" — ip=${stats.ip} p_k=${stats.p_k} er=${stats.er} at_bats=${stats.at_bats}`);
+        logger.info(`[MLBPropsGrading] Player did not play: "${playerName}" — ip=${stats.ip} pitching_outs=${stats.pitching_outs} p_k=${stats.p_k} er=${stats.er} at_bats=${stats.at_bats} bb=${stats.bb}`);
         continue;
       }
 
