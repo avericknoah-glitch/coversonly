@@ -359,6 +359,36 @@ router.post('/join/:inviteCode', requireAuth, async (req, res, next) => {
   }
 });
 
+// ── DELETE /api/leagues/:leagueId ─────────────────────────────────────────────
+// Delete a league entirely (commissioner only)
+router.delete('/:leagueId', requireAuth, requireCommissioner, async (req, res, next) => {
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+    const { leagueId } = req.params;
+
+    // Delete all picks for this league
+    await client.query('DELETE FROM picks WHERE league_id = $1', [leagueId]);
+
+    // Delete all league invites
+    await client.query('DELETE FROM league_invites WHERE league_id = $1', [leagueId]);
+
+    // Delete all league members
+    await client.query('DELETE FROM league_members WHERE league_id = $1', [leagueId]);
+
+    // Delete the league itself
+    await client.query('DELETE FROM leagues WHERE id = $1', [leagueId]);
+
+    await client.query('COMMIT');
+    res.json({ message: 'League deleted successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
 // ── PATCH /api/leagues/:leagueId/members/:userId/role ────────────────────────
 // Promote/demote a member (commissioner only)
 router.patch('/:leagueId/members/:userId/role', requireAuth, requireCommissioner, async (req, res, next) => {
