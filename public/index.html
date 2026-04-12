@@ -1928,6 +1928,17 @@ async function manualGrade(pickId, result, btn) {
           currentLeague._standings = leagueData.standings;
           renderStandings(leagueData.standings);
         }
+        // Update myLeagues cache so all-time record in pick counter is fresh
+        const myLeaguesData = await api.get('/leagues');
+        if (myLeaguesData.leagues) {
+          myLeagues = myLeaguesData.leagues;
+          const updated = myLeagues.find(l => l.id == currentLeague.id);
+          if (updated) {
+            currentLeague.wins = updated.wins;
+            currentLeague.losses = updated.losses;
+            currentLeague.pushes = updated.pushes;
+          }
+        }
       } catch(e) {}
 
       try { await renderMyLeaguePicks(currentLeague.id); } catch(e) {}
