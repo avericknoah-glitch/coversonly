@@ -114,6 +114,7 @@ router.post('/', requireAuth, async (req, res, next) => {
       max_members   = 20,
       pick_deadline  = 'first_game',
       pick_type_limits = null,
+      odds_max         = -120,
     } = req.body;
 
     if (!name) return res.status(400).json({ error: 'League name is required' });
@@ -121,11 +122,11 @@ router.post('/', requireAuth, async (req, res, next) => {
     const { rows } = await client.query(`
       INSERT INTO leagues (
         name, visibility, sports, bet_types, picks_per_week,
-        max_members, pick_deadline, commissioner_id, pick_type_limits
+        max_members, pick_deadline, commissioner_id, pick_type_limits, odds_max
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
-    `, [name, visibility, sports, bet_types, picks_per_week, max_members, pick_deadline, req.user.id, pick_type_limits ? JSON.stringify(pick_type_limits) : null]);
+    `, [name, visibility, sports, bet_types, picks_per_week, max_members, pick_deadline, req.user.id, pick_type_limits ? JSON.stringify(pick_type_limits) : null, odds_max]);
 
     const league = rows[0];
 

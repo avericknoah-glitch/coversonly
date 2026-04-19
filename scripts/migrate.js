@@ -106,6 +106,13 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS idx_league_members_user ON league_members(user_id);
   `);
 
+  await db.query(`
+    ALTER TABLE leagues ADD COLUMN IF NOT EXISTS season_start DATE DEFAULT NULL;
+    ALTER TABLE leagues ADD COLUMN IF NOT EXISTS season_end DATE DEFAULT NULL;
+    ALTER TABLE leagues ADD COLUMN IF NOT EXISTS week_structure TEXT DEFAULT 'monday_sunday';
+    ALTER TABLE leagues ADD COLUMN IF NOT EXISTS odds_max INTEGER DEFAULT -120;
+  `);
+
   logger.info('✅  Migrations complete');
   process.exit(0);
 }
