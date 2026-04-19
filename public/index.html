@@ -3291,7 +3291,7 @@ async function saveLeagueSportsSettings() {
   }
 
   const rawOddsMax = document.getElementById('s-odds-max')?.value;
-  const odds_max = (rawOddsMax !== '' && rawOddsMax !== null && rawOddsMax !== undefined && !isNaN(parseInt(rawOddsMax))) ? parseInt(rawOddsMax) : -500;
+  const odds_max = (rawOddsMax !== '' && rawOddsMax !== null && rawOddsMax !== undefined && !isNaN(parseInt(rawOddsMax))) ? parseInt(rawOddsMax) : -120;
   const picks_per_week = parseInt(document.getElementById('s-picks-per-week')?.value) || 5;
   const max_members    = parseInt(document.getElementById('s-max-members')?.value)    || 20;
   const nameEl         = document.getElementById('s-name');
@@ -4009,6 +4009,7 @@ function renderMembersList() {
 // CREATE LEAGUE MODAL
 function openCreateLeague() {
   setModalStep(1);
+  window._modalPickTypeLimits = null;
   renderSportToggles('modal-sports', false);
   document.getElementById('modal-bet-types').dataset.initialized = '';
   showPage('create');
@@ -4093,7 +4094,7 @@ function renderModalPickLimitsUI() {
 
   const rows = [...activeTypes, 'any'].map(typeId => {
     const label = typeId === 'any' ? 'Any Type (flexible)' : (BET_TYPE_LABELS[typeId] || typeId);
-    const val = typeId === 'any' ? ppw : 0;
+    const val = (window._modalPickTypeLimits && window._modalPickTypeLimits[typeId] !== undefined) ? window._modalPickTypeLimits[typeId] : (typeId === 'any' ? ppw : 0);
     return `<div style="display:flex;align-items:center;gap:12px;">
       <label style="font-family:var(--font-display);font-size:13px;font-weight:700;width:160px;flex-shrink:0;">${label}</label>
       <input type="number" min="0" max="${ppw}" value="${val}"
@@ -4112,6 +4113,11 @@ function updateModalPickLimitsTotal() {
   const inputs = document.querySelectorAll('[data-modal-limit-type]');
   let total = 0;
   inputs.forEach(inp => { total += parseInt(inp.value) || 0; });
+  const collected = {};
+  document.querySelectorAll('[data-modal-limit-type]').forEach(inp => {
+    collected[inp.dataset.modalLimitType] = parseInt(inp.value) || 0;
+  });
+  window._modalPickTypeLimits = collected;
   const totalEl = document.getElementById('modal-pick-limits-total');
   if (!totalEl) return;
   const diff = total - ppw;
