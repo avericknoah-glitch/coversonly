@@ -306,9 +306,9 @@
   .league-header-actions button { flex: 1; font-size: 12px; padding: 8px 10px; }
 
   /* ── STANDINGS ───────────────────────────────────────────────────────── */
-  .standings-row { grid-template-columns: 28px 1fr 36px 36px 36px 52px !important; padding: 8px 10px !important; }
+  .standings-row { grid-template-columns: 28px 1fr 36px 36px 36px 56px !important; padding: 8px 10px !important; }
   .standings-row > div:last-child { display: none !important; }
-  .standings-header { display: grid !important; grid-template-columns: 28px 1fr 36px 36px 36px 52px !important; padding: 8px 10px !important; }
+  .standings-header { display: grid !important; grid-template-columns: 28px 1fr 36px 36px 36px 56px !important; padding: 8px 10px !important; }
   .standings-header span:last-child { display: none !important; }
   .standings-header span { font-size: 10px !important; }
   .standing-rank { font-size: 13px !important; }
@@ -585,7 +585,7 @@
           <button class="tab-btn" id="lt-tab-history" onclick="showLeagueTab('history',this)">History</button>
           <button class="tab-btn" id="lt-tab-member" onclick="showLeagueTab('member',this)" style="display:none">Member Picks</button>
         </div>
-        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
+        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span></div><div id="standings-body"></div></div></div>
         <div id="lt-picks" style="display:none">
           <div id="pick-counter-bar" style="display:none;position:sticky;top:64px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -1686,12 +1686,11 @@ function renderMemberPicks(picks) {
 
     // Week body
     html += '<div id="mp-body-' + weekNum + '" style="display:' + (isOpen ? 'block' : 'none') + ';">';
-    html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
-    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
-    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Type · Odds</span>';
-    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Sport</span>';
-    html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
-    html += '</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 90px 60px;padding:6px 16px;background:var(--surface2);border-top:1px solid var(--border);">';
+      html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Pick</span>';
+      html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Odds</span>';
+      html += '<span style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Result</span>';
+      html += '</div>';
 
     const MP_BET_TYPE_ORDER = ['spread', 'ml', 'ou', 'props', 'other'];
     const MP_BET_TYPE_DISPLAY = { spread: 'Spread', ml: 'Moneyline', ou: 'Over / Under', props: 'Player Props', other: 'Other' };
@@ -1722,16 +1721,17 @@ function renderMemberPicks(picks) {
       bpicks.forEach(function(p) {
         var game = (p.away_team && p.home_team) ? (p.away_team + ' @ ' + p.home_team) : '—';
         var time = p.commence_time ? fmtTime(p.commence_time) : '';
-        html += '<div style="display:grid;grid-template-columns:1fr 140px 60px 70px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
-        html += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
           const awayAbbr = p.away_team ? p.away_team.split(' ').pop() : '';
           const homeAbbr = p.home_team ? p.home_team.split(' ').pop() : '';
           const gameShort = (awayAbbr && homeAbbr) ? awayAbbr + ' @ ' + homeAbbr : game;
-          html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + gameShort + (time ? ' · ' + time : '') + '</div></div>';
-        html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.bet_type || '—').replace(/^props.*/, 'props').toUpperCase() + ' · ' + (p.line || '—') + '</div>';
-        html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (p.sport || '').replace('basketball_','').replace('americanfootball_','').replace('baseball_','').toUpperCase() + '</div>';
-        html += '<div>' + pickStatusBadge(p) + '</div>';
-        html += '</div>';
+          const pickOdds = extractOdds(p);
+          html += '<div style="display:grid;grid-template-columns:1fr 90px 60px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;">';
+          html += '<div><div style="font-family:var(--font-display);font-weight:700;font-size:13px;">' + (p.selection || '—') + '</div>';
+          html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + gameShort + '</div>';
+          html += '<div style="font-size:10px;color:var(--muted);margin-top:1px;">' + (time || '') + '</div></div>';
+          html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">' + (pickOdds || '—') + '</div>';
+          html += '<div>' + pickStatusBadge(p) + '</div>';
+          html += '</div>';
       });
     });
 
