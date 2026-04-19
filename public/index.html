@@ -305,9 +305,9 @@
   .league-header-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; width: 100%; }
   .league-header-actions button { flex: 1; font-size: 12px; padding: 8px 10px; }
 
-  /* ── STANDINGS ───────────────────────────────────────────────────────── */
-  .standings-row { grid-template-columns: 28px 1fr 36px 36px 36px 56px !important; padding: 8px 10px !important; }
-  .standings-row > div:last-child { display: none !important; }
+  /* ── STANDINGS ───────────────────────────────────────────────────────────── */
+  .standings-row { grid-template-columns: 28px 1fr 36px 36px 36px 56px 0px !important; padding: 8px 10px !important; }
+  .standings-row > div:last-child { display: none !important; width: 0 !important; overflow: hidden !important; }
   .standings-header { display: grid !important; grid-template-columns: 28px 1fr 36px 36px 36px 56px !important; padding: 8px 10px !important; }
   .standings-header span:last-child { display: none !important; }
   .standings-header span { font-size: 10px !important; }
@@ -585,7 +585,7 @@
           <button class="tab-btn" id="lt-tab-history" onclick="showLeagueTab('history',this)">History</button>
           <button class="tab-btn" id="lt-tab-member" onclick="showLeagueTab('member',this)" style="display:none">Member Picks</button>
         </div>
-        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span></div><div id="standings-body"></div></div></div>
+        <div id="lt-standings"><div class="standings-table"><div class="standings-header"><span>#</span><span>Member</span><span>W</span><span>L</span><span>P</span><span>Win %</span><span>Streak</span></div><div id="standings-body"></div></div></div>
         <div id="lt-picks" style="display:none">
           <div id="pick-counter-bar" style="display:none;position:sticky;top:64px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
